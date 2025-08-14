@@ -695,11 +695,29 @@ function search2(query) {
 				contentType: "application/json; charset=utf-8",
 				dataType: "json",
 				success: function (data) {
-					console.log("AJAX success, data:", data);
-					setResults(data.map(item => ({
-						video: item[0],
-						frame: item[1]
-					})));
+					let grouped = {};
+					data.forEach(([video, frame]) => {
+						if (!grouped[video]) grouped[video] = [];
+						grouped[video].push(frame);
+					});
+
+					let videos = Object.keys(grouped);
+
+					let result = [];
+					let currentIndex = 0;
+
+					let totalFrames = data.length;
+					while (result.length < totalFrames) {
+						let video = videos[currentIndex];
+						let frames = grouped[video].splice(0, 6);
+
+						frames.forEach(frame => {
+							result.push({ video, frame });
+						});
+
+						currentIndex = (currentIndex + 1) % videos.length;
+					}
+					setResults(result);
 				},
 				error: function (xhr, status, error) {
 					console.log("AJAX error - Status:", status);
@@ -1365,9 +1383,9 @@ function getResultData(videoId, imgId, thumb, frameName, frameNumber, keyframePa
 	resultData.videoUrlPreview = videoUrlPreview;
 	resultData.rowIdx = rowIdx;
 	resultData.colIdx = colIdx;
-    // Lưu thêm thông tin để fetch frame theo endpoint mới
-    resultData.customVideo = videoId;
-    resultData.customFrame = imgId;
+	// Lưu thêm thông tin để fetch frame theo endpoint mới
+	resultData.customVideo = videoId;
+	resultData.customFrame = imgId;
 	return resultData
 }
 
@@ -2847,23 +2865,23 @@ async function checkServices() {
 
 // Fetch frame bằng endpoint mới và gán blob URL cho <img>
 async function fetchFrameAsBlob(imgEl) {
-    try {
-        const videoName = imgEl.getAttribute('data-video');
-        const frameName = imgEl.getAttribute('data-frame');
-        if (!videoName || !frameName) return;
+	try {
+		const videoName = imgEl.getAttribute('data-video');
+		const frameName = imgEl.getAttribute('data-frame');
+		if (!videoName || !frameName) return;
 
-        const response = await fetch(host + '/frame', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ video: videoName, frame: frameName })
-        });
-        if (!response.ok) throw new Error('Frame fetch failed: ' + response.status);
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
-        imgEl.src = url;
-    } catch (err) {
-        console.log('fetchFrameAsBlob error:', err);
-    }
+		const response = await fetch(host + '/frame', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ video: videoName, frame: frameName })
+		});
+		if (!response.ok) throw new Error('Frame fetch failed: ' + response.status);
+		const blob = await response.blob();
+		const url = URL.createObjectURL(blob);
+		imgEl.src = url;
+	} catch (err) {
+		console.log('fetchFrameAsBlob error:', err);
+	}
 }
 
 function setPalette(palette) {
