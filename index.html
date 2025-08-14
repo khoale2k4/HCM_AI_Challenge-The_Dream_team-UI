@@ -1,0 +1,2586 @@
+<!DOCTYPE html>
+<html class="mdl-js">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="task" content="KIS">
+  <meta name="dataset" content="v3c">
+
+  <title>V3C - Episode V - VISIONE Strikes Back</title>
+  <link rel="stylesheet" href="css/jquery-ui.min.css">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css">
+  <link rel="stylesheet" href="css/bootstrap.css">
+  <link rel="stylesheet" href="css/visione.css">
+  <link rel="stylesheet" href="css/queryByExample.css">
+  <link rel="stylesheet" href="css/toggle.css">
+  <script src="js/jquery-3.3.1.min.js"></script>
+  <script src="js/jquery-ui.min.js"></script>
+  <script src="js/fabric.js"></script>
+  <script src="js/js-yaml.min.js"></script>
+  <script src="js/queryByExample.js"></script>
+  <script src="js/visione.js"></script>
+  <script src="js/visioneAVS.js"></script>
+  <script src="js/canvas.js"></script>
+  <script src="js/search_bar_templates.js"></script>
+  <script src="js/WebAudioRecorder/WebAudioRecorder.min.js"></script>
+  <script src="js/WebAudioRecorder/audioRecorder.js"></script>
+  <style>
+    .swal2-popup.swal2-toast {
+      box-sizing: border-box;
+      grid-column: 1/4 !important;
+      grid-row: 1/4 !important;
+      grid-template-columns: min-content auto min-content;
+      padding: 1em;
+      overflow-y: hidden;
+      background: #fff;
+      box-shadow: 0 0 1px rgba(0, 0, 0, .075), 0 1px 2px rgba(0, 0, 0, .075), 1px 2px 4px rgba(0, 0, 0, .075), 1px 3px 8px rgba(0, 0, 0, .075), 2px 4px 16px rgba(0, 0, 0, .075);
+      pointer-events: all
+    }
+
+    .swal2-popup.swal2-toast>* {
+      grid-column: 2
+    }
+
+    .swal2-popup.swal2-toast .swal2-title {
+      margin: .5em 1em;
+      padding: 0;
+      font-size: 1em;
+      text-align: initial
+    }
+
+    .swal2-popup.swal2-toast .swal2-loading {
+      justify-content: center
+    }
+
+    .swal2-popup.swal2-toast .swal2-input {
+      height: 2em;
+      margin: .5em;
+      font-size: 1em
+    }
+
+    .swal2-popup.swal2-toast .swal2-validation-message {
+      font-size: 1em
+    }
+
+    .swal2-popup.swal2-toast .swal2-footer {
+      margin: .5em 0 0;
+      padding: .5em 0 0;
+      font-size: .8em
+    }
+
+    .swal2-popup.swal2-toast .swal2-close {
+      grid-column: 3/3;
+      grid-row: 1/99;
+      align-self: center;
+      width: .8em;
+      height: .8em;
+      margin: 0;
+      font-size: 2em
+    }
+
+    .swal2-popup.swal2-toast .swal2-html-container {
+      margin: .5em 1em;
+      padding: 0;
+      overflow: initial;
+      font-size: 1em;
+      text-align: initial
+    }
+
+    .swal2-popup.swal2-toast .swal2-html-container:empty {
+      padding: 0
+    }
+
+    .swal2-popup.swal2-toast .swal2-loader {
+      grid-column: 1;
+      grid-row: 1/99;
+      align-self: center;
+      width: 2em;
+      height: 2em;
+      margin: .25em
+    }
+
+    .swal2-popup.swal2-toast .swal2-icon {
+      grid-column: 1;
+      grid-row: 1/99;
+      align-self: center;
+      width: 2em;
+      min-width: 2em;
+      height: 2em;
+      margin: 0 .5em 0 0
+    }
+
+    .swal2-popup.swal2-toast .swal2-icon .swal2-icon-content {
+      display: flex;
+      align-items: center;
+      font-size: 1.8em;
+      font-weight: bold
+    }
+
+    .swal2-popup.swal2-toast .swal2-icon.swal2-success .swal2-success-ring {
+      width: 2em;
+      height: 2em
+    }
+
+    .swal2-popup.swal2-toast .swal2-icon.swal2-error [class^=swal2-x-mark-line] {
+      top: .875em;
+      width: 1.375em
+    }
+
+    .swal2-popup.swal2-toast .swal2-icon.swal2-error [class^=swal2-x-mark-line][class$=left] {
+      left: .3125em
+    }
+
+    .swal2-popup.swal2-toast .swal2-icon.swal2-error [class^=swal2-x-mark-line][class$=right] {
+      right: .3125em
+    }
+
+    .swal2-popup.swal2-toast .swal2-actions {
+      justify-content: flex-start;
+      height: auto;
+      margin: 0;
+      margin-top: .5em;
+      padding: 0 .5em
+    }
+
+    .swal2-popup.swal2-toast .swal2-styled {
+      margin: .25em .5em;
+      padding: .4em .6em;
+      font-size: 1em
+    }
+
+    .swal2-popup.swal2-toast .swal2-success {
+      border-color: #a5dc86
+    }
+
+    .swal2-popup.swal2-toast .swal2-success [class^=swal2-success-circular-line] {
+      position: absolute;
+      width: 1.6em;
+      height: 3em;
+      border-radius: 50%
+    }
+
+    .swal2-popup.swal2-toast .swal2-success [class^=swal2-success-circular-line][class$=left] {
+      top: -0.8em;
+      left: -0.5em;
+      transform: rotate(-45deg);
+      transform-origin: 2em 2em;
+      border-radius: 4em 0 0 4em
+    }
+
+    .swal2-popup.swal2-toast .swal2-success [class^=swal2-success-circular-line][class$=right] {
+      top: -0.25em;
+      left: .9375em;
+      transform-origin: 0 1.5em;
+      border-radius: 0 4em 4em 0
+    }
+
+    .swal2-popup.swal2-toast .swal2-success .swal2-success-ring {
+      width: 2em;
+      height: 2em
+    }
+
+    .swal2-popup.swal2-toast .swal2-success .swal2-success-fix {
+      top: 0;
+      left: .4375em;
+      width: .4375em;
+      height: 2.6875em
+    }
+
+    .swal2-popup.swal2-toast .swal2-success [class^=swal2-success-line] {
+      height: .3125em
+    }
+
+    .swal2-popup.swal2-toast .swal2-success [class^=swal2-success-line][class$=tip] {
+      top: 1.125em;
+      left: .1875em;
+      width: .75em
+    }
+
+    .swal2-popup.swal2-toast .swal2-success [class^=swal2-success-line][class$=long] {
+      top: .9375em;
+      right: .1875em;
+      width: 1.375em
+    }
+
+    .swal2-popup.swal2-toast .swal2-success.swal2-icon-show .swal2-success-line-tip {
+      animation: swal2-toast-animate-success-line-tip .75s
+    }
+
+    .swal2-popup.swal2-toast .swal2-success.swal2-icon-show .swal2-success-line-long {
+      animation: swal2-toast-animate-success-line-long .75s
+    }
+
+    .swal2-popup.swal2-toast.swal2-show {
+      animation: swal2-toast-show .5s
+    }
+
+    .swal2-popup.swal2-toast.swal2-hide {
+      animation: swal2-toast-hide .1s forwards
+    }
+
+    div:where(.swal2-container) {
+      display: grid;
+      position: fixed;
+      z-index: 1060;
+      inset: 0;
+      box-sizing: border-box;
+      grid-template-areas: "top-start     top            top-end" "center-start  center         center-end" "bottom-start  bottom-center  bottom-end";
+      grid-template-rows: minmax(min-content, auto) minmax(min-content, auto) minmax(min-content, auto);
+      height: 100%;
+      padding: .625em;
+      overflow-x: hidden;
+      transition: background-color .1s;
+      -webkit-overflow-scrolling: touch
+    }
+
+    div:where(.swal2-container).swal2-backdrop-show,
+    div:where(.swal2-container).swal2-noanimation {
+      background: rgba(0, 0, 0, .4)
+    }
+
+    div:where(.swal2-container).swal2-backdrop-hide {
+      background: rgba(0, 0, 0, 0) !important
+    }
+
+    div:where(.swal2-container).swal2-top-start,
+    div:where(.swal2-container).swal2-center-start,
+    div:where(.swal2-container).swal2-bottom-start {
+      grid-template-columns: minmax(0, 1fr) auto auto
+    }
+
+    div:where(.swal2-container).swal2-top,
+    div:where(.swal2-container).swal2-center,
+    div:where(.swal2-container).swal2-bottom {
+      grid-template-columns: auto minmax(0, 1fr) auto
+    }
+
+    div:where(.swal2-container).swal2-top-end,
+    div:where(.swal2-container).swal2-center-end,
+    div:where(.swal2-container).swal2-bottom-end {
+      grid-template-columns: auto auto minmax(0, 1fr)
+    }
+
+    div:where(.swal2-container).swal2-top-start>.swal2-popup {
+      align-self: start
+    }
+
+    div:where(.swal2-container).swal2-top>.swal2-popup {
+      grid-column: 2;
+      place-self: start center
+    }
+
+    div:where(.swal2-container).swal2-top-end>.swal2-popup,
+    div:where(.swal2-container).swal2-top-right>.swal2-popup {
+      grid-column: 3;
+      place-self: start end
+    }
+
+    div:where(.swal2-container).swal2-center-start>.swal2-popup,
+    div:where(.swal2-container).swal2-center-left>.swal2-popup {
+      grid-row: 2;
+      align-self: center
+    }
+
+    div:where(.swal2-container).swal2-center>.swal2-popup {
+      grid-column: 2;
+      grid-row: 2;
+      place-self: center center
+    }
+
+    div:where(.swal2-container).swal2-center-end>.swal2-popup,
+    div:where(.swal2-container).swal2-center-right>.swal2-popup {
+      grid-column: 3;
+      grid-row: 2;
+      place-self: center end
+    }
+
+    div:where(.swal2-container).swal2-bottom-start>.swal2-popup,
+    div:where(.swal2-container).swal2-bottom-left>.swal2-popup {
+      grid-column: 1;
+      grid-row: 3;
+      align-self: end
+    }
+
+    div:where(.swal2-container).swal2-bottom>.swal2-popup {
+      grid-column: 2;
+      grid-row: 3;
+      place-self: end center
+    }
+
+    div:where(.swal2-container).swal2-bottom-end>.swal2-popup,
+    div:where(.swal2-container).swal2-bottom-right>.swal2-popup {
+      grid-column: 3;
+      grid-row: 3;
+      place-self: end end
+    }
+
+    div:where(.swal2-container).swal2-grow-row>.swal2-popup,
+    div:where(.swal2-container).swal2-grow-fullscreen>.swal2-popup {
+      grid-column: 1/4;
+      width: 100%
+    }
+
+    div:where(.swal2-container).swal2-grow-column>.swal2-popup,
+    div:where(.swal2-container).swal2-grow-fullscreen>.swal2-popup {
+      grid-row: 1/4;
+      align-self: stretch
+    }
+
+    div:where(.swal2-container).swal2-no-transition {
+      transition: none !important
+    }
+
+    div:where(.swal2-container) div:where(.swal2-popup) {
+      display: none;
+      position: relative;
+      box-sizing: border-box;
+      grid-template-columns: minmax(0, 100%);
+      width: 32em;
+      max-width: 100%;
+      padding: 0 0 1.25em;
+      border: none;
+      border-radius: 5px;
+      background: #fff;
+      color: #545454;
+      font-family: inherit;
+      font-size: 1rem
+    }
+
+    div:where(.swal2-container) div:where(.swal2-popup):focus {
+      outline: none
+    }
+
+    div:where(.swal2-container) div:where(.swal2-popup).swal2-loading {
+      overflow-y: hidden
+    }
+
+    div:where(.swal2-container) h2:where(.swal2-title) {
+      position: relative;
+      max-width: 100%;
+      margin: 0;
+      padding: .8em 1em 0;
+      color: inherit;
+      font-size: 1.875em;
+      font-weight: 600;
+      text-align: center;
+      text-transform: none;
+      word-wrap: break-word
+    }
+
+    div:where(.swal2-container) div:where(.swal2-actions) {
+      display: flex;
+      z-index: 1;
+      box-sizing: border-box;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      width: auto;
+      margin: 1.25em auto 0;
+      padding: 0
+    }
+
+    div:where(.swal2-container) div:where(.swal2-actions):not(.swal2-loading) .swal2-styled[disabled] {
+      opacity: .4
+    }
+
+    div:where(.swal2-container) div:where(.swal2-actions):not(.swal2-loading) .swal2-styled:hover {
+      background-image: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1))
+    }
+
+    div:where(.swal2-container) div:where(.swal2-actions):not(.swal2-loading) .swal2-styled:active {
+      background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2))
+    }
+
+    div:where(.swal2-container) div:where(.swal2-loader) {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 2.2em;
+      height: 2.2em;
+      margin: 0 1.875em;
+      animation: swal2-rotate-loading 1.5s linear 0s infinite normal;
+      border-width: .25em;
+      border-style: solid;
+      border-radius: 100%;
+      border-color: #2778c4 rgba(0, 0, 0, 0) #2778c4 rgba(0, 0, 0, 0)
+    }
+
+    div:where(.swal2-container) button:where(.swal2-styled) {
+      margin: .3125em;
+      padding: .625em 1.1em;
+      transition: box-shadow .1s;
+      box-shadow: 0 0 0 3px rgba(0, 0, 0, 0);
+      font-weight: 500
+    }
+
+    div:where(.swal2-container) button:where(.swal2-styled):not([disabled]) {
+      cursor: pointer
+    }
+
+    div:where(.swal2-container) button:where(.swal2-styled).swal2-confirm {
+      border: 0;
+      border-radius: .25em;
+      background: initial;
+      background-color: #7066e0;
+      color: #fff;
+      font-size: 1em
+    }
+
+    div:where(.swal2-container) button:where(.swal2-styled).swal2-confirm:focus {
+      box-shadow: 0 0 0 3px rgba(112, 102, 224, .5)
+    }
+
+    div:where(.swal2-container) button:where(.swal2-styled).swal2-deny {
+      border: 0;
+      border-radius: .25em;
+      background: initial;
+      background-color: #dc3741;
+      color: #fff;
+      font-size: 1em
+    }
+
+    div:where(.swal2-container) button:where(.swal2-styled).swal2-deny:focus {
+      box-shadow: 0 0 0 3px rgba(220, 55, 65, .5)
+    }
+
+    div:where(.swal2-container) button:where(.swal2-styled).swal2-cancel {
+      border: 0;
+      border-radius: .25em;
+      background: initial;
+      background-color: #6e7881;
+      color: #fff;
+      font-size: 1em
+    }
+
+    div:where(.swal2-container) button:where(.swal2-styled).swal2-cancel:focus {
+      box-shadow: 0 0 0 3px rgba(110, 120, 129, .5)
+    }
+
+    div:where(.swal2-container) button:where(.swal2-styled).swal2-default-outline:focus {
+      box-shadow: 0 0 0 3px rgba(100, 150, 200, .5)
+    }
+
+    div:where(.swal2-container) button:where(.swal2-styled):focus {
+      outline: none
+    }
+
+    div:where(.swal2-container) button:where(.swal2-styled)::-moz-focus-inner {
+      border: 0
+    }
+
+    div:where(.swal2-container) div:where(.swal2-footer) {
+      margin: 1em 0 0;
+      padding: 1em 1em 0;
+      border-top: 1px solid #eee;
+      color: inherit;
+      font-size: 1em;
+      text-align: center
+    }
+
+    div:where(.swal2-container) .swal2-timer-progress-bar-container {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      grid-column: auto !important;
+      overflow: hidden;
+      border-bottom-right-radius: 5px;
+      border-bottom-left-radius: 5px
+    }
+
+    div:where(.swal2-container) div:where(.swal2-timer-progress-bar) {
+      width: 100%;
+      height: .25em;
+      background: rgba(0, 0, 0, .2)
+    }
+
+    div:where(.swal2-container) img:where(.swal2-image) {
+      max-width: 100%;
+      margin: 2em auto 1em
+    }
+
+    div:where(.swal2-container) button:where(.swal2-close) {
+      z-index: 2;
+      align-items: center;
+      justify-content: center;
+      width: 1.2em;
+      height: 1.2em;
+      margin-top: 0;
+      margin-right: 0;
+      margin-bottom: -1.2em;
+      padding: 0;
+      overflow: hidden;
+      transition: color .1s, box-shadow .1s;
+      border: none;
+      border-radius: 5px;
+      background: rgba(0, 0, 0, 0);
+      color: #ccc;
+      font-family: monospace;
+      font-size: 2.5em;
+      cursor: pointer;
+      justify-self: end
+    }
+
+    div:where(.swal2-container) button:where(.swal2-close):hover {
+      transform: none;
+      background: rgba(0, 0, 0, 0);
+      color: #f27474
+    }
+
+    div:where(.swal2-container) button:where(.swal2-close):focus {
+      outline: none;
+      box-shadow: inset 0 0 0 3px rgba(100, 150, 200, .5)
+    }
+
+    div:where(.swal2-container) button:where(.swal2-close)::-moz-focus-inner {
+      border: 0
+    }
+
+    div:where(.swal2-container) .swal2-html-container {
+      z-index: 1;
+      justify-content: center;
+      margin: 1em 1.6em .3em;
+      padding: 0;
+      overflow: auto;
+      color: inherit;
+      font-size: 1.125em;
+      font-weight: normal;
+      line-height: normal;
+      text-align: center;
+      word-wrap: break-word;
+      word-break: break-word
+    }
+
+    div:where(.swal2-container) input:where(.swal2-input),
+    div:where(.swal2-container) input:where(.swal2-file),
+    div:where(.swal2-container) textarea:where(.swal2-textarea),
+    div:where(.swal2-container) select:where(.swal2-select),
+    div:where(.swal2-container) div:where(.swal2-radio),
+    div:where(.swal2-container) label:where(.swal2-checkbox) {
+      margin: 1em 2em 3px
+    }
+
+    div:where(.swal2-container) input:where(.swal2-input),
+    div:where(.swal2-container) input:where(.swal2-file),
+    div:where(.swal2-container) textarea:where(.swal2-textarea) {
+      box-sizing: border-box;
+      width: auto;
+      transition: border-color .1s, box-shadow .1s;
+      border: 1px solid #d9d9d9;
+      border-radius: .1875em;
+      background: rgba(0, 0, 0, 0);
+      box-shadow: inset 0 1px 1px rgba(0, 0, 0, .06), 0 0 0 3px rgba(0, 0, 0, 0);
+      color: inherit;
+      font-size: 1.125em
+    }
+
+    div:where(.swal2-container) input:where(.swal2-input).swal2-inputerror,
+    div:where(.swal2-container) input:where(.swal2-file).swal2-inputerror,
+    div:where(.swal2-container) textarea:where(.swal2-textarea).swal2-inputerror {
+      border-color: #f27474 !important;
+      box-shadow: 0 0 2px #f27474 !important
+    }
+
+    div:where(.swal2-container) input:where(.swal2-input):focus,
+    div:where(.swal2-container) input:where(.swal2-file):focus,
+    div:where(.swal2-container) textarea:where(.swal2-textarea):focus {
+      border: 1px solid #b4dbed;
+      outline: none;
+      box-shadow: inset 0 1px 1px rgba(0, 0, 0, .06), 0 0 0 3px rgba(100, 150, 200, .5)
+    }
+
+    div:where(.swal2-container) input:where(.swal2-input)::placeholder,
+    div:where(.swal2-container) input:where(.swal2-file)::placeholder,
+    div:where(.swal2-container) textarea:where(.swal2-textarea)::placeholder {
+      color: #ccc
+    }
+
+    div:where(.swal2-container) .swal2-range {
+      margin: 1em 2em 3px;
+      background: #fff
+    }
+
+    div:where(.swal2-container) .swal2-range input {
+      width: 80%
+    }
+
+    div:where(.swal2-container) .swal2-range output {
+      width: 20%;
+      color: inherit;
+      font-weight: 600;
+      text-align: center
+    }
+
+    div:where(.swal2-container) .swal2-range input,
+    div:where(.swal2-container) .swal2-range output {
+      height: 2.625em;
+      padding: 0;
+      font-size: 1.125em;
+      line-height: 2.625em
+    }
+
+    div:where(.swal2-container) .swal2-input {
+      height: 2.625em;
+      padding: 0 .75em
+    }
+
+    div:where(.swal2-container) .swal2-file {
+      width: 75%;
+      margin-right: auto;
+      margin-left: auto;
+      background: rgba(0, 0, 0, 0);
+      font-size: 1.125em
+    }
+
+    div:where(.swal2-container) .swal2-textarea {
+      height: 6.75em;
+      padding: .75em
+    }
+
+    div:where(.swal2-container) .swal2-select {
+      min-width: 50%;
+      max-width: 100%;
+      padding: .375em .625em;
+      background: rgba(0, 0, 0, 0);
+      color: inherit;
+      font-size: 1.125em
+    }
+
+    div:where(.swal2-container) .swal2-radio,
+    div:where(.swal2-container) .swal2-checkbox {
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      color: inherit
+    }
+
+    div:where(.swal2-container) .swal2-radio label,
+    div:where(.swal2-container) .swal2-checkbox label {
+      margin: 0 .6em;
+      font-size: 1.125em
+    }
+
+    div:where(.swal2-container) .swal2-radio input,
+    div:where(.swal2-container) .swal2-checkbox input {
+      flex-shrink: 0;
+      margin: 0 .4em
+    }
+
+    div:where(.swal2-container) label:where(.swal2-input-label) {
+      display: flex;
+      justify-content: center;
+      margin: 1em auto 0
+    }
+
+    div:where(.swal2-container) div:where(.swal2-validation-message) {
+      align-items: center;
+      justify-content: center;
+      margin: 1em 0 0;
+      padding: .625em;
+      overflow: hidden;
+      background: #f0f0f0;
+      color: #666;
+      font-size: 1em;
+      font-weight: 300
+    }
+
+    div:where(.swal2-container) div:where(.swal2-validation-message)::before {
+      content: "!";
+      display: inline-block;
+      width: 1.5em;
+      min-width: 1.5em;
+      height: 1.5em;
+      margin: 0 .625em;
+      border-radius: 50%;
+      background-color: #f27474;
+      color: #fff;
+      font-weight: 600;
+      line-height: 1.5em;
+      text-align: center
+    }
+
+    div:where(.swal2-container) .swal2-progress-steps {
+      flex-wrap: wrap;
+      align-items: center;
+      max-width: 100%;
+      margin: 1.25em auto;
+      padding: 0;
+      background: rgba(0, 0, 0, 0);
+      font-weight: 600
+    }
+
+    div:where(.swal2-container) .swal2-progress-steps li {
+      display: inline-block;
+      position: relative
+    }
+
+    div:where(.swal2-container) .swal2-progress-steps .swal2-progress-step {
+      z-index: 20;
+      flex-shrink: 0;
+      width: 2em;
+      height: 2em;
+      border-radius: 2em;
+      background: #2778c4;
+      color: #fff;
+      line-height: 2em;
+      text-align: center
+    }
+
+    div:where(.swal2-container) .swal2-progress-steps .swal2-progress-step.swal2-active-progress-step {
+      background: #2778c4
+    }
+
+    div:where(.swal2-container) .swal2-progress-steps .swal2-progress-step.swal2-active-progress-step~.swal2-progress-step {
+      background: #add8e6;
+      color: #fff
+    }
+
+    div:where(.swal2-container) .swal2-progress-steps .swal2-progress-step.swal2-active-progress-step~.swal2-progress-step-line {
+      background: #add8e6
+    }
+
+    div:where(.swal2-container) .swal2-progress-steps .swal2-progress-step-line {
+      z-index: 10;
+      flex-shrink: 0;
+      width: 2.5em;
+      height: .4em;
+      margin: 0 -1px;
+      background: #2778c4
+    }
+
+    div:where(.swal2-icon) {
+      position: relative;
+      box-sizing: content-box;
+      justify-content: center;
+      width: 5em;
+      height: 5em;
+      margin: 2.5em auto .6em;
+      border: 0.25em solid rgba(0, 0, 0, 0);
+      border-radius: 50%;
+      border-color: #000;
+      font-family: inherit;
+      line-height: 5em;
+      cursor: default;
+      user-select: none
+    }
+
+    div:where(.swal2-icon) .swal2-icon-content {
+      display: flex;
+      align-items: center;
+      font-size: 3.75em
+    }
+
+    div:where(.swal2-icon).swal2-error {
+      border-color: #f27474;
+      color: #f27474
+    }
+
+    div:where(.swal2-icon).swal2-error .swal2-x-mark {
+      position: relative;
+      flex-grow: 1
+    }
+
+    div:where(.swal2-icon).swal2-error [class^=swal2-x-mark-line] {
+      display: block;
+      position: absolute;
+      top: 2.3125em;
+      width: 2.9375em;
+      height: .3125em;
+      border-radius: .125em;
+      background-color: #f27474
+    }
+
+    div:where(.swal2-icon).swal2-error [class^=swal2-x-mark-line][class$=left] {
+      left: 1.0625em;
+      transform: rotate(45deg)
+    }
+
+    div:where(.swal2-icon).swal2-error [class^=swal2-x-mark-line][class$=right] {
+      right: 1em;
+      transform: rotate(-45deg)
+    }
+
+    div:where(.swal2-icon).swal2-error.swal2-icon-show {
+      animation: swal2-animate-error-icon .5s
+    }
+
+    div:where(.swal2-icon).swal2-error.swal2-icon-show .swal2-x-mark {
+      animation: swal2-animate-error-x-mark .5s
+    }
+
+    div:where(.swal2-icon).swal2-warning {
+      border-color: #facea8;
+      color: #f8bb86
+    }
+
+    div:where(.swal2-icon).swal2-warning.swal2-icon-show {
+      animation: swal2-animate-error-icon .5s
+    }
+
+    div:where(.swal2-icon).swal2-warning.swal2-icon-show .swal2-icon-content {
+      animation: swal2-animate-i-mark .5s
+    }
+
+    div:where(.swal2-icon).swal2-info {
+      border-color: #9de0f6;
+      color: #3fc3ee
+    }
+
+    div:where(.swal2-icon).swal2-info.swal2-icon-show {
+      animation: swal2-animate-error-icon .5s
+    }
+
+    div:where(.swal2-icon).swal2-info.swal2-icon-show .swal2-icon-content {
+      animation: swal2-animate-i-mark .8s
+    }
+
+    div:where(.swal2-icon).swal2-question {
+      border-color: #c9dae1;
+      color: #87adbd
+    }
+
+    div:where(.swal2-icon).swal2-question.swal2-icon-show {
+      animation: swal2-animate-error-icon .5s
+    }
+
+    div:where(.swal2-icon).swal2-question.swal2-icon-show .swal2-icon-content {
+      animation: swal2-animate-question-mark .8s
+    }
+
+    div:where(.swal2-icon).swal2-success {
+      border-color: #a5dc86;
+      color: #a5dc86
+    }
+
+    div:where(.swal2-icon).swal2-success [class^=swal2-success-circular-line] {
+      position: absolute;
+      width: 3.75em;
+      height: 7.5em;
+      border-radius: 50%
+    }
+
+    div:where(.swal2-icon).swal2-success [class^=swal2-success-circular-line][class$=left] {
+      top: -0.4375em;
+      left: -2.0635em;
+      transform: rotate(-45deg);
+      transform-origin: 3.75em 3.75em;
+      border-radius: 7.5em 0 0 7.5em
+    }
+
+    div:where(.swal2-icon).swal2-success [class^=swal2-success-circular-line][class$=right] {
+      top: -0.6875em;
+      left: 1.875em;
+      transform: rotate(-45deg);
+      transform-origin: 0 3.75em;
+      border-radius: 0 7.5em 7.5em 0
+    }
+
+    div:where(.swal2-icon).swal2-success .swal2-success-ring {
+      position: absolute;
+      z-index: 2;
+      top: -0.25em;
+      left: -0.25em;
+      box-sizing: content-box;
+      width: 100%;
+      height: 100%;
+      border: .25em solid rgba(165, 220, 134, .3);
+      border-radius: 50%
+    }
+
+    div:where(.swal2-icon).swal2-success .swal2-success-fix {
+      position: absolute;
+      z-index: 1;
+      top: .5em;
+      left: 1.625em;
+      width: .4375em;
+      height: 5.625em;
+      transform: rotate(-45deg)
+    }
+
+    div:where(.swal2-icon).swal2-success [class^=swal2-success-line] {
+      display: block;
+      position: absolute;
+      z-index: 2;
+      height: .3125em;
+      border-radius: .125em;
+      background-color: #a5dc86
+    }
+
+    div:where(.swal2-icon).swal2-success [class^=swal2-success-line][class$=tip] {
+      top: 2.875em;
+      left: .8125em;
+      width: 1.5625em;
+      transform: rotate(45deg)
+    }
+
+    div:where(.swal2-icon).swal2-success [class^=swal2-success-line][class$=long] {
+      top: 2.375em;
+      right: .5em;
+      width: 2.9375em;
+      transform: rotate(-45deg)
+    }
+
+    div:where(.swal2-icon).swal2-success.swal2-icon-show .swal2-success-line-tip {
+      animation: swal2-animate-success-line-tip .75s
+    }
+
+    div:where(.swal2-icon).swal2-success.swal2-icon-show .swal2-success-line-long {
+      animation: swal2-animate-success-line-long .75s
+    }
+
+    div:where(.swal2-icon).swal2-success.swal2-icon-show .swal2-success-circular-line-right {
+      animation: swal2-rotate-success-circular-line 4.25s ease-in
+    }
+
+    [class^=swal2] {
+      -webkit-tap-highlight-color: rgba(0, 0, 0, 0)
+    }
+
+    .swal2-show {
+      animation: swal2-show .3s
+    }
+
+    .swal2-hide {
+      animation: swal2-hide .15s forwards
+    }
+
+    .swal2-noanimation {
+      transition: none
+    }
+
+    .swal2-scrollbar-measure {
+      position: absolute;
+      top: -9999px;
+      width: 50px;
+      height: 50px;
+      overflow: scroll
+    }
+
+    .swal2-rtl .swal2-close {
+      margin-right: initial;
+      margin-left: 0
+    }
+
+    .swal2-rtl .swal2-timer-progress-bar {
+      right: 0;
+      left: auto
+    }
+
+    @keyframes swal2-toast-show {
+      0% {
+        transform: translateY(-0.625em) rotateZ(2deg)
+      }
+
+      33% {
+        transform: translateY(0) rotateZ(-2deg)
+      }
+
+      66% {
+        transform: translateY(0.3125em) rotateZ(2deg)
+      }
+
+      100% {
+        transform: translateY(0) rotateZ(0deg)
+      }
+    }
+
+    @keyframes swal2-toast-hide {
+      100% {
+        transform: rotateZ(1deg);
+        opacity: 0
+      }
+    }
+
+    @keyframes swal2-toast-animate-success-line-tip {
+      0% {
+        top: .5625em;
+        left: .0625em;
+        width: 0
+      }
+
+      54% {
+        top: .125em;
+        left: .125em;
+        width: 0
+      }
+
+      70% {
+        top: .625em;
+        left: -0.25em;
+        width: 1.625em
+      }
+
+      84% {
+        top: 1.0625em;
+        left: .75em;
+        width: .5em
+      }
+
+      100% {
+        top: 1.125em;
+        left: .1875em;
+        width: .75em
+      }
+    }
+
+    @keyframes swal2-toast-animate-success-line-long {
+      0% {
+        top: 1.625em;
+        right: 1.375em;
+        width: 0
+      }
+
+      65% {
+        top: 1.25em;
+        right: .9375em;
+        width: 0
+      }
+
+      84% {
+        top: .9375em;
+        right: 0;
+        width: 1.125em
+      }
+
+      100% {
+        top: .9375em;
+        right: .1875em;
+        width: 1.375em
+      }
+    }
+
+    @keyframes swal2-show {
+      0% {
+        transform: scale(0.7)
+      }
+
+      45% {
+        transform: scale(1.05)
+      }
+
+      80% {
+        transform: scale(0.95)
+      }
+
+      100% {
+        transform: scale(1)
+      }
+    }
+
+    @keyframes swal2-hide {
+      0% {
+        transform: scale(1);
+        opacity: 1
+      }
+
+      100% {
+        transform: scale(0.5);
+        opacity: 0
+      }
+    }
+
+    @keyframes swal2-animate-success-line-tip {
+      0% {
+        top: 1.1875em;
+        left: .0625em;
+        width: 0
+      }
+
+      54% {
+        top: 1.0625em;
+        left: .125em;
+        width: 0
+      }
+
+      70% {
+        top: 2.1875em;
+        left: -0.375em;
+        width: 3.125em
+      }
+
+      84% {
+        top: 3em;
+        left: 1.3125em;
+        width: 1.0625em
+      }
+
+      100% {
+        top: 2.8125em;
+        left: .8125em;
+        width: 1.5625em
+      }
+    }
+
+    @keyframes swal2-animate-success-line-long {
+      0% {
+        top: 3.375em;
+        right: 2.875em;
+        width: 0
+      }
+
+      65% {
+        top: 3.375em;
+        right: 2.875em;
+        width: 0
+      }
+
+      84% {
+        top: 2.1875em;
+        right: 0;
+        width: 3.4375em
+      }
+
+      100% {
+        top: 2.375em;
+        right: .5em;
+        width: 2.9375em
+      }
+    }
+
+    @keyframes swal2-rotate-success-circular-line {
+      0% {
+        transform: rotate(-45deg)
+      }
+
+      5% {
+        transform: rotate(-45deg)
+      }
+
+      12% {
+        transform: rotate(-405deg)
+      }
+
+      100% {
+        transform: rotate(-405deg)
+      }
+    }
+
+    @keyframes swal2-animate-error-x-mark {
+      0% {
+        margin-top: 1.625em;
+        transform: scale(0.4);
+        opacity: 0
+      }
+
+      50% {
+        margin-top: 1.625em;
+        transform: scale(0.4);
+        opacity: 0
+      }
+
+      80% {
+        margin-top: -0.375em;
+        transform: scale(1.15)
+      }
+
+      100% {
+        margin-top: 0;
+        transform: scale(1);
+        opacity: 1
+      }
+    }
+
+    @keyframes swal2-animate-error-icon {
+      0% {
+        transform: rotateX(100deg);
+        opacity: 0
+      }
+
+      100% {
+        transform: rotateX(0deg);
+        opacity: 1
+      }
+    }
+
+    @keyframes swal2-rotate-loading {
+      0% {
+        transform: rotate(0deg)
+      }
+
+      100% {
+        transform: rotate(360deg)
+      }
+    }
+
+    @keyframes swal2-animate-question-mark {
+      0% {
+        transform: rotateY(-360deg)
+      }
+
+      100% {
+        transform: rotateY(0)
+      }
+    }
+
+    @keyframes swal2-animate-i-mark {
+      0% {
+        transform: rotateZ(45deg);
+        opacity: 0
+      }
+
+      25% {
+        transform: rotateZ(-25deg);
+        opacity: .4
+      }
+
+      50% {
+        transform: rotateZ(15deg);
+        opacity: .8
+      }
+
+      75% {
+        transform: rotateZ(-5deg);
+        opacity: 1
+      }
+
+      100% {
+        transform: rotateX(0);
+        opacity: 1
+      }
+    }
+
+    body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) {
+      overflow: hidden
+    }
+
+    body.swal2-height-auto {
+      height: auto !important
+    }
+
+    body.swal2-no-backdrop .swal2-container {
+      background-color: rgba(0, 0, 0, 0) !important;
+      pointer-events: none
+    }
+
+    body.swal2-no-backdrop .swal2-container .swal2-popup {
+      pointer-events: all
+    }
+
+    body.swal2-no-backdrop .swal2-container .swal2-modal {
+      box-shadow: 0 0 10px rgba(0, 0, 0, .4)
+    }
+
+    @media print {
+      body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) {
+        overflow-y: scroll !important
+      }
+
+      body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown)>[aria-hidden=true] {
+        display: none
+      }
+
+      body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) .swal2-container {
+        position: static !important
+      }
+    }
+
+    body.swal2-toast-shown .swal2-container {
+      box-sizing: border-box;
+      width: 360px;
+      max-width: 100%;
+      background-color: rgba(0, 0, 0, 0);
+      pointer-events: none
+    }
+
+    body.swal2-toast-shown .swal2-container.swal2-top {
+      inset: 0 auto auto 50%;
+      transform: translateX(-50%)
+    }
+
+    body.swal2-toast-shown .swal2-container.swal2-top-end,
+    body.swal2-toast-shown .swal2-container.swal2-top-right {
+      inset: 0 0 auto auto
+    }
+
+    body.swal2-toast-shown .swal2-container.swal2-top-start,
+    body.swal2-toast-shown .swal2-container.swal2-top-left {
+      inset: 0 auto auto 0
+    }
+
+    body.swal2-toast-shown .swal2-container.swal2-center-start,
+    body.swal2-toast-shown .swal2-container.swal2-center-left {
+      inset: 50% auto auto 0;
+      transform: translateY(-50%)
+    }
+
+    body.swal2-toast-shown .swal2-container.swal2-center {
+      inset: 50% auto auto 50%;
+      transform: translate(-50%, -50%)
+    }
+
+    body.swal2-toast-shown .swal2-container.swal2-center-end,
+    body.swal2-toast-shown .swal2-container.swal2-center-right {
+      inset: 50% 0 auto auto;
+      transform: translateY(-50%)
+    }
+
+    body.swal2-toast-shown .swal2-container.swal2-bottom-start,
+    body.swal2-toast-shown .swal2-container.swal2-bottom-left {
+      inset: auto auto 0 0
+    }
+
+    body.swal2-toast-shown .swal2-container.swal2-bottom {
+      inset: auto auto 0 50%;
+      transform: translateX(-50%)
+    }
+
+    body.swal2-toast-shown .swal2-container.swal2-bottom-end,
+    body.swal2-toast-shown .swal2-container.swal2-bottom-right {
+      inset: auto 0 0 auto
+    }
+  </style>
+  <style type="text/css">
+    .__react_component_tooltip {
+      border-radius: 3px;
+      display: inline-block;
+      font-size: 13px;
+      left: -999em;
+      opacity: 0;
+      padding: 8px 21px;
+      position: fixed;
+      pointer-events: none;
+      transition: opacity 0.3s ease-out;
+      top: -999em;
+      visibility: hidden;
+      z-index: 999;
+    }
+
+    .__react_component_tooltip.allow_hover,
+    .__react_component_tooltip.allow_click {
+      pointer-events: auto;
+    }
+
+    .__react_component_tooltip:before,
+    .__react_component_tooltip:after {
+      content: "";
+      width: 0;
+      height: 0;
+      position: absolute;
+    }
+
+    .__react_component_tooltip.show {
+      opacity: 0.9;
+      margin-top: 0px;
+      margin-left: 0px;
+      visibility: visible;
+    }
+
+    .__react_component_tooltip.type-dark {
+      color: #fff;
+      background-color: #222;
+    }
+
+    .__react_component_tooltip.type-dark.place-top:after {
+      border-top-color: #222;
+      border-top-style: solid;
+      border-top-width: 6px;
+    }
+
+    .__react_component_tooltip.type-dark.place-bottom:after {
+      border-bottom-color: #222;
+      border-bottom-style: solid;
+      border-bottom-width: 6px;
+    }
+
+    .__react_component_tooltip.type-dark.place-left:after {
+      border-left-color: #222;
+      border-left-style: solid;
+      border-left-width: 6px;
+    }
+
+    .__react_component_tooltip.type-dark.place-right:after {
+      border-right-color: #222;
+      border-right-style: solid;
+      border-right-width: 6px;
+    }
+
+    .__react_component_tooltip.type-dark.border {
+      border: 1px solid #fff;
+    }
+
+    .__react_component_tooltip.type-dark.border.place-top:before {
+      border-top: 8px solid #fff;
+    }
+
+    .__react_component_tooltip.type-dark.border.place-bottom:before {
+      border-bottom: 8px solid #fff;
+    }
+
+    .__react_component_tooltip.type-dark.border.place-left:before {
+      border-left: 8px solid #fff;
+    }
+
+    .__react_component_tooltip.type-dark.border.place-right:before {
+      border-right: 8px solid #fff;
+    }
+
+    .__react_component_tooltip.type-success {
+      color: #fff;
+      background-color: #8DC572;
+    }
+
+    .__react_component_tooltip.type-success.place-top:after {
+      border-top-color: #8DC572;
+      border-top-style: solid;
+      border-top-width: 6px;
+    }
+
+    .__react_component_tooltip.type-success.place-bottom:after {
+      border-bottom-color: #8DC572;
+      border-bottom-style: solid;
+      border-bottom-width: 6px;
+    }
+
+    .__react_component_tooltip.type-success.place-left:after {
+      border-left-color: #8DC572;
+      border-left-style: solid;
+      border-left-width: 6px;
+    }
+
+    .__react_component_tooltip.type-success.place-right:after {
+      border-right-color: #8DC572;
+      border-right-style: solid;
+      border-right-width: 6px;
+    }
+
+    .__react_component_tooltip.type-success.border {
+      border: 1px solid #fff;
+    }
+
+    .__react_component_tooltip.type-success.border.place-top:before {
+      border-top: 8px solid #fff;
+    }
+
+    .__react_component_tooltip.type-success.border.place-bottom:before {
+      border-bottom: 8px solid #fff;
+    }
+
+    .__react_component_tooltip.type-success.border.place-left:before {
+      border-left: 8px solid #fff;
+    }
+
+    .__react_component_tooltip.type-success.border.place-right:before {
+      border-right: 8px solid #fff;
+    }
+
+    .__react_component_tooltip.type-warning {
+      color: #fff;
+      background-color: #F0AD4E;
+    }
+
+    .__react_component_tooltip.type-warning.place-top:after {
+      border-top-color: #F0AD4E;
+      border-top-style: solid;
+      border-top-width: 6px;
+    }
+
+    .__react_component_tooltip.type-warning.place-bottom:after {
+      border-bottom-color: #F0AD4E;
+      border-bottom-style: solid;
+      border-bottom-width: 6px;
+    }
+
+    .__react_component_tooltip.type-warning.place-left:after {
+      border-left-color: #F0AD4E;
+      border-left-style: solid;
+      border-left-width: 6px;
+    }
+
+    .__react_component_tooltip.type-warning.place-right:after {
+      border-right-color: #F0AD4E;
+      border-right-style: solid;
+      border-right-width: 6px;
+    }
+
+    .__react_component_tooltip.type-warning.border {
+      border: 1px solid #fff;
+    }
+
+    .__react_component_tooltip.type-warning.border.place-top:before {
+      border-top: 8px solid #fff;
+    }
+
+    .__react_component_tooltip.type-warning.border.place-bottom:before {
+      border-bottom: 8px solid #fff;
+    }
+
+    .__react_component_tooltip.type-warning.border.place-left:before {
+      border-left: 8px solid #fff;
+    }
+
+    .__react_component_tooltip.type-warning.border.place-right:before {
+      border-right: 8px solid #fff;
+    }
+
+    .__react_component_tooltip.type-error {
+      color: #fff;
+      background-color: #BE6464;
+    }
+
+    .__react_component_tooltip.type-error.place-top:after {
+      border-top-color: #BE6464;
+      border-top-style: solid;
+      border-top-width: 6px;
+    }
+
+    .__react_component_tooltip.type-error.place-bottom:after {
+      border-bottom-color: #BE6464;
+      border-bottom-style: solid;
+      border-bottom-width: 6px;
+    }
+
+    .__react_component_tooltip.type-error.place-left:after {
+      border-left-color: #BE6464;
+      border-left-style: solid;
+      border-left-width: 6px;
+    }
+
+    .__react_component_tooltip.type-error.place-right:after {
+      border-right-color: #BE6464;
+      border-right-style: solid;
+      border-right-width: 6px;
+    }
+
+    .__react_component_tooltip.type-error.border {
+      border: 1px solid #fff;
+    }
+
+    .__react_component_tooltip.type-error.border.place-top:before {
+      border-top: 8px solid #fff;
+    }
+
+    .__react_component_tooltip.type-error.border.place-bottom:before {
+      border-bottom: 8px solid #fff;
+    }
+
+    .__react_component_tooltip.type-error.border.place-left:before {
+      border-left: 8px solid #fff;
+    }
+
+    .__react_component_tooltip.type-error.border.place-right:before {
+      border-right: 8px solid #fff;
+    }
+
+    .__react_component_tooltip.type-info {
+      color: #fff;
+      background-color: #337AB7;
+    }
+
+    .__react_component_tooltip.type-info.place-top:after {
+      border-top-color: #337AB7;
+      border-top-style: solid;
+      border-top-width: 6px;
+    }
+
+    .__react_component_tooltip.type-info.place-bottom:after {
+      border-bottom-color: #337AB7;
+      border-bottom-style: solid;
+      border-bottom-width: 6px;
+    }
+
+    .__react_component_tooltip.type-info.place-left:after {
+      border-left-color: #337AB7;
+      border-left-style: solid;
+      border-left-width: 6px;
+    }
+
+    .__react_component_tooltip.type-info.place-right:after {
+      border-right-color: #337AB7;
+      border-right-style: solid;
+      border-right-width: 6px;
+    }
+
+    .__react_component_tooltip.type-info.border {
+      border: 1px solid #fff;
+    }
+
+    .__react_component_tooltip.type-info.border.place-top:before {
+      border-top: 8px solid #fff;
+    }
+
+    .__react_component_tooltip.type-info.border.place-bottom:before {
+      border-bottom: 8px solid #fff;
+    }
+
+    .__react_component_tooltip.type-info.border.place-left:before {
+      border-left: 8px solid #fff;
+    }
+
+    .__react_component_tooltip.type-info.border.place-right:before {
+      border-right: 8px solid #fff;
+    }
+
+    .__react_component_tooltip.type-light {
+      color: #222;
+      background-color: #fff;
+    }
+
+    .__react_component_tooltip.type-light.place-top:after {
+      border-top-color: #fff;
+      border-top-style: solid;
+      border-top-width: 6px;
+    }
+
+    .__react_component_tooltip.type-light.place-bottom:after {
+      border-bottom-color: #fff;
+      border-bottom-style: solid;
+      border-bottom-width: 6px;
+    }
+
+    .__react_component_tooltip.type-light.place-left:after {
+      border-left-color: #fff;
+      border-left-style: solid;
+      border-left-width: 6px;
+    }
+
+    .__react_component_tooltip.type-light.place-right:after {
+      border-right-color: #fff;
+      border-right-style: solid;
+      border-right-width: 6px;
+    }
+
+    .__react_component_tooltip.type-light.border {
+      border: 1px solid #222;
+    }
+
+    .__react_component_tooltip.type-light.border.place-top:before {
+      border-top: 8px solid #222;
+    }
+
+    .__react_component_tooltip.type-light.border.place-bottom:before {
+      border-bottom: 8px solid #222;
+    }
+
+    .__react_component_tooltip.type-light.border.place-left:before {
+      border-left: 8px solid #222;
+    }
+
+    .__react_component_tooltip.type-light.border.place-right:before {
+      border-right: 8px solid #222;
+    }
+
+    .__react_component_tooltip.place-top {
+      margin-top: -10px;
+    }
+
+    .__react_component_tooltip.place-top:before {
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      bottom: -8px;
+      left: 50%;
+      margin-left: -10px;
+    }
+
+    .__react_component_tooltip.place-top:after {
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      bottom: -6px;
+      left: 50%;
+      margin-left: -8px;
+    }
+
+    .__react_component_tooltip.place-bottom {
+      margin-top: 10px;
+    }
+
+    .__react_component_tooltip.place-bottom:before {
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      top: -8px;
+      left: 50%;
+      margin-left: -10px;
+    }
+
+    .__react_component_tooltip.place-bottom:after {
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      top: -6px;
+      left: 50%;
+      margin-left: -8px;
+    }
+
+    .__react_component_tooltip.place-left {
+      margin-left: -10px;
+    }
+
+    .__react_component_tooltip.place-left:before {
+      border-top: 6px solid transparent;
+      border-bottom: 6px solid transparent;
+      right: -8px;
+      top: 50%;
+      margin-top: -5px;
+    }
+
+    .__react_component_tooltip.place-left:after {
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      right: -6px;
+      top: 50%;
+      margin-top: -4px;
+    }
+
+    .__react_component_tooltip.place-right {
+      margin-left: 10px;
+    }
+
+    .__react_component_tooltip.place-right:before {
+      border-top: 6px solid transparent;
+      border-bottom: 6px solid transparent;
+      left: -8px;
+      top: 50%;
+      margin-top: -5px;
+    }
+
+    .__react_component_tooltip.place-right:after {
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      left: -6px;
+      top: 50%;
+      margin-top: -4px;
+    }
+
+    .__react_component_tooltip .multi-line {
+      display: block;
+      padding: 2px 0px;
+      text-align: center;
+    }
+  </style>
+  <style>
+    .ejoy-sub-active {
+      color: #1296ba !important;
+    }
+
+    .ejoy-sub-hovered {
+      color: #1296ba !important;
+    }
+
+    .ejoy-sub-clzz {
+      cursor: pointer;
+
+      lineHeight: 1.2;
+      font-size: 28px;
+      color: #FFCC00;
+      background: rgba(17, 17, 17, 0.7);
+
+    }
+
+    .ejoy-sub-clzz:hover {
+      color: #1296ba !important;
+    }
+
+    .ej-trans-sub {
+      position: absolute;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999999;
+      cursor: move;
+    }
+
+    .ej-trans-sub>span {
+      color: #3CF9ED;
+      font-size: 18px;
+      text-align: center;
+      padding: 0 16px;
+      line-height: 1.5;
+      background: rgba(32, 26, 25, 0.8);
+      /* // text-shadow: 0px 1px 4px black; */
+      padding: 0 8px;
+
+      /* lineHeight: 1.2; */
+      /* font-size: 16px; */
+      color: #0CB1C7;
+      background: rgba(67, 65, 65, 0.7);
+
+    }
+
+    .ej-full-screen-video {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      top: 30px;
+      right: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 99999999;
+      cursor: pointer;
+    }
+
+    .ej-main-sub {
+      position: absolute;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 99999999;
+      cursor: move;
+      padding: 0 8px;
+    }
+
+    .ej-main-sub>span {
+      color: white;
+      font-size: 20px;
+      line-height: 1.5;
+      text-align: center;
+      background: rgba(32, 26, 25, 0.8);
+      padding: 2px 8px;
+
+      lineHeight: 1.2;
+      font-size: 28px;
+      color: #FFCC00;
+      background: rgba(17, 17, 17, 0.7);
+
+    }
+
+    .ej-main-sub .ejoy-sub-clzz {
+      background: transparent !important
+    }
+
+    .tran-subtitle>span {
+      cursor: pointer;
+      padding-left: 10px;
+      top: 2px;
+      position: relative;
+    }
+
+    .tran-subtitle>span>span {
+      position: absolute;
+      top: -170%;
+      background: rgba(0, 0, 0, 0.5);
+      font-size: 13px;
+      line-height: 20px;
+      padding: 2px 8px;
+      color: white;
+      display: none;
+      border-radius: 4px;
+      white-space: nowrap;
+      left: -50%;
+      font-weight: normal;
+    }
+
+    .viewPopupPro {
+      z-index: 2147483647;
+      cursor: auto;
+      position: absolute;
+      z-index: 2147483647;
+      background: #111111;
+      transition: opacity 1s;
+      width: 172px;
+      height: 66px;
+      opacity: 1;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .titlePopupPro {
+      font-style: normal;
+      font-weight: 400;
+      font-size: 10px;
+      line-height: 12px;
+      color: #E5E5E5;
+      text-shadow: 0px 3px 3px rgba(0, 0, 0, 0.25);
+    }
+
+    .viewGoPro {
+      background: #FFCC00;
+      border-radius: 72.6257px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 8px;
+      padding-left: 10px;
+      cursor: pointer;
+
+    }
+
+    .viewGoPro svg {
+      pointer-events: none;
+    }
+
+    .textGoPro {
+      font-style: normal;
+      font-weight: 600;
+      font-size: 10px;
+      line-height: 12px;
+      pointer-events: none;
+      text-align: center;
+      color: #FFFFFF;
+      padding: 4px 14px 4px 4px;
+    }
+
+    .viewPopupPro {
+      top: auto !important;
+      bottom: 15px !important;
+    }
+
+    .view-icon-copy-main-sub:hover>span,
+    .view-icon-edit-sub:hover>span,
+    .view-icon-exit-full-sub:hover>span,
+    .view-icon-full-sub:hover>span,
+    .iconCrownGoPro:hover>span,
+    .view-icon-copy-tran-sub:hover>span {
+      display: block;
+    }
+
+    .iconCrownGoPro {
+      padding-left: 0px !important;
+      padding-right: 8px !important;
+    }
+
+    .iconCrownGoPro svg {
+      width: 17px;
+      height: 17px;
+    }
+
+    .view-icon-full-sub,
+    .view-icon-exit-full-sub {
+      display: flex;
+    }
+
+    .view-icon-full-sub>svg,
+    .view-icon-exit-full-sub>svg {
+      pointer-events: none;
+    }
+
+    .tran-subtitle>span>svg {
+      width: 16px;
+      height: 16px;
+      pointer-events: none;
+      display: inline-flex !important;
+      vertical-align: baseline !important;
+    }
+
+    .view-icon-copy-main-sub>svg {
+      pointer-events: none;
+      color: #FFCC00
+    }
+
+    .iconCrownGoPro {
+      padding-left: 0 !important;
+      padding-right: 8px !important;
+    }
+
+    .view-icon-copy-tran-sub>svg {
+      pointer-events: none;
+      color: #0CB1C7
+    }
+  </style>
+  <link rel="stylesheet" type="text/css"
+    href="chrome-extension://nffaoalbilbmmfgbnbgppjihopabppdk/src/styles/inject.css">
+  <script src="chrome-extension://nffaoalbilbmmfgbnbgppjihopabppdk/src/utils/constants.js"></script>
+  <div id="vsc-constants-loaded" style="display: none;">Constants loaded at 2025-08-13T15:13:24.661Z</div>
+  <script src="chrome-extension://nffaoalbilbmmfgbnbgppjihopabppdk/src/utils/logger.js"></script>
+  <script src="chrome-extension://nffaoalbilbmmfgbnbgppjihopabppdk/src/utils/debug-helper.js"></script>
+  <script src="chrome-extension://nffaoalbilbmmfgbnbgppjihopabppdk/src/utils/dom-utils.js"></script>
+  <script src="chrome-extension://nffaoalbilbmmfgbnbgppjihopabppdk/src/utils/event-manager.js"></script>
+  <script src="chrome-extension://nffaoalbilbmmfgbnbgppjihopabppdk/src/core/storage-manager.js"></script>
+  <script src="chrome-extension://nffaoalbilbmmfgbnbgppjihopabppdk/src/core/settings.js"></script>
+  <script src="chrome-extension://nffaoalbilbmmfgbnbgppjihopabppdk/src/observers/media-observer.js"></script>
+  <script src="chrome-extension://nffaoalbilbmmfgbnbgppjihopabppdk/src/observers/mutation-observer.js"></script>
+  <script src="chrome-extension://nffaoalbilbmmfgbnbgppjihopabppdk/src/core/action-handler.js"></script>
+  <script src="chrome-extension://nffaoalbilbmmfgbnbgppjihopabppdk/src/core/video-controller.js"></script>
+  <script src="chrome-extension://nffaoalbilbmmfgbnbgppjihopabppdk/src/ui/controls.js"></script>
+  <script src="chrome-extension://nffaoalbilbmmfgbnbgppjihopabppdk/src/ui/drag-handler.js"></script>
+  <script src="chrome-extension://nffaoalbilbmmfgbnbgppjihopabppdk/src/ui/shadow-dom.js"></script>
+  <script src="chrome-extension://nffaoalbilbmmfgbnbgppjihopabppdk/src/site-handlers/base-handler.js"></script>
+  <script src="chrome-extension://nffaoalbilbmmfgbnbgppjihopabppdk/src/site-handlers/netflix-handler.js"></script>
+  <script src="chrome-extension://nffaoalbilbmmfgbnbgppjihopabppdk/src/site-handlers/youtube-handler.js"></script>
+  <script src="chrome-extension://nffaoalbilbmmfgbnbgppjihopabppdk/src/site-handlers/facebook-handler.js"></script>
+  <script src="chrome-extension://nffaoalbilbmmfgbnbgppjihopabppdk/src/site-handlers/amazon-handler.js"></script>
+  <script src="chrome-extension://nffaoalbilbmmfgbnbgppjihopabppdk/src/site-handlers/apple-handler.js"></script>
+  <script src="chrome-extension://nffaoalbilbmmfgbnbgppjihopabppdk/src/site-handlers/index.js"></script>
+  <script src="chrome-extension://nffaoalbilbmmfgbnbgppjihopabppdk/src/content/inject.js"></script>
+  <div id="vsc-test-indicator" style="display: none;"></div>
+</head>
+
+<body oncontextmenu="return false;" data-new-gr-c-s-check-loaded="14.1248.0" data-gr-ext-installed=""
+  class="vsc-domain-visione-isti-cnr-it vsc-initialized">
+  <div id="content" class="containerGrid">
+    <div class="headerGrid">
+      <div class="headerItem column-span-4">
+        <div class="dashboardGrid">
+          <div class="dashboardGrid-item">
+            <!--<button id="newsession" class="btn btn-warning btn-sm" title="Start a new Session" onclick="startNewKISSession()">
+								<i class="fas fa-sync-alt"></i> Restart
+							</button>-->
+            <!-- <div class="dashboardGrid-item simreorder column-span-2">
+								<div class="task_bounding-box">
+									<div class="top-line"></div>
+									<span class="task-text">Task</span>
+									<label class="radio-label">
+									  <input type="radio" name="option" value="kis" onclick="setTaskType('kis')"> KIS
+									</label>
+									<label class="radio-label">
+									  <input type="radio" name="option" value="avs" onclick="setTaskType('avs')"> AVS
+									</label>
+									<label class="radio-label">
+										<input type="radio" name="option" value="qa" onclick="setTaskType('qa')"> Q&amp;A
+									  </label>
+								  </div>
+							</div> -->
+
+          </div>
+          <div class="dashboardGrid-item" id="advancedMode">ADVANCED</div>
+
+
+          <div class="dashboardGrid-item tg-list-item advancedToggle">
+            <input class="tgl tgl-skewed" id="cb3" type="checkbox" onclick="displayAdvancedToggle();">
+            <label class="tgl-btn" data-tg-off="OFF" data-tg-on="ON" for="cb3"></label>
+          </div>
+
+          <!-- <div class="dashboardGrid-item advanced simreorder column-span-2" style="display: block;">
+							<input id="simreorder" type="checkbox" onchange="setSimReorder(this)">&nbsp;Sim Reorder
+						</div> -->
+        </div>
+
+      </div>
+      <div id="hourglass-start" class="headerItem fa fa-hourglass-start fa-1x"
+        style="color: rgb(167, 7, 12); font-size: 18px; padding-top: 20px; padding-right: 3px; display: block;"></div>
+      <div class="headerItem" id="simplified0">
+        <div id="div_textual0">
+          <!--<i id="sceneDes0" aria-hidden="true"></i>-->
+          <div class="Icon-inside">
+            <textarea id="textual0" type="text" class="font-normal textualquery0" cols="40"
+              placeholder="Describe the scene you are looking for..." on=""></textarea>
+            <!--<i id="recordButton0" class="fa fa-microphone fa-lg fa-fw" aria-hidden="true"></i>-->
+            <i id="cancelText0" class="fa fa-times fa-lg fa-fw" aria-hidden="true"
+              style="right:30px; color:gray; display:none"></i>
+            <i class="fa fa-search fa-lg fa-fw" style="left:10px; color:gray;"></i>
+            <i id="cancelText0" class="fa fa-magnifying fa-2xl fa-fw" aria-hidden="true"
+              style="left:10px; color:gray;"></i>
+          </div>
+        </div>
+        <div class="textualOptions0" id="textualOptions0">
+          <!-- <span style="padding-right: 1em;" id="translate0">
+					<input type="checkbox" checked="" name="isTranslate0" id="isTranslate0">
+					<label for="isTranslate0" class="font-tiny"><img width="24" src="img/translate.png"></label>
+					<select id="supportedLang0"><option value="auto">AutoDetect</option><option value="afr">Afrikaans</option><option value="arb">Arabic</option><option value="hye">Armenian</option><option value="bel">Belarusian</option><option value="bos">Bosnian</option><option value="bul">Bulgarian</option><option value="cmn">Chinese</option><option value="hrv">Croatian</option><option value="ces">Czech</option><option value="dan">Danish</option><option value="nld">Dutch</option><option value="est">Estonian</option><option value="fin">Finnish</option><option value="fra">French</option><option value="kat">Georgian</option><option value="deu">German</option><option value="ell">Greek</option><option value="heb">Hebrew</option><option value="hin">Hindi</option><option value="hun">Hungarian</option><option value="isl">Icelandic</option><option value="ind">Indonesian</option><option value="gle">Irish</option><option value="ita" selected="selected">Italian</option><option value="jpn">Japanese</option><option value="kor">Korean</option><option value="lit">Lithuanian</option><option value="mkd">Macedonian</option><option value="mal">Malayalam</option><option value="mlt">Maltese</option><option value="npi">Nepali</option><option value="nno">Norwegian</option><option value="pol">Polish</option><option value="por">Portuguese</option><option value="ron">Romanian</option><option value="rus">Russian</option><option value="srp">Serbian</option><option value="slk">Slovak</option><option value="slv">Slovenian</option><option value="spa">Spanish</option><option value="swe">Swedish</option><option value="tur">Turkish</option><option value="ukr">Ukrainian</option><option value="vie">Vietnamese</option></select>
+				</span>
+				<span onclick="setTextualMode(0, 'clip2video');">
+					<input type="radio" name="textualMode0" id="textualMode0">
+					<label for="textualMode0" class="font-tiny">ClipVideo</label>
+				</span>
+				<span onclick="setTextualMode(0, 'clip-laion');">
+					<input type="radio" name="textualMode0" id="textualMode0">
+					<label for="textualMode0" class="font-tiny">ClipLAION</label>
+				</span>
+				<span onclick="setTextualMode(0, 'aladin');">
+					<input type="radio" name="textualMode0" id="textualMode0">
+					<label for="textualMode0" class="font-tiny">Aladin</label>
+				</span>
+				<span onclick="setTextualMode(0, 'all');">
+					<input type="radio" checked="" name="textualMode0" id="textualMode0">
+					<label for="textualMode0" class="font-tiny">use all</label>
+				</span> -->
+        </div>
+      </div>
+      <!-- <div id="hourglass-end" class="headerItem fa fa-hourglass-end fa-1x"
+        style="color: rgb(19, 160, 160); font-size: 18px; padding-top: 20px; padding-right: 3px;"></div> -->
+
+      <div class="headerItem" id="simplified1">
+        <div id="div_textual1">
+          <!--<i id="sceneDes1" aria-hidden="true"></i>-->
+          <div class="Icon-inside">
+            <textarea id="textual1" type="text" class="textualquery1 font-normal" cols="40"
+              placeholder="OCR..." on=""></textarea>
+            <i id="cancelText1" class="fa fa-times fa-lg fa-fw" aria-hidden="true"
+              style="right:30px; color:gray; display:none"></i>
+            <i class="fa fa-search fa-lg fa-fw" style="left:10px; color:gray;"></i>
+            <i id="cancelText1" class="fa fa-magnifying fa-2xl fa-fw" aria-hidden="true"
+              style="left:10px; color:gray;"></i>
+          </div>
+        </div>
+        <div class="textualOptions1" id="textualOptions1">
+          <!-- <span style="padding-right: 1em;" id="translate1">
+					<input type="checkbox" checked="" name="isTranslate1" id="isTranslate1">
+					<label for="isTranslate1" class="font-tiny"><img width="24" src="img/translate.png"></label>
+					<select id="supportedLang1"><option value="auto">AutoDetect</option><option value="afr">Afrikaans</option><option value="arb">Arabic</option><option value="hye">Armenian</option><option value="bel">Belarusian</option><option value="bos">Bosnian</option><option value="bul">Bulgarian</option><option value="cmn">Chinese</option><option value="hrv">Croatian</option><option value="ces">Czech</option><option value="dan">Danish</option><option value="nld">Dutch</option><option value="est">Estonian</option><option value="fin">Finnish</option><option value="fra">French</option><option value="kat">Georgian</option><option value="deu">German</option><option value="ell">Greek</option><option value="heb">Hebrew</option><option value="hin">Hindi</option><option value="hun">Hungarian</option><option value="isl">Icelandic</option><option value="ind">Indonesian</option><option value="gle">Irish</option><option value="ita" selected="selected">Italian</option><option value="jpn">Japanese</option><option value="kor">Korean</option><option value="lit">Lithuanian</option><option value="mkd">Macedonian</option><option value="mal">Malayalam</option><option value="mlt">Maltese</option><option value="npi">Nepali</option><option value="nno">Norwegian</option><option value="pol">Polish</option><option value="por">Portuguese</option><option value="ron">Romanian</option><option value="rus">Russian</option><option value="srp">Serbian</option><option value="slk">Slovak</option><option value="slv">Slovenian</option><option value="spa">Spanish</option><option value="swe">Swedish</option><option value="tur">Turkish</option><option value="ukr">Ukrainian</option><option value="vie">Vietnamese</option></select>
+				</span>
+				<span onclick="setTextualMode(1, 'clip2video');">
+					<input type="radio" name="textualMode1" id="textualMode1">
+					<label for="textualMode1" class="font-tiny">ClipVideo</label>
+				</span>
+				<span onclick="setTextualMode(1, 'clip-laion');">
+					<input type="radio" name="textualMode1" id="textualMode1">
+					<label for="textualMode1" class="font-tiny">ClipLAION</label>
+				</span>
+				<span onclick="setTextualMode(1, 'aladin');">
+					<input type="radio" name="textualMode1" id="textualMode1">
+					<label for="textualMode1" class="font-tiny">Aladin</label>
+				</span>
+				<span onclick="setTextualMode(1, 'all');">
+					<input type="radio" checked="" name="textualMode1" id="textualMode1">
+					<label for="textualMode1" class="font-tiny">use all</label>
+				</span> -->
+        </div>
+      </div>
+
+
+      <!-- <div id="visionelogo" class="headerItem visioneLogo"> -->
+        <!-- <a href=""><img id="visionelogoImg" src="img/logoVISIONE.png" alt="" title="Restart" onclick="startNewKISSession()"></a> -->
+        <!--<img
+						src="img/cropped-aimh_logo5-1024x372.png" height="28px"
+						style="border-radius: 20px 20px 20px 20px;" alt="">-->
+        <!-- <div align="right">
+          <h2><label id="collectionLabel"></label> - <label id="taskTypeLabel"></label></h2>
+        </div> -->
+      <!-- </div> -->
+
+
+
+
+    </div>
+    <div class="bodyGrid" style="grid-template-columns: 1fr 4.2fr 0.3fr;">
+      <div class="sidebarGrid" id="searchSidebar" style="width: 310px;">
+        <div class="advanced" style="display: block;">
+          <div id="palette" class="palette">
+            <div><img draggable="true" ondragstart="drag(event)" id="person" title="person"
+                src="../../skel/palette/person.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="man" title="man" src="../../skel/palette/man.png">
+            </div>
+            <div><img draggable="true" ondragstart="drag(event)" id="woman" title="woman"
+                src="../../skel/palette/woman.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="human_face" title="human_face"
+                src="../../skel/palette/humanface.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="musical_instrument" title="musical_instrument"
+                src="../../skel/palette/musical.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="sports_equipment" title="sports_equipment"
+                src="../../skel/palette/sports.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="skateboard" title="skateboard"
+                src="../../skel/palette/skateboard.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="glasses" title="glasses"
+                src="../../skel/palette/glasses.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="bicycle" title="bicycle"
+                src="../../skel/palette/bicycle.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="motorcycle" title="motorcycle"
+                src="../../skel/palette/motorcycle.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="car" title="car" src="../../skel/palette/car.png">
+            </div>
+            <div><img draggable="true" ondragstart="drag(event)" id="truck" title="truck"
+                src="../../skel/palette/truck.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="boat" title="boat"
+                src="../../skel/palette/boat.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="parachute" title="parachute"
+                src="../../skel/palette/parachute.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="airplane" title="airplane"
+                src="../../skel/palette/aeroplane.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="bench" title="bench"
+                src="../../skel/palette/bench.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="chair" title="chair"
+                src="../../skel/palette/chair.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="couch" title="couch"
+                src="../../skel/palette/sofa.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="building" title="building"
+                src="../../skel/palette/building.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="umbrella" title="umbrella"
+                src="../../skel/palette/umbrella.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="wine_glass" title="wine_glass"
+                src="../../skel/palette/wineglass.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="cup" title="cup" src="../../skel/palette/cup.png">
+            </div>
+            <div><img draggable="true" ondragstart="drag(event)" id="dessert" title="dessert"
+                src="../../skel/palette/dessert.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="cell_phone" title="cell_phone"
+                src="../../skel/palette/cellphone.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="television" title="television"
+                src="../../skel/palette/television.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="laptop_computer" title="laptop_computer"
+                src="../../skel/palette/laptop.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="book" title="book"
+                src="../../skel/palette/book.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="cat" title="cat" src="../../skel/palette/cat.png">
+            </div>
+            <div><img draggable="true" ondragstart="drag(event)" id="dog" title="dog" src="../../skel/palette/dog.png">
+            </div>
+            <div><img draggable="true" ondragstart="drag(event)" id="horse" title="horse"
+                src="../../skel/palette/horse.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="bird" title="bird"
+                src="../../skel/palette/bird.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="flower" title="flower"
+                src="../../skel/palette/flower.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="tree" title="tree"
+                src="../../skel/palette/tree.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="black" title="black"
+                src="../../skel/palette/black.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="blue" title="blue"
+                src="../../skel/palette/blue.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="brown" title="brown"
+                src="../../skel/palette/brown.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="green" title="green"
+                src="../../skel/palette/green.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="grey" title="grey"
+                src="../../skel/palette/grey.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="orange" title="orange"
+                src="../../skel/palette/orange.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="pink" title="pink"
+                src="../../skel/palette/pink.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="purple" title="purple"
+                src="../../skel/palette/purple.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="red" title="red" src="../../skel/palette/red.png">
+            </div>
+            <div><img draggable="true" ondragstart="drag(event)" id="white" title="white"
+                src="../../skel/palette/white.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="yellow" title="yellow"
+                src="../../skel/palette/yellow.png"></div>
+          </div>
+          <div id="searchTab">
+            <div class="scene0" id="canvasTab">
+              <div class="">
+                <div id="description_objects0">
+                  <div class="font-large font-bold"><i id="sceneDes0" class="fa fa-hourglass-start fa-1x"> Objects &amp;
+                      colors of the scene</i> </div>
+
+                </div>
+                <span class="font-tiny">
+                  <input type="radio" id="canvas0_enabled" name="canvas0" value="enabled" checked=""
+                    onchange="setCanvasState(0, this)">
+                  <label for="canvas0_enabled" style="color: green; font-weight: bold;">Enabled</label>
+                  <input type="radio" id="canvas0_disabled" name="canvas0" value="disabled"
+                    onchange="setCanvasState(0, this)">
+                  <label for="canvas0_disabled" style="color: gray; font-weight: bold;">Disabled &nbsp;</label>
+                </span>
+                <span>
+                  Objects in
+                  <input type="radio" id="and0" name="occur0" value="and" checked="" onchange="setOccur(this, 0)">
+                  <label for="and0">AND</label>
+                  <input type="radio" id="or0" name="occur0" value="or" onchange="setOccur(this, 0)">
+                  <label for="or0">OR</label>
+                </span>
+              </div>
+
+              <div id="block0" style="position: relative; display: block;">
+                <div id="canvasBlock0" class="advanced" style="display: block;">
+                  <div id="overlay0">
+                    <div align="center" id="text0" style="color: gray;">Disabled</div>
+                  </div>
+                  <div id="canvasdiv1">
+                    <div class="canvas-container" ondrop="drop(event)" ondragover="allowDrop(event)"
+                      style="width: 275px; height: 154px; position: relative; user-select: none;"><canvas id="canvas0"
+                        width="1100.0000163912773" height="616.0000091791153"
+                        style="border: 1px solid rgb(0, 0, 0); position: absolute; width: 275px; height: 154px; left: 0px; top: 0px; touch-action: none; user-select: none;"
+                        class="lower-canvas"></canvas><canvas class="upper-canvas " width="275" height="154"
+                        style="border: 1px solid rgb(0, 0, 0); position: absolute; width: 275px; height: 154px; left: 0px; top: 0px; touch-action: none; user-select: none;"></canvas>
+                    </div>
+                  </div>
+                </div>
+                <div colspan="13" title="Scene Description">
+                  <input id="annotations0" type="text" size="0" style="display: none;" class="ui-autocomplete-input"
+                    autocomplete="off">
+                </div>
+                <div class="advanced" colspan="13" title="Max Objects Number" style="display: block;">
+                  <textarea id="not0" class="font-normal" cols="38" rows="2" style="width:275px; border-radius: 6px;"
+                    placeholder="Max Obj: e.g.: 2 person 3 car 0 dog, means at most 2 persons, 3 cars, no dogs"></textarea>
+                  <div id="textual0_container" colspan="12" title="Scene Description">
+                  </div>
+                </div>
+
+                <div class="advanced" style="display: block;">
+                  <div class="canvasClean">
+                    <div class="canvasCleanItem">
+                      <button id="clean0" class="btn btn-outline-danger btn-sm" title="clean canvas 1">
+                        <i class="fa fa-trash"></i>
+                      </button>
+                      <button id="undo0" class="btn btn-outline-success btn-sm" title="undo clean canvas 1">
+                        <i class="fa fa-undo"></i>
+                      </button>
+                    </div>
+                    <div class="canvasCleanItem" style="display: none;">
+                      <div>
+                        <span title="Black &amp; White Keyframe">
+                          <input id="isGray0" type="checkbox" onchange="setGray(0)">
+                        </span>
+                        <span title="Black &amp; White Keyframe">B/W</span>
+                      </div>
+                      <div>
+                        <span title="Color Keyframe">
+                          <input id="isColor0" type="checkbox" onchange="setColor(0)">
+                        </span>
+                        <span title="Color Keyframe" class="colorCheckbox">
+                          Color
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+            </div>
+
+            <!-- <div class="scene1" id="canvasTab">
+		<div class="">
+			<div id="description_objects1">
+				<div class="font-large font-bold"><i id="sceneDes1" class="fa fa-hourglass-end fa-1x"> Objects &amp; color next scene</i> </div>
+
+			</div>
+			<span class="font-tiny">
+				<input type="radio" id="canvas1_enabled" name="canvas1" value="enabled" checked="" onchange="setCanvasState(0, this)">
+				<label for="canvas1_enabled" style="color: green; font-weight: bold;">Enabled</label>
+				<input type="radio" id="canvas1_disabled" name="canvas1" value="disabled" onchange="setCanvasState(0, this)">
+				<label for="canvas1_disabled" style="color: gray; font-weight: bold;">Disabled &nbsp;</label>
+			</span>
+			<span>
+				Objects in
+				<input type="radio" id="and1" name="occur1" value="and" checked="" onchange="setOccur(this, 1)">
+				<label for="and1">AND</label>
+				<input type="radio" id="or1" name="occur1" value="or" onchange="setOccur(this, 1)">
+				<label for="or1">OR</label>
+			</span>
+		</div>
+
+		<div id="block1" style="position: relative; display: block;">
+			<div id="canvasBlock1" class="advanced" style="display: block;">
+				<div id="overlay1">
+					<div align="center" id="text1" style="color: gray;">Disabled</div>
+				</div>
+				<div id="canvasdiv1">
+					<div class="canvas-container" ondrop="drop(event)" ondragover="allowDrop(event)" style="width: 275px; height: 154px; position: relative; user-select: none;"><canvas id="canvas1" width="1100.0000163912773" height="616.0000091791153" style="border: 1px solid rgb(0, 0, 0); position: absolute; width: 275px; height: 154px; left: 0px; top: 0px; touch-action: none; user-select: none;" class="lower-canvas"></canvas><canvas class="upper-canvas " width="275" height="154" style="border: 1px solid rgb(0, 0, 0); position: absolute; width: 275px; height: 154px; left: 0px; top: 0px; touch-action: none; user-select: none;"></canvas></div>
+				</div>
+			</div>
+			<div colspan="13" title="Scene Description">
+				<input id="annotations1" type="text" size="0" style="display: none;" class="ui-autocomplete-input" autocomplete="off">
+			</div>
+			<div class="advanced" colspan="13" title="Max Objects Number" style="display: block;">
+				<textarea id="not1" class="font-normal" cols="38" rows="2" style="width:275px; border-radius: 6px;" placeholder="Max Obj: e.g.: 2 person 3 car 0 dog, means at most 2 persons, 3 cars, no dogs"></textarea>
+				<div id="textual1_container" colspan="12" title="Scene Description">
+
+
+					
+				</div>
+			</div>
+
+			<div class="advanced" style="display: block;">
+				<div class="canvasClean">
+					<div class="canvasCleanItem">
+						<button id="clean1" class="btn btn-outline-danger btn-sm" title="clean canvas 1">
+							<i class="fa fa-trash"></i>
+						</button>
+						<button id="undo1" class="btn btn-outline-success btn-sm" title="undo clean canvas 1">
+							<i class="fa fa-undo"></i>
+						</button>
+					</div>
+					<div class="canvasCleanItem" style="display: none;">
+						<div>
+							<span title="Black &amp; White Keyframe">
+								<input id="isGray1" type="checkbox" onchange="setGray(1)">
+							</span>
+							<span title="Black &amp; White Keyframe">B/W</span>
+						</div>
+						<div>
+							<span title="Color Keyframe">
+								<input id="isColor1" type="checkbox" onchange="setColor(1)">
+							</span>
+							<span title="Color Keyframe" class="colorCheckbox">
+								Color
+							</span>
+						</div>
+					</div>
+				</div>
+
+			</div>
+			
+		</div>
+	</div> -->
+          </div>
+          <div class="headerItem">
+            <div id="qbe" class="font-normal">
+              <div id="filter" class="advanced" style="display: block;">
+                <!-- <div class="qbeGrid">
+		<div class="qbeItem">
+			<b id="urlText">Paste image URL</b>
+			<a href="#" id="urlLink" onclick="changeQueryBySampleMod('url')" style="display: none;">Paste image URL</a>
+		</div>
+		<div class="qbeItem column-span-2">
+			<b id="uploadText" style="display: none;">Upload an image</b>
+			<a href="#" id="uploadLink" onclick="changeQueryBySampleMod('upload')">Upload an image</a>
+		</div>
+
+		<div class="qbeItem column-span-2">
+			<input type="hidden" value="" id="objId">
+			<input id="urlToUpload" name="url" type="text" size="34">
+			<input style="display: none;" id="imageToUpload" name="imgFile" type="file" size="34">
+		</div>
+		<div class="qbeItem column-span-1">
+			<input type="image" src="img/Search.png" style="height: 20px;" value="Search" id="queryByExample" title="Search" onclick="queryImg(); return false;">
+		</div>
+
+		<div class="qbeItem column-span-3">
+			<div class="preview" id="qbeblock" style="display: none; padding-top: 10px;">
+				<img src="" id="qbeImg" width="100">
+				<img id="removeqbe" title="remove" width="16" style="vertical-align: top;" src="img/Actions-dialog-close-icon.png" onclick="resetQueryImg()">
+			</div>
+		</div>
+	</div> -->
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+
+      </div>
+
+      <div class="contentGrid" id="content">
+        <div id="loading-spinner">
+          <i class="fas fa-spinner fa-spin"></i>
+        </div>
+        <div id="avsSelected" class="avsSelected">
+          <div id="avsTab" style="display: block;" class=""></div>
+        </div>
+        <div id="resGrid" class="resGrid">
+          <div id="results" class="resGrid2">
+            <div id="imgGridResults" class="gridcontainer"></div>
+          </div>
+          <ol id="recordingsList"></ol>
+        </div>
+      </div>
+      <div class="rightSidebarGrid" id="submitted_bar" style="display:none;">
+        <div style="color:green;"> Submitted: <b id="submitted_num" style="color: red;"></b></div>
+        <div id="avsSubmittedTab" style="display: block;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    init();
+
+
+    const channel = new BroadcastChannel('app-data');
+    channel.addEventListener('message', (event) => {
+      window.focus();
+
+      let frameData = event.data.split(",");
+      let imgId = frameData[0];
+      let videoId = frameData[1];
+      let collection = frameData[2];
+
+      console.log(event.data);
+      let path = collection + "/" + videoId + "/" + imgId;
+
+
+      let avsObj = getAvsObj(collection, videoId, imgId, 'avs_' + imgId, thumbnailUrl + path, keyFramesUrl + path, null, null)
+      //avsObj = JSON.parse(avsObj);
+
+      unifiedSubmit(avsObj, null);
+    });
+  </script>
+
+  <!-- inserting these scripts at the end to be able to use all the elements in the DOM
+		<script src="js/WebAudioRecorder/WebAudioRecorder.min.js"></script>
+		<script src="js/WebAudioRecorder/audioRecorder.js"></script>-->
+
+
+  <div tabindex="-1" role="dialog"
+    class="ui-dialog ui-corner-all ui-widget ui-widget-content ui-front ui-draggable ui-resizable"
+    aria-describedby="dialog" style="display: none; position: absolute;" aria-labelledby="ui-id-1">
+    <div class="ui-dialog-titlebar ui-corner-all ui-widget-header ui-helper-clearfix ui-draggable-handle"><span
+        id="ui-id-1" class="ui-dialog-title">Tag Name</span><button type="button"
+        class="ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close" title="Close"><span
+          class="ui-button-icon ui-icon ui-icon-closethick"></span><span class="ui-button-icon-space">
+        </span>Close</button></div>
+    <div id="dialog" class="ui-dialog-content ui-widget-content">
+      <label>tag</label> <input id="tag" name="tag" type="text">
+    </div>
+    <div class="ui-resizable-handle ui-resizable-n" style="z-index: 90;"></div>
+    <div class="ui-resizable-handle ui-resizable-e" style="z-index: 90;"></div>
+    <div class="ui-resizable-handle ui-resizable-s" style="z-index: 90;"></div>
+    <div class="ui-resizable-handle ui-resizable-w" style="z-index: 90;"></div>
+    <div class="ui-resizable-handle ui-resizable-se ui-icon ui-icon-gripsmall-diagonal-se" style="z-index: 90;"></div>
+    <div class="ui-resizable-handle ui-resizable-sw" style="z-index: 90;"></div>
+    <div class="ui-resizable-handle ui-resizable-ne" style="z-index: 90;"></div>
+    <div class="ui-resizable-handle ui-resizable-nw" style="z-index: 90;"></div>
+  </div>
+  <ul id="ui-id-2" tabindex="0" class="ui-menu ui-widget ui-widget-content ui-autocomplete ui-front"
+    style="display: none;"></ul>
+  <div role="status" aria-live="assertive" aria-relevant="additions" class="ui-helper-hidden-accessible"></div>
+  <ul id="ui-id-3" tabindex="0" class="ui-menu ui-widget ui-widget-content ui-autocomplete ui-front"
+    style="display: none;"></ul>
+  <div role="status" aria-live="assertive" aria-relevant="additions" class="ui-helper-hidden-accessible"></div>
+  <script>
+    // --- DnD fix: allow multi-drop by cloning ---
+    (function () {
+      function allowDrop(ev) { ev.preventDefault(); }
+
+      function drag(ev) {
+        try {
+          ev.dataTransfer.setData("text/id", ev.target.id);
+          ev.dataTransfer.setData("text/plain", ev.target.id);
+          ev.dataTransfer.setData("text", ev.target.id);
+        } catch (e) { /* ignore */ }
+      }
+
+      function uniqueId(prefix) {
+        return (prefix || "item") + "_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
+      }
+
+      function findDropZone(el) {
+        while (el && el !== document && !(el.classList && el.classList.contains('canvas-container'))) {
+          el = el.parentElement;
+        }
+        return el;
+      }
+
+      function drop(ev) {
+        ev.preventDefault();
+        var id = (ev.dataTransfer && (ev.dataTransfer.getData("text/id") || ev.dataTransfer.getData("text/plain") || ev.dataTransfer.getData("text"))) || "";
+        if (!id) { return; }
+        var src = document.getElementById(id);
+        if (!src) { return; }
+        var zone = findDropZone(ev.target) || ev.currentTarget || ev.target;
+        // clone so we can drop multiple times
+        var clone = src.cloneNode(true);
+        clone.id = uniqueId(id.replace(/[^a-zA-Z0-9_-]/g, ""));
+        clone.draggable = false; // avoid re-drag from canvas unless you want it
+        clone.style.position = "absolute";
+        // compute position
+        var rect = zone.getBoundingClientRect();
+        var x = (ev.clientX || 0) - rect.left;
+        var y = (ev.clientY || 0) - rect.top;
+        // fallback size until image loads
+        var w = src.naturalWidth || src.width || 32;
+        var h = src.naturalHeight || src.height || 32;
+        clone.style.left = (x - w / 2) + "px";
+        clone.style.top = (y - h / 2) + "px";
+        // ensure zone is positioned relatively for absolute children
+        if (window.getComputedStyle(zone).position === "static") {
+          zone.style.position = "relative";
+        }
+        zone.appendChild(clone);
+      }
+
+      // expose globally to match inline handlers added on containers
+      window.allowDrop = allowDrop;
+      window.drag = drag;
+      window.drop = drop;
+
+      // Upgrade all palette items to ensure they have draggable + ondragstart
+      try {
+        var palette = document.getElementById('palette');
+        if (palette) {
+          palette.querySelectorAll('img').forEach(function (img) {
+            img.setAttribute('draggable', 'true');
+            img.setAttribute('ondragstart', 'drag(event)');
+            if (!img.id) { img.id = uniqueId('palette'); }
+          });
+        }
+      } catch (e) { }
+    })();
+
+    document.addEventListener('keydown', (ev) => {
+      if (ev.key !== 'Delete' && ev.key !== 'Backspace') return;
+      const c = (activeCanvasIdx === 1 ? canvas1 : canvas0);
+      if (!c) return;
+      const obj = c.getActiveObject();
+      if (!obj) return;
+      c.remove(obj);
+      c.discardActiveObject();
+      c.requestRenderAll();
+    });
+  </script>
+
+</body>
