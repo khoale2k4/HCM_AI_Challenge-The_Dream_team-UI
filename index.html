@@ -2010,7 +2010,7 @@
 
 
           <div class="dashboardGrid-item tg-list-item advancedToggle">
-            <input class="tgl tgl-skewed" id="cb3" type="checkbox" onclick="displayAdvancedToggle();">
+            <input class="tgl tgl-skewed" id="cb3" type="checkbox" onclick="displayAdvancedToggle();" checked>
             <label class="tgl-btn" data-tg-off="OFF" data-tg-on="ON" for="cb3"></label>
           </div>
 
@@ -2367,6 +2367,15 @@
       c.remove(obj);
       c.discardActiveObject();
       c.requestRenderAll();
+    });
+    
+    // Initialize advanced mode on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      // Ensure advanced mode is enabled by default
+      if (typeof isAdvanced !== 'undefined' && isAdvanced) {
+        displayAdvanced();
+        resultsVisualization();
+      }
     });
   </script>
 

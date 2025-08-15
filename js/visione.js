@@ -747,9 +747,9 @@ function search2(query) {
 				data: JSON.stringify({
 					query: textual,
 					task: isAdvanced ? "visual-kis" : "textual-kis",
-					ocr: ocr,
-					objects: getCanvas0Objects(),
-					colors: getCanvas0ColorsString(),
+					ocr: isAdvanced ? ocr : null,
+					objects:  isAdvanced ? getCanvas0Objects() : null,
+					colors:  isAdvanced ? getCanvas0ColorsString() : null,
 					//{"query":[{"textual":"a"}], "parameters":[{"textualMode":"all"}]}
 				}),
 				contentType: "application/json; charset=utf-8",
