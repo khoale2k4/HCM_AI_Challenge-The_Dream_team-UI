@@ -20,7 +20,7 @@
   <script src="js/queryByExample.js"></script>
   <script src="js/visione.js"></script>
   <script src="js/visioneAVS.js"></script>
-  <!-- <script src="js/canvas.js"></script> -->
+  <script src="js/newCanvas.js"></script>
   <script src="js/search_bar_templates.js"></script>
   <script src="js/WebAudioRecorder/WebAudioRecorder.min.js"></script>
   <script src="js/WebAudioRecorder/audioRecorder.js"></script>
@@ -2005,25 +2005,6 @@
       <div class="headerItem column-span-4">
         <div class="dashboardGrid">
           <div class="dashboardGrid-item">
-            <!--<button id="newsession" class="btn btn-warning btn-sm" title="Start a new Session" onclick="startNewKISSession()">
-								<i class="fas fa-sync-alt"></i> Restart
-							</button>-->
-            <!-- <div class="dashboardGrid-item simreorder column-span-2">
-								<div class="task_bounding-box">
-									<div class="top-line"></div>
-									<span class="task-text">Task</span>
-									<label class="radio-label">
-									  <input type="radio" name="option" value="kis" onclick="setTaskType('kis')"> KIS
-									</label>
-									<label class="radio-label">
-									  <input type="radio" name="option" value="avs" onclick="setTaskType('avs')"> AVS
-									</label>
-									<label class="radio-label">
-										<input type="radio" name="option" value="qa" onclick="setTaskType('qa')"> Q&amp;A
-									  </label>
-								  </div>
-							</div> -->
-
           </div>
           <div class="dashboardGrid-item" id="advancedMode">ADVANCED</div>
 
@@ -2033,9 +2014,6 @@
             <label class="tgl-btn" data-tg-off="OFF" data-tg-on="ON" for="cb3"></label>
           </div>
 
-          <!-- <div class="dashboardGrid-item advanced simreorder column-span-2" style="display: block;">
-							<input id="simreorder" type="checkbox" onchange="setSimReorder(this)">&nbsp;Sim Reorder
-						</div> -->
         </div>
 
       </div>
@@ -2043,11 +2021,9 @@
         style="color: rgb(167, 7, 12); font-size: 18px; padding-top: 20px; padding-right: 3px; display: block;"></div>
       <div class="headerItem" id="simplified0">
         <div id="div_textual0">
-          <!--<i id="sceneDes0" aria-hidden="true"></i>-->
           <div class="Icon-inside">
             <textarea id="textual0" type="text" class="font-normal textualquery0" cols="40"
               placeholder="Describe the scene you are looking for..." on=""></textarea>
-            <!--<i id="recordButton0" class="fa fa-microphone fa-lg fa-fw" aria-hidden="true"></i>-->
             <i id="cancelText0" class="fa fa-times fa-lg fa-fw" aria-hidden="true"
               style="right:30px; color:gray; display:none"></i>
             <i class="fa fa-search fa-lg fa-fw" style="left:10px; color:gray;"></i>
@@ -2056,38 +2032,14 @@
           </div>
         </div>
         <div class="textualOptions0" id="textualOptions0">
-          <!-- <span style="padding-right: 1em;" id="translate0">
-					<input type="checkbox" checked="" name="isTranslate0" id="isTranslate0">
-					<label for="isTranslate0" class="font-tiny"><img width="24" src="img/translate.png"></label>
-					<select id="supportedLang0"><option value="auto">AutoDetect</option><option value="afr">Afrikaans</option><option value="arb">Arabic</option><option value="hye">Armenian</option><option value="bel">Belarusian</option><option value="bos">Bosnian</option><option value="bul">Bulgarian</option><option value="cmn">Chinese</option><option value="hrv">Croatian</option><option value="ces">Czech</option><option value="dan">Danish</option><option value="nld">Dutch</option><option value="est">Estonian</option><option value="fin">Finnish</option><option value="fra">French</option><option value="kat">Georgian</option><option value="deu">German</option><option value="ell">Greek</option><option value="heb">Hebrew</option><option value="hin">Hindi</option><option value="hun">Hungarian</option><option value="isl">Icelandic</option><option value="ind">Indonesian</option><option value="gle">Irish</option><option value="ita" selected="selected">Italian</option><option value="jpn">Japanese</option><option value="kor">Korean</option><option value="lit">Lithuanian</option><option value="mkd">Macedonian</option><option value="mal">Malayalam</option><option value="mlt">Maltese</option><option value="npi">Nepali</option><option value="nno">Norwegian</option><option value="pol">Polish</option><option value="por">Portuguese</option><option value="ron">Romanian</option><option value="rus">Russian</option><option value="srp">Serbian</option><option value="slk">Slovak</option><option value="slv">Slovenian</option><option value="spa">Spanish</option><option value="swe">Swedish</option><option value="tur">Turkish</option><option value="ukr">Ukrainian</option><option value="vie">Vietnamese</option></select>
-				</span>
-				<span onclick="setTextualMode(0, 'clip2video');">
-					<input type="radio" name="textualMode0" id="textualMode0">
-					<label for="textualMode0" class="font-tiny">ClipVideo</label>
-				</span>
-				<span onclick="setTextualMode(0, 'clip-laion');">
-					<input type="radio" name="textualMode0" id="textualMode0">
-					<label for="textualMode0" class="font-tiny">ClipLAION</label>
-				</span>
-				<span onclick="setTextualMode(0, 'aladin');">
-					<input type="radio" name="textualMode0" id="textualMode0">
-					<label for="textualMode0" class="font-tiny">Aladin</label>
-				</span>
-				<span onclick="setTextualMode(0, 'all');">
-					<input type="radio" checked="" name="textualMode0" id="textualMode0">
-					<label for="textualMode0" class="font-tiny">use all</label>
-				</span> -->
         </div>
       </div>
-      <!-- <div id="hourglass-end" class="headerItem fa fa-hourglass-end fa-1x"
-        style="color: rgb(19, 160, 160); font-size: 18px; padding-top: 20px; padding-right: 3px;"></div> -->
 
       <div class="headerItem" id="simplified1">
         <div id="div_textual1">
-          <!--<i id="sceneDes1" aria-hidden="true"></i>-->
           <div class="Icon-inside">
-            <textarea id="textual1" type="text" class="textualquery1 font-normal" cols="40"
-              placeholder="OCR..." on=""></textarea>
+            <textarea id="textual1" type="text" class="textualquery1 font-normal" cols="40" placeholder="OCR..."
+              on=""></textarea>
             <i id="cancelText1" class="fa fa-times fa-lg fa-fw" aria-hidden="true"
               style="right:30px; color:gray; display:none"></i>
             <i class="fa fa-search fa-lg fa-fw" style="left:10px; color:gray;"></i>
@@ -2096,40 +2048,8 @@
           </div>
         </div>
         <div class="textualOptions1" id="textualOptions1">
-          <!-- <span style="padding-right: 1em;" id="translate1">
-					<input type="checkbox" checked="" name="isTranslate1" id="isTranslate1">
-					<label for="isTranslate1" class="font-tiny"><img width="24" src="img/translate.png"></label>
-					<select id="supportedLang1"><option value="auto">AutoDetect</option><option value="afr">Afrikaans</option><option value="arb">Arabic</option><option value="hye">Armenian</option><option value="bel">Belarusian</option><option value="bos">Bosnian</option><option value="bul">Bulgarian</option><option value="cmn">Chinese</option><option value="hrv">Croatian</option><option value="ces">Czech</option><option value="dan">Danish</option><option value="nld">Dutch</option><option value="est">Estonian</option><option value="fin">Finnish</option><option value="fra">French</option><option value="kat">Georgian</option><option value="deu">German</option><option value="ell">Greek</option><option value="heb">Hebrew</option><option value="hin">Hindi</option><option value="hun">Hungarian</option><option value="isl">Icelandic</option><option value="ind">Indonesian</option><option value="gle">Irish</option><option value="ita" selected="selected">Italian</option><option value="jpn">Japanese</option><option value="kor">Korean</option><option value="lit">Lithuanian</option><option value="mkd">Macedonian</option><option value="mal">Malayalam</option><option value="mlt">Maltese</option><option value="npi">Nepali</option><option value="nno">Norwegian</option><option value="pol">Polish</option><option value="por">Portuguese</option><option value="ron">Romanian</option><option value="rus">Russian</option><option value="srp">Serbian</option><option value="slk">Slovak</option><option value="slv">Slovenian</option><option value="spa">Spanish</option><option value="swe">Swedish</option><option value="tur">Turkish</option><option value="ukr">Ukrainian</option><option value="vie">Vietnamese</option></select>
-				</span>
-				<span onclick="setTextualMode(1, 'clip2video');">
-					<input type="radio" name="textualMode1" id="textualMode1">
-					<label for="textualMode1" class="font-tiny">ClipVideo</label>
-				</span>
-				<span onclick="setTextualMode(1, 'clip-laion');">
-					<input type="radio" name="textualMode1" id="textualMode1">
-					<label for="textualMode1" class="font-tiny">ClipLAION</label>
-				</span>
-				<span onclick="setTextualMode(1, 'aladin');">
-					<input type="radio" name="textualMode1" id="textualMode1">
-					<label for="textualMode1" class="font-tiny">Aladin</label>
-				</span>
-				<span onclick="setTextualMode(1, 'all');">
-					<input type="radio" checked="" name="textualMode1" id="textualMode1">
-					<label for="textualMode1" class="font-tiny">use all</label>
-				</span> -->
         </div>
       </div>
-
-
-      <!-- <div id="visionelogo" class="headerItem visioneLogo"> -->
-        <!-- <a href=""><img id="visionelogoImg" src="img/logoVISIONE.png" alt="" title="Restart" onclick="startNewKISSession()"></a> -->
-        <!--<img
-						src="img/cropped-aimh_logo5-1024x372.png" height="28px"
-						style="border-radius: 20px 20px 20px 20px;" alt="">-->
-        <!-- <div align="right">
-          <h2><label id="collectionLabel"></label> - <label id="taskTypeLabel"></label></h2>
-        </div> -->
-      <!-- </div> -->
 
 
 
@@ -2259,12 +2179,11 @@
                     <div align="center" id="text0" style="color: gray;">Disabled</div>
                   </div> -->
                   <div id="canvasdiv1">
-                    <div class="canvas-container" ondrop="drop(event)" ondragover="allowDrop(event)"
-                      style="width: 275px; height: 154px; position: relative; user-select: none;"><canvas id="canvas0"
-                        width="1100.0000163912773" height="616.0000091791153"
-                        style="border: 1px solid rgb(0, 0, 0); position: absolute; width: 275px; height: 154px; left: 0px; top: 0px; touch-action: none; user-select: none;"
-                        class="lower-canvas"></canvas><canvas class="upper-canvas " width="275" height="154"
-                        style="border: 1px solid rgb(0, 0, 0); position: absolute; width: 275px; height: 154px; left: 0px; top: 0px; touch-action: none; user-select: none;"></canvas>
+                    <div class="canvas-container" ondrop="handleDrop(event)" ondragover="allowDrop(event)"
+                      style="width: 275px; height: 154px; position: relative; user-select: none;">
+                      <canvas id="canvas0" width="275" height="154"
+                        style="border: 1px solid rgb(0, 0, 0); width: 275px; height: 154px; touch-action: none; user-select: none;">
+                      </canvas>
                     </div>
                   </div>
                 </div>
@@ -2312,110 +2231,11 @@
               </div>
             </div>
 
-            <!-- <div class="scene1" id="canvasTab">
-		<div class="">
-			<div id="description_objects1">
-				<div class="font-large font-bold"><i id="sceneDes1" class="fa fa-hourglass-end fa-1x"> Objects &amp; color next scene</i> </div>
-
-			</div>
-			<span class="font-tiny">
-				<input type="radio" id="canvas1_enabled" name="canvas1" value="enabled" checked="" onchange="setCanvasState(0, this)">
-				<label for="canvas1_enabled" style="color: green; font-weight: bold;">Enabled</label>
-				<input type="radio" id="canvas1_disabled" name="canvas1" value="disabled" onchange="setCanvasState(0, this)">
-				<label for="canvas1_disabled" style="color: gray; font-weight: bold;">Disabled &nbsp;</label>
-			</span>
-			<span>
-				Objects in
-				<input type="radio" id="and1" name="occur1" value="and" checked="" onchange="setOccur(this, 1)">
-				<label for="and1">AND</label>
-				<input type="radio" id="or1" name="occur1" value="or" onchange="setOccur(this, 1)">
-				<label for="or1">OR</label>
-			</span>
-		</div>
-
-		<div id="block1" style="position: relative; display: block;">
-			<div id="canvasBlock1" class="advanced" style="display: block;">
-				<div id="overlay1">
-					<div align="center" id="text1" style="color: gray;">Disabled</div>
-				</div>
-				<div id="canvasdiv1">
-					<div class="canvas-container" ondrop="drop(event)" ondragover="allowDrop(event)" style="width: 275px; height: 154px; position: relative; user-select: none;"><canvas id="canvas1" width="1100.0000163912773" height="616.0000091791153" style="border: 1px solid rgb(0, 0, 0); position: absolute; width: 275px; height: 154px; left: 0px; top: 0px; touch-action: none; user-select: none;" class="lower-canvas"></canvas><canvas class="upper-canvas " width="275" height="154" style="border: 1px solid rgb(0, 0, 0); position: absolute; width: 275px; height: 154px; left: 0px; top: 0px; touch-action: none; user-select: none;"></canvas></div>
-				</div>
-			</div>
-			<div colspan="13" title="Scene Description">
-				<input id="annotations1" type="text" size="0" style="display: none;" class="ui-autocomplete-input" autocomplete="off">
-			</div>
-			<div class="advanced" colspan="13" title="Max Objects Number" style="display: block;">
-				<textarea id="not1" class="font-normal" cols="38" rows="2" style="width:275px; border-radius: 6px;" placeholder="Max Obj: e.g.: 2 person 3 car 0 dog, means at most 2 persons, 3 cars, no dogs"></textarea>
-				<div id="textual1_container" colspan="12" title="Scene Description">
-
-
-					
-				</div>
-			</div>
-
-			<div class="advanced" style="display: block;">
-				<div class="canvasClean">
-					<div class="canvasCleanItem">
-						<button id="clean1" class="btn btn-outline-danger btn-sm" title="clean canvas 1">
-							<i class="fa fa-trash"></i>
-						</button>
-						<button id="undo1" class="btn btn-outline-success btn-sm" title="undo clean canvas 1">
-							<i class="fa fa-undo"></i>
-						</button>
-					</div>
-					<div class="canvasCleanItem" style="display: none;">
-						<div>
-							<span title="Black &amp; White Keyframe">
-								<input id="isGray1" type="checkbox" onchange="setGray(1)">
-							</span>
-							<span title="Black &amp; White Keyframe">B/W</span>
-						</div>
-						<div>
-							<span title="Color Keyframe">
-								<input id="isColor1" type="checkbox" onchange="setColor(1)">
-							</span>
-							<span title="Color Keyframe" class="colorCheckbox">
-								Color
-							</span>
-						</div>
-					</div>
-				</div>
-
-			</div>
-			
-		</div>
-	</div> -->
           </div>
           <div class="headerItem">
             <div id="qbe" class="font-normal">
               <div id="filter" class="advanced" style="display: block;">
-                <!-- <div class="qbeGrid">
-		<div class="qbeItem">
-			<b id="urlText">Paste image URL</b>
-			<a href="#" id="urlLink" onclick="changeQueryBySampleMod('url')" style="display: none;">Paste image URL</a>
-		</div>
-		<div class="qbeItem column-span-2">
-			<b id="uploadText" style="display: none;">Upload an image</b>
-			<a href="#" id="uploadLink" onclick="changeQueryBySampleMod('upload')">Upload an image</a>
-		</div>
 
-		<div class="qbeItem column-span-2">
-			<input type="hidden" value="" id="objId">
-			<input id="urlToUpload" name="url" type="text" size="34">
-			<input style="display: none;" id="imageToUpload" name="imgFile" type="file" size="34">
-		</div>
-		<div class="qbeItem column-span-1">
-			<input type="image" src="img/Search.png" style="height: 20px;" value="Search" id="queryByExample" title="Search" onclick="queryImg(); return false;">
-		</div>
-
-		<div class="qbeItem column-span-3">
-			<div class="preview" id="qbeblock" style="display: none; padding-top: 10px;">
-				<img src="" id="qbeImg" width="100">
-				<img id="removeqbe" title="remove" width="16" style="vertical-align: top;" src="img/Actions-dialog-close-icon.png" onclick="resetQueryImg()">
-			</div>
-		</div>
-	</div> -->
               </div>
             </div>
 
@@ -2470,9 +2290,6 @@
     });
   </script>
 
-  <!-- inserting these scripts at the end to be able to use all the elements in the DOM
-		<script src="js/WebAudioRecorder/WebAudioRecorder.min.js"></script>
-		<script src="js/WebAudioRecorder/audioRecorder.js"></script>-->
 
 
   <div tabindex="-1" role="dialog"
@@ -2525,285 +2342,17 @@
         return el;
       }
 
+      // Drop function is now handled by newCanvas.js
       function drop(ev) {
-        ev.preventDefault();
-        var id = (ev.dataTransfer && (ev.dataTransfer.getData("text/id") || ev.dataTransfer.getData("text/plain") || ev.dataTransfer.getData("text"))) || "";
-        if (!id) { return; }
-        var src = document.getElementById(id);
-        if (!src) { return; }
-        
-        // Tìm canvas container
-        var zone = findDropZone(ev.target) || ev.currentTarget || ev.target;
-        var canvasElement = zone.querySelector('canvas');
-        if (!canvasElement) { return; }
-        
-        // Tạo hoặc sử dụng Fabric.js canvas
-        var fabricCanvas = null;
-        
-        // Debug: kiểm tra global variables
-        console.log('canvas0 exists:', typeof canvas0 !== 'undefined');
-        console.log('canvas0 type:', typeof canvas0);
-        console.log('canvas0 value:', canvas0);
-        console.log('canvas0 constructor:', canvas0 ? canvas0.constructor.name : 'undefined');
-        console.log('canvas0 methods:', canvas0 ? Object.getOwnPropertyNames(canvas0).slice(0, 10) : 'undefined');
-        console.log('activeCanvas:', activeCanvas);
-        
-        // Kiểm tra xem canvas0 có phải là Fabric.js canvas không
-        if (canvasElement.id === 'canvas0' && canvas0 && typeof canvas0.getWidth === 'function') {
-          fabricCanvas = canvas0;
-          console.log('Using existing canvas0 (Fabric.js canvas)');
-          
-          // Đảm bảo canvas có kích thước đúng
-          if (fabricCanvas.getWidth() !== 275 || fabricCanvas.getHeight() !== 154) {
-            console.log('Resizing canvas0 to correct dimensions');
-            fabricCanvas.setDimensions({
-              width: 275,
-              height: 154
-            });
-            fabricCanvas.requestRenderAll();
-          }
-        } else if (canvasElement.id === 'canvas1' && canvas1 && typeof canvas1.getWidth === 'function') {
-          fabricCanvas = canvas1;
-          console.log('Using existing canvas1 (Fabric.js canvas)');
-          
-          // Đảm bảo canvas có kích thước đúng
-          if (fabricCanvas.getWidth() !== 275 || fabricCanvas.getHeight() !== 154) {
-            console.log('Resizing canvas1 to correct dimensions');
-            fabricCanvas.setDimensions({
-              width: 275,
-              height: 154
-            });
-            fabricCanvas.requestRenderAll();
-          }
-        } else {
-                       // Tạo mới Fabric.js canvas
-             try {
-               fabricCanvas = new fabric.Canvas(canvasElement);
-               
-               // Cấu hình canvas cơ bản
-               fabricCanvas.uniScaleTransform = true;
-               fabricCanvas.selection = true;
-               fabricCanvas.preserveObjectStacking = true;
-               
-               // Đảm bảo canvas có thể nhận events
-               fabricCanvas.upperCanvasEl.style.pointerEvents = 'auto';
-               fabricCanvas.lowerCanvasEl.style.pointerEvents = 'auto';
-               
-               // Bind các events cần thiết
-               fabricCanvas.on('mouse:down', function(o) {
-                 console.log('Canvas mouse:down event', o);
-                 if (o.target) {
-                   console.log('Clicked on object:', o.target);
-                 }
-               });
-               
-               fabricCanvas.on('mouse:up', function(o) {
-                 console.log('Canvas mouse:up event', o);
-               });
-               
-               fabricCanvas.on('selection:created', function(e) {
-                 console.log('Selection created', e);
-               });
-               
-               fabricCanvas.on('selection:cleared', function(e) {
-                 console.log('Selection cleared', e);
-               });
-               
-               fabricCanvas.on('object:modified', function(e) {
-                 console.log('Object modified', e);
-               });
-               
-               fabricCanvas.on('object:moving', function(e) {
-                 console.log('Object moving', e);
-               });
-               
-               fabricCanvas.on('object:scaling', function(e) {
-                 console.log('Object scaling', e);
-               });
-            
-            // Lưu reference vào element
-            canvasElement._fabricCanvas = fabricCanvas;
-            
-            // Cập nhật global variables nếu cần
-            if (canvasElement.id === 'canvas0') {
-              canvas0 = fabricCanvas;
-              activeCanvas = fabricCanvas;
-              activeCanvasIdx = 0;
-            } else if (canvasElement.id === 'canvas1') {
-              canvas1 = fabricCanvas;
-              activeCanvas = fabricCanvas;
-              activeCanvasIdx = 1;
-            }
-            
-            console.log('Created new Fabric canvas for:', canvasElement.id);
-          } catch (error) {
-            console.error('Error creating Fabric canvas:', error);
-            return;
-          }
-        }
-        
-        // Kiểm tra xem fabricCanvas có phải là Fabric.js canvas không
-        if (!fabricCanvas || typeof fabricCanvas.add !== 'function') {
-          console.error('fabricCanvas is not a valid Fabric.js canvas:', fabricCanvas);
-          console.log('Creating new Fabric canvas directly');
-          try {
-            fabricCanvas = new fabric.Canvas(canvasElement);
-            fabricCanvas.uniScaleTransform = true;
-            fabricCanvas.selection = true;
-            
-            // Bind các events cần thiết
-            fabricCanvas.on('mouse:down', function(o) {
-              console.log('Canvas mouse:down event');
-            });
-            
-            fabricCanvas.on('selection:created', function(e) {
-              console.log('Selection created');
-            });
-            
-            fabricCanvas.on('selection:cleared', function(e) {
-              console.log('Selection cleared');
-            });
-            
-            // Cập nhật global variables
-            if (canvasElement.id === 'canvas0') {
-              canvas0 = fabricCanvas;
-              activeCanvas = fabricCanvas;
-              activeCanvasIdx = 0;
-            } else if (canvasElement.id === 'canvas1') {
-              canvas1 = fabricCanvas;
-              activeCanvas = fabricCanvas;
-              activeCanvasIdx = 1;
-            }
-            
-            console.log('Created new Fabric canvas successfully');
-          } catch (error) {
-            console.error('Error creating Fabric canvas:', error);
-            return;
-          }
-        }
-        
-        // Tính toán vị trí drop
-        var rect = zone.getBoundingClientRect();
-        var x = (ev.clientX || 0) - rect.left;
-        var y = (ev.clientY || 0) - rect.top;
-        
-        // Tạo Fabric.js Image object
-        fabric.Image.fromURL(src.src, function(img) {
-          // Scale image để phù hợp với canvas
-          var scale = Math.min(50 / img.width, 50 / img.height);
-          
-          // Cấu hình object với đầy đủ permissions
-          img.set({
-            left: x - (img.width * scale) / 2,
-            top: y - (img.height * scale) / 2,
-            scaleX: scale,
-            scaleY: scale,
-            selectable: true,
-            hasControls: true,
-            hasBorders: true,
-            lockRotation: false,
-            lockScalingX: false,
-            lockScalingY: false,
-            lockMovementX: false,
-            lockMovementY: false,
-            lockUniScaling: false,
-            transparentCorners: false,
-            cornerColor: 'rgba(102,153,255,0.8)',
-            cornerSize: 12,
-            cornerStyle: 'circle',
-            cornerStrokeColor: 'rgba(0,0,0,0.5)',
-            borderColor: 'rgba(102,153,255,0.8)',
-            borderScaleFactor: 2,
-            uuid: uniqueId(id.replace(/[^a-zA-Z0-9_-]/g, ""))
-          });
-          
-          // Đảm bảo object có thể tương tác
-          img.evented = true;
-          img.selectable = true;
-          img.hasControls = true;
-          img.hasBorders = true;
-          
-          // Thêm object vào canvas
-          fabricCanvas.add(img);
-          
-          // Set active object và render
-          fabricCanvas.setActiveObject(img);
-          fabricCanvas.requestRenderAll();
-          
-          // Đảm bảo canvas có thể tương tác
-          fabricCanvas.selection = true;
-          fabricCanvas.uniScaleTransform = true;
-          
-          // Đảm bảo canvas có kích thước đúng
-          fabricCanvas.setDimensions({
-            width: 275,
-            height: 154
-          });
-          
-          // Force render
-          fabricCanvas.requestRenderAll();
-          
-          // Thêm delete button nếu function tồn tại
-          if (typeof addDeleteBtn === 'function') {
-            addDeleteBtn(id, img);
-          }
-          
-          console.log('Fabric object added successfully:', img);
-          console.log('Object selectable:', img.selectable);
-          console.log('Object hasControls:', img.hasControls);
-          console.log('Canvas selection enabled:', fabricCanvas.selection);
-          console.log('Canvas objects count:', fabricCanvas.getObjects().length);
-          
-          // Test interaction
-          setTimeout(function() {
-            console.log('Testing object interaction...');
-            var objects = fabricCanvas.getObjects();
-            if (objects.length > 0) {
-              var lastObject = objects[objects.length - 1];
-              console.log('Last object:', lastObject);
-              console.log('Last object selectable:', lastObject.selectable);
-              console.log('Last object hasControls:', lastObject.hasControls);
-              console.log('Last object evented:', lastObject.evented);
-              
-              // Test select object
-              fabricCanvas.setActiveObject(lastObject);
-              fabricCanvas.requestRenderAll();
-              console.log('Object should be selected now');
-              
-              // Test click events
-              console.log('Try clicking on the object to see if events fire');
-              
-                        // Debug canvas state
-          console.log('Canvas selection enabled:', fabricCanvas.selection);
-          console.log('Canvas objects count:', fabricCanvas.getObjects().length);
-          console.log('Active object:', fabricCanvas.getActiveObject());
-          
-          // Debug canvas element styles
-          var upperCanvas = fabricCanvas.upperCanvasEl;
-          var lowerCanvas = fabricCanvas.lowerCanvasEl;
-          console.log('Upper canvas display:', window.getComputedStyle(upperCanvas).display);
-          console.log('Upper canvas pointer-events:', window.getComputedStyle(upperCanvas).pointerEvents);
-          console.log('Upper canvas z-index:', window.getComputedStyle(upperCanvas).zIndex);
-          console.log('Upper canvas width:', upperCanvas.width, 'height:', upperCanvas.height);
-          console.log('Upper canvas style width:', upperCanvas.style.width, 'height:', upperCanvas.style.height);
-          console.log('Canvas dimensions:', fabricCanvas.getWidth(), 'x', fabricCanvas.getHeight());
-          
-          // Debug object position
-          if (objects.length > 0) {
-            var lastObject = objects[objects.length - 1];
-            console.log('Object position:', lastObject.left, lastObject.top);
-            console.log('Object dimensions:', lastObject.width * lastObject.scaleX, 'x', lastObject.height * lastObject.scaleY);
-            console.log('Object bounds:', lastObject.getBoundingRect());
-          }
-            }
-          }, 100);
-        });
+        // This function is replaced by handleDrop in newCanvas.js
+        console.log('Old drop function called - should use newCanvas.js');
       }
 
       // expose globally to match inline handlers added on containers
       window.allowDrop = allowDrop;
       window.drag = drag;
       window.drop = drop;
+      window.handleDrop = handleDrop; // Add new drop function
 
       // Upgrade all palette items to ensure they have draggable + ondragstart
       try {
