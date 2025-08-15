@@ -20,7 +20,7 @@
   <script src="js/queryByExample.js"></script>
   <script src="js/visione.js"></script>
   <script src="js/visioneAVS.js"></script>
-  <script src="js/canvas.js"></script>
+  <!-- <script src="js/canvas.js"></script> -->
   <script src="js/search_bar_templates.js"></script>
   <script src="js/WebAudioRecorder/WebAudioRecorder.min.js"></script>
   <script src="js/WebAudioRecorder/audioRecorder.js"></script>
@@ -2255,9 +2255,9 @@
 
               <div id="block0" style="position: relative; display: block;">
                 <div id="canvasBlock0" class="advanced" style="display: block;">
-                  <div id="overlay0">
+                  <!-- <div id="overlay0">
                     <div align="center" id="text0" style="color: gray;">Disabled</div>
-                  </div>
+                  </div> -->
                   <div id="canvasdiv1">
                     <div class="canvas-container" ondrop="drop(event)" ondragover="allowDrop(event)"
                       style="width: 275px; height: 154px; position: relative; user-select: none;"><canvas id="canvas0"
@@ -2531,26 +2531,273 @@
         if (!id) { return; }
         var src = document.getElementById(id);
         if (!src) { return; }
+        
+        // Tìm canvas container
         var zone = findDropZone(ev.target) || ev.currentTarget || ev.target;
-        // clone so we can drop multiple times
-        var clone = src.cloneNode(true);
-        clone.id = uniqueId(id.replace(/[^a-zA-Z0-9_-]/g, ""));
-        clone.draggable = false; // avoid re-drag from canvas unless you want it
-        clone.style.position = "absolute";
-        // compute position
+        var canvasElement = zone.querySelector('canvas');
+        if (!canvasElement) { return; }
+        
+        // Tạo hoặc sử dụng Fabric.js canvas
+        var fabricCanvas = null;
+        
+        // Debug: kiểm tra global variables
+        console.log('canvas0 exists:', typeof canvas0 !== 'undefined');
+        console.log('canvas0 type:', typeof canvas0);
+        console.log('canvas0 value:', canvas0);
+        console.log('canvas0 constructor:', canvas0 ? canvas0.constructor.name : 'undefined');
+        console.log('canvas0 methods:', canvas0 ? Object.getOwnPropertyNames(canvas0).slice(0, 10) : 'undefined');
+        console.log('activeCanvas:', activeCanvas);
+        
+        // Kiểm tra xem canvas0 có phải là Fabric.js canvas không
+        if (canvasElement.id === 'canvas0' && canvas0 && typeof canvas0.getWidth === 'function') {
+          fabricCanvas = canvas0;
+          console.log('Using existing canvas0 (Fabric.js canvas)');
+          
+          // Đảm bảo canvas có kích thước đúng
+          if (fabricCanvas.getWidth() !== 275 || fabricCanvas.getHeight() !== 154) {
+            console.log('Resizing canvas0 to correct dimensions');
+            fabricCanvas.setDimensions({
+              width: 275,
+              height: 154
+            });
+            fabricCanvas.requestRenderAll();
+          }
+        } else if (canvasElement.id === 'canvas1' && canvas1 && typeof canvas1.getWidth === 'function') {
+          fabricCanvas = canvas1;
+          console.log('Using existing canvas1 (Fabric.js canvas)');
+          
+          // Đảm bảo canvas có kích thước đúng
+          if (fabricCanvas.getWidth() !== 275 || fabricCanvas.getHeight() !== 154) {
+            console.log('Resizing canvas1 to correct dimensions');
+            fabricCanvas.setDimensions({
+              width: 275,
+              height: 154
+            });
+            fabricCanvas.requestRenderAll();
+          }
+        } else {
+                       // Tạo mới Fabric.js canvas
+             try {
+               fabricCanvas = new fabric.Canvas(canvasElement);
+               
+               // Cấu hình canvas cơ bản
+               fabricCanvas.uniScaleTransform = true;
+               fabricCanvas.selection = true;
+               fabricCanvas.preserveObjectStacking = true;
+               
+               // Đảm bảo canvas có thể nhận events
+               fabricCanvas.upperCanvasEl.style.pointerEvents = 'auto';
+               fabricCanvas.lowerCanvasEl.style.pointerEvents = 'auto';
+               
+               // Bind các events cần thiết
+               fabricCanvas.on('mouse:down', function(o) {
+                 console.log('Canvas mouse:down event', o);
+                 if (o.target) {
+                   console.log('Clicked on object:', o.target);
+                 }
+               });
+               
+               fabricCanvas.on('mouse:up', function(o) {
+                 console.log('Canvas mouse:up event', o);
+               });
+               
+               fabricCanvas.on('selection:created', function(e) {
+                 console.log('Selection created', e);
+               });
+               
+               fabricCanvas.on('selection:cleared', function(e) {
+                 console.log('Selection cleared', e);
+               });
+               
+               fabricCanvas.on('object:modified', function(e) {
+                 console.log('Object modified', e);
+               });
+               
+               fabricCanvas.on('object:moving', function(e) {
+                 console.log('Object moving', e);
+               });
+               
+               fabricCanvas.on('object:scaling', function(e) {
+                 console.log('Object scaling', e);
+               });
+            
+            // Lưu reference vào element
+            canvasElement._fabricCanvas = fabricCanvas;
+            
+            // Cập nhật global variables nếu cần
+            if (canvasElement.id === 'canvas0') {
+              canvas0 = fabricCanvas;
+              activeCanvas = fabricCanvas;
+              activeCanvasIdx = 0;
+            } else if (canvasElement.id === 'canvas1') {
+              canvas1 = fabricCanvas;
+              activeCanvas = fabricCanvas;
+              activeCanvasIdx = 1;
+            }
+            
+            console.log('Created new Fabric canvas for:', canvasElement.id);
+          } catch (error) {
+            console.error('Error creating Fabric canvas:', error);
+            return;
+          }
+        }
+        
+        // Kiểm tra xem fabricCanvas có phải là Fabric.js canvas không
+        if (!fabricCanvas || typeof fabricCanvas.add !== 'function') {
+          console.error('fabricCanvas is not a valid Fabric.js canvas:', fabricCanvas);
+          console.log('Creating new Fabric canvas directly');
+          try {
+            fabricCanvas = new fabric.Canvas(canvasElement);
+            fabricCanvas.uniScaleTransform = true;
+            fabricCanvas.selection = true;
+            
+            // Bind các events cần thiết
+            fabricCanvas.on('mouse:down', function(o) {
+              console.log('Canvas mouse:down event');
+            });
+            
+            fabricCanvas.on('selection:created', function(e) {
+              console.log('Selection created');
+            });
+            
+            fabricCanvas.on('selection:cleared', function(e) {
+              console.log('Selection cleared');
+            });
+            
+            // Cập nhật global variables
+            if (canvasElement.id === 'canvas0') {
+              canvas0 = fabricCanvas;
+              activeCanvas = fabricCanvas;
+              activeCanvasIdx = 0;
+            } else if (canvasElement.id === 'canvas1') {
+              canvas1 = fabricCanvas;
+              activeCanvas = fabricCanvas;
+              activeCanvasIdx = 1;
+            }
+            
+            console.log('Created new Fabric canvas successfully');
+          } catch (error) {
+            console.error('Error creating Fabric canvas:', error);
+            return;
+          }
+        }
+        
+        // Tính toán vị trí drop
         var rect = zone.getBoundingClientRect();
         var x = (ev.clientX || 0) - rect.left;
         var y = (ev.clientY || 0) - rect.top;
-        // fallback size until image loads
-        var w = src.naturalWidth || src.width || 32;
-        var h = src.naturalHeight || src.height || 32;
-        clone.style.left = (x - w / 2) + "px";
-        clone.style.top = (y - h / 2) + "px";
-        // ensure zone is positioned relatively for absolute children
-        if (window.getComputedStyle(zone).position === "static") {
-          zone.style.position = "relative";
-        }
-        zone.appendChild(clone);
+        
+        // Tạo Fabric.js Image object
+        fabric.Image.fromURL(src.src, function(img) {
+          // Scale image để phù hợp với canvas
+          var scale = Math.min(50 / img.width, 50 / img.height);
+          
+          // Cấu hình object với đầy đủ permissions
+          img.set({
+            left: x - (img.width * scale) / 2,
+            top: y - (img.height * scale) / 2,
+            scaleX: scale,
+            scaleY: scale,
+            selectable: true,
+            hasControls: true,
+            hasBorders: true,
+            lockRotation: false,
+            lockScalingX: false,
+            lockScalingY: false,
+            lockMovementX: false,
+            lockMovementY: false,
+            lockUniScaling: false,
+            transparentCorners: false,
+            cornerColor: 'rgba(102,153,255,0.8)',
+            cornerSize: 12,
+            cornerStyle: 'circle',
+            cornerStrokeColor: 'rgba(0,0,0,0.5)',
+            borderColor: 'rgba(102,153,255,0.8)',
+            borderScaleFactor: 2,
+            uuid: uniqueId(id.replace(/[^a-zA-Z0-9_-]/g, ""))
+          });
+          
+          // Đảm bảo object có thể tương tác
+          img.evented = true;
+          img.selectable = true;
+          img.hasControls = true;
+          img.hasBorders = true;
+          
+          // Thêm object vào canvas
+          fabricCanvas.add(img);
+          
+          // Set active object và render
+          fabricCanvas.setActiveObject(img);
+          fabricCanvas.requestRenderAll();
+          
+          // Đảm bảo canvas có thể tương tác
+          fabricCanvas.selection = true;
+          fabricCanvas.uniScaleTransform = true;
+          
+          // Đảm bảo canvas có kích thước đúng
+          fabricCanvas.setDimensions({
+            width: 275,
+            height: 154
+          });
+          
+          // Force render
+          fabricCanvas.requestRenderAll();
+          
+          // Thêm delete button nếu function tồn tại
+          if (typeof addDeleteBtn === 'function') {
+            addDeleteBtn(id, img);
+          }
+          
+          console.log('Fabric object added successfully:', img);
+          console.log('Object selectable:', img.selectable);
+          console.log('Object hasControls:', img.hasControls);
+          console.log('Canvas selection enabled:', fabricCanvas.selection);
+          console.log('Canvas objects count:', fabricCanvas.getObjects().length);
+          
+          // Test interaction
+          setTimeout(function() {
+            console.log('Testing object interaction...');
+            var objects = fabricCanvas.getObjects();
+            if (objects.length > 0) {
+              var lastObject = objects[objects.length - 1];
+              console.log('Last object:', lastObject);
+              console.log('Last object selectable:', lastObject.selectable);
+              console.log('Last object hasControls:', lastObject.hasControls);
+              console.log('Last object evented:', lastObject.evented);
+              
+              // Test select object
+              fabricCanvas.setActiveObject(lastObject);
+              fabricCanvas.requestRenderAll();
+              console.log('Object should be selected now');
+              
+              // Test click events
+              console.log('Try clicking on the object to see if events fire');
+              
+                        // Debug canvas state
+          console.log('Canvas selection enabled:', fabricCanvas.selection);
+          console.log('Canvas objects count:', fabricCanvas.getObjects().length);
+          console.log('Active object:', fabricCanvas.getActiveObject());
+          
+          // Debug canvas element styles
+          var upperCanvas = fabricCanvas.upperCanvasEl;
+          var lowerCanvas = fabricCanvas.lowerCanvasEl;
+          console.log('Upper canvas display:', window.getComputedStyle(upperCanvas).display);
+          console.log('Upper canvas pointer-events:', window.getComputedStyle(upperCanvas).pointerEvents);
+          console.log('Upper canvas z-index:', window.getComputedStyle(upperCanvas).zIndex);
+          console.log('Upper canvas width:', upperCanvas.width, 'height:', upperCanvas.height);
+          console.log('Upper canvas style width:', upperCanvas.style.width, 'height:', upperCanvas.style.height);
+          console.log('Canvas dimensions:', fabricCanvas.getWidth(), 'x', fabricCanvas.getHeight());
+          
+          // Debug object position
+          if (objects.length > 0) {
+            var lastObject = objects[objects.length - 1];
+            console.log('Object position:', lastObject.left, lastObject.top);
+            console.log('Object dimensions:', lastObject.width * lastObject.scaleX, 'x', lastObject.height * lastObject.scaleY);
+            console.log('Object bounds:', lastObject.getBoundingRect());
+          }
+            }
+          }, 100);
+        });
       }
 
       // expose globally to match inline handlers added on containers

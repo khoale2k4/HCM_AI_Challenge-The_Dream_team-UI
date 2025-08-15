@@ -226,6 +226,7 @@ body {
   background-color: rgba(255,255,255,0.5);
   z-index: 2;
   cursor: pointer;
+  pointer-events: none; /* Đảm bảo không can thiệp vào mouse events */
 }
 /*
 #text0 {
@@ -610,6 +611,58 @@ video::-webkit-media-controls {
   grid-gap: 0px;
   max-width: 290px; /* Fit within sidebar 310px minus padding */
   margin: 0 auto;
+}
+
+/* Styles cho delete button */
+.deleteBtn {
+  transition: all 0.2s ease;
+  opacity: 0.8;
+}
+
+.deleteBtn:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* Styles cho canvas objects */
+.canvas-container {
+  position: relative;
+}
+
+.canvas-container canvas {
+  border: 1px solid #ccc;
+}
+
+/* Đảm bảo canvas container có thể nhận events */
+.canvas-container {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+}
+
+/* Đảm bảo upper canvas có thể nhận events */
+.upper-canvas {
+  pointer-events: auto !important;
+  z-index: 1 !important;
+}
+
+/* Đảm bảo lower canvas có thể nhận events */
+.lower-canvas {
+  pointer-events: auto !important;
+  z-index: 1 !important;
+}
+
+/* Đảm bảo canvas block không bị che phủ */
+#canvasBlock0 {
+  position: relative;
+  z-index: 1;
+}
+
+/* Đảm bảo canvas div có thể nhận events */
+#canvasdiv1 {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
 }
 
 .palette img {

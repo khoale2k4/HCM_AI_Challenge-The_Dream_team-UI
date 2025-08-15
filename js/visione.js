@@ -253,8 +253,15 @@ $.get('objects_doc_freq.csv', function (data) {
 draggedLabel = '';
 
 function drag(ev) {
+	console.log('drag function called');
+	console.log('Target:', ev.target);
+	console.log('Target id:', ev.target.id);
+	console.log('Target title:', ev.target.title);
+	
 	ev.dataTransfer.setData("text", ev.target.id);
 	draggedLabel = ev.target.title;
+	
+	console.log('draggedLabel set to:', draggedLabel);
 }
 
 function getText(id, field) {
@@ -401,6 +408,55 @@ function log(query) {
 	})
 }
 
+// Hàm xóa object khỏi canvas
+function deleteObject(uuid) {
+	// Tìm object trong canvas
+	var objects = activeCanvas.getObjects();
+	for (var i = 0; i < objects.length; i++) {
+		if (objects[i].get('uuid') === uuid) {
+			// Xóa object khỏi canvas
+			activeCanvas.remove(objects[i]);
+			// Xóa delete button
+			$("#" + uuid).remove();
+			// Render lại canvas
+			activeCanvas.renderAll();
+			// Trigger search
+			searchByForm();
+			break;
+		}
+	}
+}
+
+// Hàm cập nhật vị trí delete button khi object di chuyển
+function updateDeleteBtnPosition(rect) {
+	var id = rect.get('uuid');
+	var x = rect.aCoords.tr.x;
+	var y = rect.aCoords.tr.y;
+	var left = rect.left;
+
+	if (rect.group) {
+		var point = rect.getCenterPoint();
+		x = rect.group.left;
+		y = rect.group.top;
+		left = rect.group.left;
+	}
+
+	var btnLeft = x - 7;
+	var btnTop = y - 5;
+	var labelLeft = rect.left;
+	var labelTop = y - 22;
+
+	// Cập nhật vị trí delete button
+	$("#" + id + " .deleteBtn").css({
+		'top': btnTop + 'px',
+		'left': btnLeft + 'px'
+	});
+	$("#" + id + " span").css({
+		'top': labelTop + 'px',
+		'left': labelLeft + 'px'
+	});
+}
+
 function addDeleteBtn(label, rect) {
 	var id = rect.get('uuid');
 
@@ -434,7 +490,7 @@ function addDeleteBtn(label, rect) {
 		+ id
 		+ '" src="img/Actions-dialog-close-icon.png" class="deleteBtn" style="position:absolute;top:'
 		+ btnTop + 'px;left:' + btnLeft
-		+ 'px;cursor:pointer;width:16px;height:16px;"/></div>';
+		+ 'px;cursor:pointer;width:16px;height:16px;" onclick="deleteObject(\'' + id + '\')"/></div>';
 	$(".canvas-container").eq(activeCanvasIdx).append(deleteBtn);
 }
 
@@ -682,6 +738,7 @@ function search2(query) {
 			console.log("Request data:", { query: query, simreorder: simreorder, n_frames_per_row: numResultsPerVideo });
 			let obj = JSON.parse(query);
 			let textual = obj.query?.[0]?.textual || null;
+			let ocr = obj.query?.[1]?.textual || null;
 
 			$.ajax({
 				type: "POST",
@@ -689,7 +746,10 @@ function search2(query) {
 				url: searchUrl,
 				data: JSON.stringify({
 					query: textual,
-					task: "textual-kis",
+					task: isAdvanced ? "visual-kis" : "textual-kis",
+					ocr: ocr,
+					objects: [],
+					colors: "a3_red b2_blue",
 					//{"query":[{"textual":"a"}], "parameters":[{"textualMode":"all"}]}
 				}),
 				contentType: "application/json; charset=utf-8",
@@ -1197,6 +1257,77 @@ window.testGridLayout = function () {
 	setResults(testData);
 };
 
+// Global function để test canvas functionality
+window.testCanvas = function () {
+	console.log("Testing canvas functionality");
+	console.log("Canvas0:", canvas0);
+	console.log("Canvas0 selection:", canvas0.selection);
+	console.log("Canvas0 objects:", canvas0.getObjects());
+	
+	// Test thêm một object mẫu
+	if (canvas0) {
+		var testRect = new fabric.Rect({
+			left: 100,
+			top: 100,
+			width: 50,
+			height: 50,
+			fill: 'red',
+			stroke: 'black',
+			strokeWidth: 2,
+			selectable: true,
+			hasControls: true,
+			hasBorders: true,
+			uuid: 'test_' + Date.now()
+		});
+		
+		canvas0.add(testRect);
+		console.log("Test object added:", testRect);
+		console.log("Canvas objects after test:", canvas0.getObjects());
+	}
+};
+
+// Global function để debug overlay và canvas state
+window.debugCanvasState = function () {
+	console.log("=== Debug Canvas State ===");
+	
+	// Kiểm tra overlay
+	var overlay0 = document.getElementById('overlay0');
+	if (overlay0) {
+		console.log("Overlay0 display:", overlay0.style.display);
+		console.log("Overlay0 pointer-events:", overlay0.style.pointerEvents);
+		console.log("Overlay0 z-index:", overlay0.style.zIndex);
+	} else {
+		console.log("Overlay0 not found");
+	}
+	
+	// Kiểm tra canvas
+	if (canvas0) {
+		console.log("Canvas0 selection:", canvas0.selection);
+		console.log("Canvas0 objects:", canvas0.getObjects().length);
+		console.log("Canvas0 active object:", canvas0.getActiveObject());
+	} else {
+		console.log("Canvas0 not found");
+	}
+	
+	// Kiểm tra canvas container
+	var canvasContainer = document.querySelector('.canvas-container');
+	if (canvasContainer) {
+		console.log("Canvas container pointer-events:", canvasContainer.style.pointerEvents);
+		console.log("Canvas container z-index:", canvasContainer.style.zIndex);
+	} else {
+		console.log("Canvas container not found");
+	}
+	
+	// Kiểm tra upper canvas
+	var upperCanvas = document.querySelector('.upper-canvas');
+	if (upperCanvas) {
+		console.log("Upper canvas pointer-events:", upperCanvas.style.pointerEvents);
+		console.log("Upper canvas z-index:", upperCanvas.style.zIndex);
+	} else {
+		console.log("Upper canvas not found");
+	}
+};
+
 var batchSize = 80;
 var visibleImages = 0;
 var resColIdx = 1;
@@ -1633,86 +1764,117 @@ function generateUUID(color) {
 	return uuid;
 }
 
-$(document).on('click', ".deleteBtn", function (event) {
-	console.log("active canvas: " + activeCanvasIdx);
-	activeCanvas.getObjects().forEach(function (o) {
-		if (o.uuid === event.target.id) {
-			activeCanvas.discardActiveObject().renderAll();
-			activeCanvas.remove(o);
-		}
-	})
-	$("#" + event.target.id).remove();
-	searchByForm();
-});
+// Event handler cũ cho delete button - đã được thay thế bằng onclick trong addDeleteBtn
+// $(document).on('click', ".deleteBtn", function (event) {
+// 	console.log("active canvas: " + activeCanvasIdx);
+// 	activeCanvas.getObjects().forEach(function (o) {
+// 		if (o.uuid === event.target.id) {
+// 			activeCanvas.discardActiveObject().renderAll();
+// 			activeCanvas.remove(o);
+// 		}
+// 	})
+// 	$("#" + event.target.id).remove();
+// 	searchByForm();
+// });
 
-dropImage = function (e) {
+function findDropZone(el) {
+    while (el && el !== document && !(el.classList && el.classList.contains('canvas-container'))) {
+        el = el.parentElement;
+    }
+    return el;
+}
 
-	activeCanvas = canvas0;
-	activeCanvasIdx = 0;
-	var pointer = canvas1.getPointer(event.e);
-	let posX = pointer.x;
-	let posY = pointer.y;
-	if ((posX >= 0 && posX <= canvasWidth) && (posY >= 0 && posY <= canvasHeight)) {
-		activeCanvas = canvas1;
-		activeCanvasIdx = 1;
-	}
-
-	if (draggedLabel != '') {
-		scale = 14;
-
-		let dt = e.originalEvent.dataTransfer, files = dt.files;
-		e = e || window.event;
-		e.preventDefault();
-		e.stopPropagation();
-		let textVal = e.target.id;
-
-		$('.refs').removeClass('highlight');
-
-		if (e.target.nodeName == "CANVAS") {
-			let pointer = activeCanvas.getPointer(e);
-			let origX = pointer.x;
-			let origY = pointer.y;
-			let imgElement = document.getElementById(draggedLabel);
-			let color = imgElement.alt == 'color' ? true : false;
-
-			rect = new fabric.Image(imgElement, {
-				left: origX - 25,
-				top: origY - 30,
-				fill: '',
-				stroke: 'black',
-				type: 'rect',
-				uuid: generateUUID(color),
-				strokeWidth: 1,
-				scaleX: scale / imgElement.width,
-				scaleY: scale / imgElement.height
-			});
-			activeCanvas.add(rect);
-			activeCanvas.discardActiveObject();
-
-			addDeleteBtn(draggedLabel, rect);
-			activeObj = rect;
-			rect = null;
-
-			isCanvasClean[activeCanvasIdx] = false;
-			isReset = false;
-
-			searchByForm();
-
-			canvasObjects = activeCanvas.getObjects();
-			activeCanvas.on('object:scaling', (e) => {// FRANCA
-				var o = e.target;
-				if (!o.strokeWidthUnscaled && o.strokeWidth) {
-					o.strokeWidthUnscaled = o.strokeWidth;
-				}
-				if (o.strokeWidthUnscaled) {
-					o.strokeWidth = o.strokeWidthUnscaled / o.scaleX;
-				}
-			});
-		}
-
-		isDragging = false;
-		draggedLabel = '';
-	}
+function dropImage(e) {
+    console.log('Drop event triggered');
+    
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Lấy dragged label từ global variable
+    if (draggedLabel == '') {
+        console.log('No dragged label found');
+        return;
+    }
+    
+    // Tìm canvas container và canvas element
+    var zone = findDropZone(e.target) || e.currentTarget || e.target;
+    var canvasElement = zone.querySelector('canvas');
+    if (!canvasElement) {
+        console.log('Canvas element not found');
+        return;
+    }
+    
+    // Lấy hoặc tạo Fabric.js canvas instance
+    var fabricCanvas = fabric.util.getFabricCanvas(canvasElement);
+    if (!fabricCanvas) {
+        // Nếu chưa có Fabric canvas, tạo mới
+        fabricCanvas = new fabric.Canvas(canvasElement);
+        // Cập nhật global variables
+        if (canvasElement.id === 'canvas0') {
+            canvas0 = fabricCanvas;
+            activeCanvas = canvas0;
+            activeCanvasIdx = 0;
+        } else if (canvasElement.id === 'canvas1') {
+            canvas1 = fabricCanvas;
+            activeCanvas = canvas1;
+            activeCanvasIdx = 1;
+        }
+    } else {
+        // Cập nhật active canvas
+        activeCanvas = fabricCanvas;
+        activeCanvasIdx = canvasElement.id === 'canvas1' ? 1 : 0;
+    }
+    
+    // Tính toán vị trí drop
+    var rect = zone.getBoundingClientRect();
+    var x = (e.clientX || 0) - rect.left;
+    var y = (e.clientY || 0) - rect.top;
+    
+    // Lấy image element từ palette
+    var imgElement = document.getElementById(draggedLabel);
+    if (!imgElement) {
+        console.log('Image element not found:', draggedLabel);
+        return;
+    }
+    
+    console.log('Creating object:', draggedLabel, 'at', x, y);
+    
+    // Tạo Fabric.js Image object
+    fabric.Image.fromURL(imgElement.src, function(img) {
+        // Scale image để phù hợp với canvas
+        var scale = Math.min(50 / img.width, 50 / img.height);
+        
+        img.set({
+            left: x - (img.width * scale) / 2,
+            top: y - (img.height * scale) / 2,
+            scaleX: scale,
+            scaleY: scale,
+            selectable: true,
+            hasControls: true,
+            hasBorders: true,
+            lockRotation: false,
+            lockScalingX: false,
+            lockScalingY: false,
+            lockMovementX: false,
+            lockMovementY: false,
+            uuid: generateUUID()
+        });
+        
+        activeCanvas.add(img);
+        activeCanvas.setActiveObject(img);
+        activeCanvas.requestRenderAll();
+        
+        // Thêm delete button nếu function tồn tại
+        if (typeof addDeleteBtn === 'function') {
+            addDeleteBtn(draggedLabel, img);
+        }
+        
+        console.log('Object added successfully:', img);
+        console.log('Canvas objects:', activeCanvas.getObjects());
+    });
+    
+    isDragging = false;
+    draggedLabel = '';
 }
 
 function indexedCells(txt) {
@@ -2501,34 +2663,39 @@ async function init() {
 
 	document.onkeydown = checkKey;
 
-	// Global event handler cho Enter key trên input fields và textarea
 	$(document).on('keydown', 'input[type="text"], textarea', function (event) {
 		if (event.key === 'Enter' || event.keyCode === 13) {
 			event.preventDefault();
 			event.stopPropagation();
 
-			// Nếu là textual field, thực hiện tìm kiếm
-			if (this.id === 'textual0') {
-				var textQuery = $(this).val().trim();
-				console.log("Direct search for textual0:", textQuery);
+			if (this.id === 'textual0' || this.id === 'textual1') {
+				// Lấy giá trị của cả hai ô
+				var text0 = $('#textual0').val().trim();
+				var text1 = $('#textual1').val().trim();
 
-				if (textQuery.length > 0) {
-					// if (document.getElementById("isTranslate0").checked) {
-					// 	translateText(textQuery, 0);
-					// } else {
-					// Tạo query trực tiếp thay vì gọi queryByTextual()
-					var queryObj = { textual: textQuery };
+				console.log("Textual0:", text0, "Textual1:", text1);
+
+				// Nếu cần gộp thành 1 query
+				if (text0.length > 0 || text1.length > 0) {
+					var queryArr = [];
+					if (text0) queryArr.push({ textual: text0 });
+					if (text1) queryArr.push({ textual: text1 });
+
 					var queryParameters = { textualMode: textualMode[0] };
-					var jsonString = '{"query":[' + JSON.stringify(queryObj) + '], "parameters":[' + JSON.stringify(queryParameters) + ']}';
+					var jsonString = JSON.stringify({
+						query: queryArr,
+						parameters: [queryParameters]
+					});
+
 					console.log("Direct search JSON:", jsonString);
 					search2(jsonString);
-					// }
 				}
 				$(this).blur();
 			}
 			return false;
 		}
 	});
+
 	if (localStorage.getItem("selectedLang") == null) {
 		localStorage.setItem('selectedLang', defaultLanguage);
 	}
@@ -2589,8 +2756,70 @@ async function init() {
 	// loadConfig().then(loadPalette)//.then(checkServices);
 	canvas0 = get_canvas('canvas0', 'annotations0', 'not0');
 	canvases = [canvas0];
+	
+	// Debug: Kiểm tra canvas đã được khởi tạo đúng chưa
+	console.log('Canvas0 initialized:', canvas0);
+	console.log('Canvas0 selection enabled:', canvas0.selection);
+	console.log('Canvas0 objects:', canvas0.getObjects());
+	
+	// Đảm bảo canvas có đủ controls
+	if (canvas0) {
+		canvas0.setControlsVisibility({
+			mt: true, mb: true, ml: true, mr: true,
+			bl: true, br: true, tl: true, tr: true, mtr: true
+		});
+		console.log('Canvas controls configured');
+	}
 
-	$('#content').on('drop', dropImage);
+	// Đảm bảo overlay được ẩn để có thể tương tác với canvas
+	var overlay0 = document.getElementById('overlay0');
+	if (overlay0) {
+		overlay0.style.display = 'none';
+		overlay0.style.pointerEvents = 'none';
+		overlay0.style.zIndex = '-1'; // Đặt z-index thấp hơn canvas
+		console.log('Overlay0 hidden and pointer events disabled');
+	}
+
+	// Đảm bảo canvas container có thể nhận events
+	var canvasContainer = document.querySelector('.canvas-container');
+	if (canvasContainer) {
+		canvasContainer.style.pointerEvents = 'auto';
+		canvasContainer.style.zIndex = '1';
+		console.log('Canvas container pointer events enabled');
+	}
+
+	// Gán event handler cho drop vào canvas container
+	$('.canvas-container').on('drop', dropImage);
+	$('.canvas-container').on('dragover', function(e) {
+		e.preventDefault();
+	});
+	
+	// Debug: Kiểm tra event handlers
+	console.log('Event handlers assigned to canvas container');
+	console.log('Canvas container elements:', $('.canvas-container').length);
+	
+	// Thêm event handler trực tiếp cho canvas element
+	$('#canvas0').on('drop', dropImage);
+	$('#canvas0').on('dragover', function(e) {
+		e.preventDefault();
+	});
+	
+	console.log('Event handlers also assigned to canvas0 element');
+
+	// Thêm global keyboard handler cho ứng dụng chính
+	$(document).on('keydown', function(e) {
+		if (e.keyCode === 46 || e.keyCode === 8) { // Delete hoặc Backspace
+			if (activeCanvas) {
+				var activeObject = activeCanvas.getActiveObject();
+				if (activeObject) {
+					var uuid = activeObject.get('uuid');
+					if (uuid) {
+						deleteObject(uuid);
+					}
+				}
+			}
+		}
+	});
 
 	$("#clean0").on('click', function (e) {
 		if (!isCanvasClean[0]) {

@@ -20,13 +20,15 @@ function get_canvas(canvas_id, annotations_id, not_id) {
 
 	canvas = new fabric.Canvas(canvas_id);
 	canvas.uniScaleTransform = true;
-	canvas.selection = false;
+	canvas.selection = true; // Enable selection để có thể tương tác với objects
 	isCanvasClean[canvas_id] = false;
 	isReset = false;
 	draw_grid(canvas, cellWidth, cellHeight);
 
 	canvas.on('mouse:down', function(o) {
-		console.log('mouse:down');
+		console.log('mouse:down event triggered');
+		console.log('Target:', o.target);
+		console.log('Selection:', activeCanvas.selection);
 
 		draggedLabel = '';
 		if (!o.target && !activeCanvas.selection) {
@@ -65,17 +67,26 @@ function get_canvas(canvas_id, annotations_id, not_id) {
 		}
 	});
 
-	canvas.on('mouse:move', function(o) {
-				activeCanvas = canvas0;
-		activeCanvasIdx = 0;
+	// Thêm event handlers cho selection
+	canvas.on('selection:created', function(e) {
+		// Ẩn tất cả delete buttons
+		$(".deleteBtn").parent().hide();
+	});
 
-		var pointer = canvas1.getPointer(event.e);
-		var posX = pointer.x;
-		var posY = pointer.y;
-		if ((posX >= 0 && posX <= canvasWidth) && (posY >= 0 && posY <= canvasHeight)) {
-			activeCanvas = canvas1;
-			activeCanvasIdx = 1;
-		}
+	canvas.on('selection:cleared', function(e) {
+		// Hiện lại tất cả delete buttons
+		$(".deleteBtn").parent().show();
+	});
+
+	canvas.on('selection:updated', function(e) {
+		// Ẩn tất cả delete buttons khi có selection
+		$(".deleteBtn").parent().hide();
+	});
+
+	canvas.on('mouse:move', function(o) {
+		// Sửa lỗi: chỉ có canvas0
+		activeCanvas = canvas;
+		activeCanvasIdx = 0;
 
 	    if (isDrawing && !activeCanvas.selection && rect != null) {
 		    var pointer = activeCanvas.getPointer(o.e);
@@ -152,6 +163,19 @@ function get_canvas(canvas_id, annotations_id, not_id) {
 		var objs = activeCanvas.getObjects();
 		for (var i = 0 ; i < objs.length; i++) {
 			objs[i].setCoords();
+		}
+	});
+
+	// Thêm keyboard event handler để xóa object được chọn
+	$(document).on('keydown', function(e) {
+		if (e.keyCode === 46 || e.keyCode === 8) { // Delete hoặc Backspace
+			var activeObject = canvas.getActiveObject();
+			if (activeObject) {
+				var uuid = activeObject.get('uuid');
+				if (uuid) {
+					deleteObject(uuid);
+				}
+			}
 		}
 	});
 
@@ -323,6 +347,25 @@ function get_canvas(canvas_id, annotations_id, not_id) {
 		 $('#dialog').on('dialogclose', function(event) {
 			 $("#tag").val('');
 		 });
+
+	// Cấu hình controls cho canvas
+	canvas.setControlsVisibility({
+		mt: true, // middle top
+		mb: true, // middle bottom
+		ml: true, // middle left
+		mr: true, // middle right
+		bl: true, // bottom left
+		br: true, // bottom right
+		tl: true, // top left
+		tr: true, // top right
+		mtr: true // rotate
+	});
+
+	// Đảm bảo canvas có thể nhận events
+	canvas.upperCanvasEl.style.pointerEvents = 'auto';
+	canvas.lowerCanvasEl.style.pointerEvents = 'auto';
+	
+	console.log('Canvas initialized with controls and pointer events enabled');
 
 	return canvas;
 

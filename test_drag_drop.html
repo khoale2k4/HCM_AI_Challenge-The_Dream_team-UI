@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Drag & Drop</title>
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <script src="js/fabric.js"></script>
+    <style>
+        .test-container {
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
+        .palette {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            grid-gap: 5px;
+            padding: 10px;
+            max-width: 290px;
+            margin: 0 auto;
+        }
+        .palette img {
+            margin: auto;
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+            cursor: grab;
+        }
+        .canvas-container {
+            position: relative;
+            border: 1px solid #ccc;
+            margin: 20px;
+            width: 400px;
+            height: 300px;
+        }
+        .debug-info {
+            background: #f5f5f5;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h2>Test Drag & Drop - Kiểm tra kéo thả</h2>
+        
+        <div class="debug-info">
+            <h3>Hướng dẫn test:</h3>
+            <ol>
+                <li>Kéo thả objects từ palette vào canvas</li>
+                <li>Kiểm tra console logs</li>
+                <li>Xem objects có được thêm vào canvas không</li>
+            </ol>
+        </div>
+
+        <div class="palette">
+            <div><img draggable="true" ondragstart="drag(event)" id="person" title="person" src="skel/palette/person.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="car" title="car" src="skel/palette/car.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="cat" title="cat" src="skel/palette/cat.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="dog" title="dog" src="skel/palette/dog.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="red" title="red" src="skel/palette/red.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="blue" title="blue" src="skel/palette/blue.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="green" title="green" src="skel/palette/green.png"></div>
+        </div>
+
+        <div class="canvas-container" ondrop="dropImage(event)" ondragover="allowDrop(event)">
+            <canvas id="testCanvas" width="400" height="300"></canvas>
+        </div>
+
+        <div class="debug-info">
+            <button onclick="testCanvas()">Test Canvas</button>
+            <button onclick="clearCanvas()">Clear Canvas</button>
+            <button onclick="addTestObject()">Add Test Object</button>
+            <button onclick="showDebugInfo()">Show Debug Info</button>
+            <button onclick="testDrag()">Test Drag</button>
+        </div>
+
+        <div id="debugOutput" class="debug-info" style="display: none;">
+            <h3>Debug Information:</h3>
+            <div id="debugContent"></div>
+        </div>
+    </div>
+
+    <script>
+        var canvas;
+        var draggedLabel = '';
+        var activeCanvas;
+        var activeCanvasIdx = 0;
+        var scale = 14;
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+            console.log('allowDrop called');
+        }
+
+        function drag(ev) {
+            console.log('drag function called');
+            console.log('Target:', ev.target);
+            console.log('Target id:', ev.target.id);
+            console.log('Target title:', ev.target.title);
+            
+            ev.dataTransfer.setData("text", ev.target.id);
+            draggedLabel = ev.target.title;
+            
+            console.log('draggedLabel set to:', draggedLabel);
+        }
+
+        function dropImage(e) {
+            console.log('dropImage function called');
+            console.log('Event:', e);
+            console.log('draggedLabel:', draggedLabel);
+
+            activeCanvas = canvas;
+            activeCanvasIdx = 0;
+
+            if (draggedLabel != '') {
+                let dt = e.originalEvent.dataTransfer, files = dt.files;
+                e = e || window.event;
+                e.preventDefault();
+                e.stopPropagation();
+
+                console.log('Target nodeName:', e.target.nodeName);
+
+                if (e.target.nodeName == "CANVAS") {
+                    console.log('Dropping on canvas element');
+                    let pointer = activeCanvas.getPointer(e);
+                    let origX = pointer.x;
+                    let origY = pointer.y;
+                    let imgElement = document.getElementById(draggedLabel);
+                    let color = imgElement.alt == 'color' ? true : false;
+                    
+                    console.log('Image element found:', imgElement);
+                    console.log('Color object:', color);
+                    console.log('Creating fabric.Image with element:', imgElement);
+                    console.log('Image dimensions:', imgElement.width, 'x', imgElement.height);
+                    console.log('Scale:', scale);
+                    console.log('ScaleX:', scale / imgElement.width);
+                    console.log('ScaleY:', scale / imgElement.height);
+
+                    rect = new fabric.Image(imgElement, {
+                        left: origX - 25,
+                        top: origY - 30,
+                        fill: '',
+                        stroke: 'black',
+                        type: 'rect',
+                        uuid: generateUUID(),
+                        strokeWidth: 1,
+                        scaleX: scale / imgElement.width,
+                        scaleY: scale / imgElement.height,
+                        selectable: true,
+                        hasControls: true,
+                        hasBorders: true,
+                        lockRotation: false,
+                        lockScalingX: false,
+                        lockScalingY: false,
+                        lockMovementX: false,
+                        lockMovementY: false
+                    });
+                    
+                    console.log('Fabric.Image created:', rect);
+                    console.log('Adding object to canvas...');
+                    activeCanvas.add(rect);
+                    console.log('Object added to canvas');
+                    activeCanvas.discardActiveObject();
+                    console.log('Active object discarded');
+                    
+                    console.log('Object added successfully:', rect);
+                    console.log('Object selectable:', rect.selectable);
+                    console.log('Object hasControls:', rect.hasControls);
+                    console.log('Canvas objects:', activeCanvas.getObjects());
+                } else {
+                    console.log('Not dropping on canvas, target:', e.target.nodeName);
+                }
+
+                isDragging = false;
+                draggedLabel = '';
+            } else {
+                console.log('No draggedLabel');
+            }
+        }
+
+        function generateUUID() {
+            return 'id_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        function clearCanvas() {
+            canvas.clear();
+            console.log('Canvas cleared');
+        }
+
+        function testCanvas() {
+            console.log("=== Canvas Test ===");
+            console.log("Canvas:", canvas);
+            console.log("Canvas selection:", canvas.selection);
+            console.log("Canvas objects:", canvas.getObjects());
+            console.log("Active object:", canvas.getActiveObject());
+        }
+
+        function addTestObject() {
+            var testRect = new fabric.Rect({
+                left: 100,
+                top: 100,
+                width: 50,
+                height: 50,
+                fill: 'red',
+                stroke: 'black',
+                strokeWidth: 2,
+                selectable: true,
+                hasControls: true,
+                hasBorders: true,
+                uuid: 'test_' + Date.now()
+            });
+            
+            canvas.add(testRect);
+            console.log('Test object added:', testRect);
+        }
+
+        function testDrag() {
+            console.log('=== Test Drag ===');
+            console.log('draggedLabel:', draggedLabel);
+            console.log('Canvas objects before:', canvas.getObjects().length);
+            
+            // Simulate drag
+            var imgElement = document.getElementById('person');
+            if (imgElement) {
+                draggedLabel = 'person';
+                console.log('Simulated drag for person');
+            }
+        }
+
+        function showDebugInfo() {
+            var info = {
+                canvas: canvas ? 'Initialized' : 'Not initialized',
+                selection: canvas ? canvas.selection : 'N/A',
+                objects: canvas ? canvas.getObjects().length : 0,
+                activeObject: canvas ? (canvas.getActiveObject() ? 'Yes' : 'No') : 'N/A',
+                draggedLabel: draggedLabel,
+                scale: scale
+            };
+            
+            var content = '<ul>';
+            for (var key in info) {
+                content += '<li><strong>' + key + ':</strong> ' + info[key] + '</li>';
+            }
+            content += '</ul>';
+            
+            $('#debugContent').html(content);
+            $('#debugOutput').show();
+        }
+
+        // Initialize canvas
+        $(document).ready(function() {
+            console.log('Initializing canvas...');
+            canvas = new fabric.Canvas('testCanvas');
+            canvas.uniScaleTransform = true;
+            canvas.selection = true;
+            
+            console.log('Canvas created:', canvas);
+            console.log('Selection enabled:', canvas.selection);
+            
+            // Cấu hình controls cho canvas
+            canvas.setControlsVisibility({
+                mt: true, mb: true, ml: true, mr: true,
+                bl: true, br: true, tl: true, tr: true, mtr: true
+            });
+
+            // Đảm bảo canvas có thể nhận events
+            canvas.upperCanvasEl.style.pointerEvents = 'auto';
+            canvas.lowerCanvasEl.style.pointerEvents = 'auto';
+
+            activeCanvas = canvas;
+            
+            console.log('Canvas initialization complete');
+        });
+    </script>
+</body>
+</html> 
