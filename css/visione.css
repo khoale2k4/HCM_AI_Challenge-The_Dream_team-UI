@@ -302,6 +302,11 @@ input.checkboxAvs {
   }
 }
 
+#block0 > div {
+  display: block;      
+  margin-bottom: 45px; 
+}
+
 #left {
   background-color: #FC6E51;
   text-align: center;

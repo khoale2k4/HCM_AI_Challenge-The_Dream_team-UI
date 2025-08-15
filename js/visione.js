@@ -748,8 +748,8 @@ function search2(query) {
 					query: textual,
 					task: isAdvanced ? "visual-kis" : "textual-kis",
 					ocr: isAdvanced ? ocr : null,
-					objects:  isAdvanced ? getCanvas0Objects() : null,
-					colors:  isAdvanced ? getCanvas0ColorsString() : null,
+					objects: isAdvanced ? getCanvas0Objects() : null,
+					colors: isAdvanced ? getCanvas0ColorsString() : null,
 					//{"query":[{"textual":"a"}], "parameters":[{"textualMode":"all"}]}
 				}),
 				contentType: "application/json; charset=utf-8",
@@ -809,6 +809,91 @@ function search2(query) {
 			});
 
 		}
+	} catch (err) {
+		console.log("search2 error:", err);
+		loadingSpinner.style.display = 'none';
+	}
+}
+
+function search3(queries) {
+	res = null;
+	try {
+		loadingSpinner = document.getElementById('loading-spinner');
+
+		loadingSpinner.style.display = 'block';
+		var searchUrl = host;
+
+		$.ajax({
+			type: "POST",
+			async: true,
+			url: searchUrl + '/temporal_search',
+			data: JSON.stringify({
+				queries: queries,
+			}),
+			contentType: "application/json; charset=utf-8",
+			dataType: "json",
+			success: function (data) {
+				// [
+				//     {
+				//         "video": "video_1.mp4",
+				//         "best_score": 0.2629026174545288,
+				//         "frames": [
+				//             {
+				//                 "video": "video_1.mp4",
+				//                 "frame": "end_46.jpg",
+				//                 "frame_idx": 128
+				//             }
+				//         ]
+				//     },
+				//     {
+				//         "video": "video_2.mp4",
+				//         "best_score": 0.2523205280303955,
+				//         "frames": [
+				//             {
+				//                 "video": "video_2.mp4",
+				//                 "frame": "middle_114.jpg",
+				//                 "frame_idx": 320
+				//             }
+				//         ]
+				//     }
+				// ]
+				let list = data.flatMap(videoObj =>
+					videoObj.frames.map(frameObj => ({
+						video: frameObj.video,
+						frame: frameObj.frame
+					}))
+				);
+
+				setResults(list);
+			},
+			error: function (xhr, status, error) {
+				console.log("AJAX error - Status:", status);
+				console.log("AJAX error - Error:", error);
+				console.log("AJAX error - Response:", xhr.responseText);
+
+				// Test với dữ liệu mẫu nếu API chưa sẵn sàng
+				if (xhr.status === 404 || xhr.status === 0) {
+					console.log("Using test data for development");
+					let testData = [
+						// 	{
+						// 		"video": "video1.mp4",
+						// 		"frame": "image1.png"
+						// 	},
+						// 	{
+						// 		"video": "video2.mp4",
+						// 		"frame": "image2.png"
+						// 	},
+						// 	{
+						// 		"video": "video3.mp4",
+						// 		"frame": "image3.png"
+						// 	}
+					];
+					setResults(testData);
+				} else {
+					setResults(null);
+				}
+			}
+		});
 	} catch (err) {
 		console.log("search2 error:", err);
 		loadingSpinner.style.display = 'none';
