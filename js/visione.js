@@ -685,6 +685,8 @@ function searchByForm() {
 
 function setResults(data) {
 	console.log("setResults called with data:", data);
+	console.log("Data type:", typeof data);
+	console.log("Data length:", data ? (Array.isArray(data) ? data.length : "not array") : "null");
 
 	// Nếu data là JSON string, parse nó
 	if (typeof data === 'string') {
@@ -700,6 +702,7 @@ function setResults(data) {
 
 	// Chuyển đổi format dữ liệu mới sang format cũ
 	if (results && Array.isArray(results)) {
+		console.log("Converting results array with", results.length, "items");
 		results = results.map((item, index) => {
 			return {
 				score: 1.0, // Default score
@@ -715,8 +718,11 @@ function setResults(data) {
 	}
 
 	console.log("Converted results:", results);
+	console.log("Results length after conversion:", results ? results.length : "null");
 	resultsSortedByVideo = results;
-	groupResults(document.getElementById("group"));
+	
+	// Call showResults directly with results instead of going through groupResults
+	showResults(results);
 }
 
 function search2(query) {
@@ -745,7 +751,7 @@ function search2(query) {
 				async: true,
 				url: searchUrl,
 				data: JSON.stringify({
-					query: textual,
+					query: isAdvanced ? null : textual,
 					task: isAdvanced ? "visual-kis" : "textual-kis",
 					ocr: isAdvanced ? ocr : null,
 					objects: isAdvanced ? getCanvas0Objects() : null,
@@ -756,7 +762,10 @@ function search2(query) {
 				dataType: "json",
 				success: function (data) {
 					let grouped = {};
-					data.forEach(([video, frame]) => {
+
+					let normalized = data.map(item => [item.video, item.frame]);
+
+					normalized.forEach(([video, frame]) => {
 						if (!grouped[video]) grouped[video] = [];
 						grouped[video].push(frame);
 					});
@@ -765,8 +774,8 @@ function search2(query) {
 
 					let result = [];
 					let currentIndex = 0;
+					let totalFrames = normalized.length;
 
-					let totalFrames = data.length;
 					while (result.length < totalFrames) {
 						let video = videos[currentIndex];
 						let frames = grouped[video].splice(0, 6);
@@ -777,6 +786,27 @@ function search2(query) {
 
 						currentIndex = (currentIndex + 1) % videos.length;
 					}
+					console.log(result);
+					// 
+// 0
+// : 
+// {video: 'L21_V012.mp4', frame: '139.jpg'}
+// 1
+// : 
+// {video: 'L21_V012.mp4', frame: '166.jpg'}
+// 2
+// : 
+// {video: 'L21_V012.mp4', frame: '162.jpg'}
+// 3
+// : 
+// {video: 'L21_V012.mp4', frame: '167.jpg'}
+// 4
+// : 
+// {video: 'L21_V012.mp4', frame: '168.jpg'}
+// 5
+// : 
+// {video: 'L21_V012.mp4', frame: '163.jpg'}
+
 					setResults(result);
 				},
 				error: function (xhr, status, error) {
@@ -816,13 +846,18 @@ function search2(query) {
 }
 
 function search3(queries) {
+	console.log("search3 called with queries:", queries);
 	res = null;
 	try {
 		loadingSpinner = document.getElementById('loading-spinner');
 
 		loadingSpinner.style.display = 'block';
+		latestQuery = JSON.stringify(queries); // Set latestQuery for temporal search
+		console.log("Set latestQuery:", latestQuery);
 		var searchUrl = host;
 
+		console.log("Making temporal search AJAX request to:", searchUrl + '/temporal_search');
+		console.log("Request data:", JSON.stringify({ queries: queries }));
 		$.ajax({
 			type: "POST",
 			async: true,
@@ -833,6 +868,10 @@ function search3(queries) {
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",
 			success: function (data) {
+				console.log("Temporal search API response:", data);
+				console.log("Response type:", typeof data);
+				console.log("Response length:", data ? (Array.isArray(data) ? data.length : "not array") : "null");
+				
 				// [
 				//     {
 				//         "video": "video_1.mp4",
@@ -857,45 +896,68 @@ function search3(queries) {
 				//         ]
 				//     }
 				// ]
-				let list = data.flatMap(videoObj =>
-					videoObj.frames.map(frameObj => ({
-						video: frameObj.video,
-						frame: frameObj.frame
-					}))
-				);
+				let list = [];
+				if (data && Array.isArray(data)) {
+					list = data.flatMap(videoObj =>
+						videoObj.frames.map(frameObj => ({
+							video: frameObj.video,
+							frame: frameObj.frame
+						}))
+					);
+				} else {
+					console.log("Data is not an array or is null, using empty list");
+				}
+				console.log("Temporal search results:", list);
+				console.log("Data type:", typeof list);
+				console.log("Data length:", list ? list.length : "null");
 
+				console.log("About to call setResults with list:", list);
 				setResults(list);
 			},
 			error: function (xhr, status, error) {
-				console.log("AJAX error - Status:", status);
-				console.log("AJAX error - Error:", error);
-				console.log("AJAX error - Response:", xhr.responseText);
+				console.log("Temporal search AJAX error - Status:", status);
+				console.log("Temporal search AJAX error - Error:", error);
+				console.log("Temporal search AJAX error - Response:", xhr.responseText);
 
 				// Test với dữ liệu mẫu nếu API chưa sẵn sàng
 				if (xhr.status === 404 || xhr.status === 0) {
-					console.log("Using test data for development");
+					console.log("Temporal search API not available, using test data for development");
 					let testData = [
-						// 	{
-						// 		"video": "video1.mp4",
-						// 		"frame": "image1.png"
-						// 	},
-						// 	{
-						// 		"video": "video2.mp4",
-						// 		"frame": "image2.png"
-						// 	},
-						// 	{
-						// 		"video": "video3.mp4",
-						// 		"frame": "image3.png"
-						// 	}
+						{
+							"video": "L21_V012.mp4",
+							"frame": "139.jpg"
+						},
+						{
+							"video": "L21_V012.mp4",
+							"frame": "166.jpg"
+						},
+						{
+							"video": "L22_V029.mp4",
+							"frame": "127.jpg"
+						},
+						{
+							"video": "L22_V029.mp4",
+							"frame": "202.jpg"
+						},
+						{
+							"video": "L25_V069.mp4",
+							"frame": "072.jpg"
+						},
+						{
+							"video": "L25_V069.mp4",
+							"frame": "253.jpg"
+						}
 					];
+					console.log("About to call setResults with testData:", testData);
 					setResults(testData);
 				} else {
+					console.log("About to call setResults with null");
 					setResults(null);
 				}
 			}
 		});
 	} catch (err) {
-		console.log("search2 error:", err);
+		console.log("search3 error:", err);
 		loadingSpinner.style.display = 'none';
 	}
 }
@@ -1165,9 +1227,9 @@ String.prototype.hashCode = function () {// FRANCA
 
 function displaySimplifiedUI() {
 	// Bỏ sceneDes1 và simplified1 vì không còn sử dụng
-	document.getElementById("simplified0").className = 'simplified0'
-	document.getElementById("visionelogo").className = 'visioneLogo'
-	document.getElementById("visionelogoImg").className = 'visionelogoImg'
+	// document.getElementById("simplified0").className = 'simplified0'
+	// document.getElementById("visionelogo").className = 'visioneLogo'
+	// document.getElementById("visionelogoImg").className = 'visionelogoImg'
 }
 
 function showResults(data) {
@@ -1193,16 +1255,26 @@ function showResults(data) {
 		visibleImages = 0
 		framesCache = []
 
-		if ((data == null || data == "") && latestQuery != "") {
+		console.log("showResults - data:", data);
+		console.log("showResults - latestQuery:", latestQuery);
+		console.log("showResults - data type:", typeof data);
+		console.log("showResults - data length:", data ? (Array.isArray(data) ? data.length : "not array") : "null");
+		
+		if ((data == null || data == "" || (Array.isArray(data) && data.length === 0)) && latestQuery != "") {
+			console.log("No data but latestQuery exists, showing no results");
 			noResultsOutput();
-		} else if (data != null && data != "") {
+		} else if (data != null && data != "" && !(Array.isArray(data) && data.length === 0)) {
+			console.log("Processing valid data");
 			if (!isAdvanced)
 				displaySimplifiedUI();
 			try {
 				res = data;
-				if (res.length == 0)
+				console.log("Set res = data, res length:", res ? res.length : "null");
+				if (res.length == 0) {
+					console.log("Res length is 0, showing no results");
 					noResultsOutput();
-				else {
+				} else {
+					console.log("Res length > 0, loading images");
 					noResultsOutput(false);
 					//document.getElementById('newsession').style.display = 'block';
 					resColIdx = 1;
@@ -1211,7 +1283,7 @@ function showResults(data) {
 					loadImages(0, batchSize);
 				}
 			} catch (e) {
-				console.log(e);
+				console.log("Error processing data:", e);
 				noResultsOutput();
 
 			}
@@ -2184,8 +2256,9 @@ function displayAdvanced() {
 	if (isAdvanced) {
 		setDisplayTo = "block";
 		$('#block0').css('display', 'block');
-		$('#div_textual1').css('display', 'block');
+		// $('#div_textual1').css('display', 'block');
 		$('#hourglass-end').css('display', 'block');
+		document.getElementById("textual0").disabled = true;
 
 		// Bỏ block1 vì không còn sử dụng
 		//$('#textualOptions0').css('display', 'block');
@@ -2196,7 +2269,8 @@ function displayAdvanced() {
 	} else {
 		setDisplayTo = "none";
 		$('#block0').css('display', 'none');
-		$('#div_textual1').css('display', 'none');
+		// $('#div_textual1').css('display', 'none');
+		document.getElementById("textual0").disabled = false;
 		$('#hourglass-end').css('display', 'none');
 		$('#block1').css('display', 'none');
 		$('#advSim1').css('display', 'none');
@@ -3189,6 +3263,7 @@ async function fetchFrameAsBlob(imgEl) {
 		if (!response.ok) throw new Error('Frame fetch failed: ' + response.status);
 		const blob = await response.blob();
 		const url = URL.createObjectURL(blob);
+		imgEl.onload = () => URL.revokeObjectURL(url);
 		imgEl.src = url;
 	} catch (err) {
 		console.log('fetchFrameAsBlob error:', err);
