@@ -709,6 +709,7 @@ function setResults(data) {
 				videoId: item.video, // Keep original video name
 				imgId: item.frame, // Keep original frame name
 				middleFrame: index, // Use index as frame number
+				frame_idx: item.frame_idx, // Keep frame_idx from original data
 				collection: "custom",
 				// Add custom properties for new format
 				customVideo: item.video,
@@ -720,7 +721,7 @@ function setResults(data) {
 	console.log("Converted results:", results);
 	console.log("Results length after conversion:", results ? results.length : "null");
 	resultsSortedByVideo = results;
-	
+
 	// Call showResults directly with results instead of going through groupResults
 	showResults(results);
 }
@@ -763,11 +764,17 @@ function search2(query) {
 				success: function (data) {
 					let grouped = {};
 
-					let normalized = data.map(item => [item.video, item.frame]);
+					// giữ nguyên đủ thông tin
+					let normalized = data.map(item => ({
+						video: item.video,
+						frame: item.frame,
+						frame_idx: item.frame_idx
+					}));
 
-					normalized.forEach(([video, frame]) => {
+					// group theo video
+					normalized.forEach(({ video, frame, frame_idx }) => {
 						if (!grouped[video]) grouped[video] = [];
-						grouped[video].push(frame);
+						grouped[video].push({ frame, frame_idx });
 					});
 
 					let videos = Object.keys(grouped);
@@ -780,35 +787,22 @@ function search2(query) {
 						let video = videos[currentIndex];
 						let frames = grouped[video].splice(0, 6);
 
-						frames.forEach(frame => {
-							result.push({ video, frame });
+						frames.forEach(({ frame, frame_idx }) => {
+							result.push({ video, frame, frame_idx });
 						});
 
 						currentIndex = (currentIndex + 1) % videos.length;
 					}
+
 					console.log(result);
-					// 
-// 0
-// : 
-// {video: 'L21_V012.mp4', frame: '139.jpg'}
-// 1
-// : 
-// {video: 'L21_V012.mp4', frame: '166.jpg'}
-// 2
-// : 
-// {video: 'L21_V012.mp4', frame: '162.jpg'}
-// 3
-// : 
-// {video: 'L21_V012.mp4', frame: '167.jpg'}
-// 4
-// : 
-// {video: 'L21_V012.mp4', frame: '168.jpg'}
-// 5
-// : 
-// {video: 'L21_V012.mp4', frame: '163.jpg'}
+					// bây giờ result sẽ là:
+					// { video: 'L21_V012.mp4', frame: '139.jpg', frame_idx: 0 }
+					// { video: 'L21_V012.mp4', frame: '166.jpg', frame_idx: 1 }
+					// ...
 
 					setResults(result);
 				},
+
 				error: function (xhr, status, error) {
 					console.log("AJAX error - Status:", status);
 					console.log("AJAX error - Error:", error);
@@ -871,7 +865,7 @@ function search3(queries) {
 				console.log("Temporal search API response:", data);
 				console.log("Response type:", typeof data);
 				console.log("Response length:", data ? (Array.isArray(data) ? data.length : "not array") : "null");
-				
+
 				// [
 				//     {
 				//         "video": "video_1.mp4",
@@ -899,11 +893,21 @@ function search3(queries) {
 				let list = [];
 				if (data && Array.isArray(data)) {
 					list = data.flatMap(videoObj =>
-						videoObj.frames.map(frameObj => ({
-							video: frameObj.video,
-							frame: frameObj.frame
-						}))
+						videoObj.frames.map(frameObj => {
+							let idxStr = frameObj.frame_idx;
+							let lastUnderscore = idxStr.lastIndexOf("_");
+							let cleanIdx = lastUnderscore !== -1 
+								? idxStr.substring(lastUnderscore + 1) 
+								: idxStr;
+					
+							return {
+								video: frameObj.video,
+								frame: frameObj.frame,
+								frame_idx: cleanIdx
+							};
+						})
 					);
+
 				} else {
 					console.log("Data is not an array or is null, using empty list");
 				}
@@ -1259,7 +1263,7 @@ function showResults(data) {
 		console.log("showResults - latestQuery:", latestQuery);
 		console.log("showResults - data type:", typeof data);
 		console.log("showResults - data length:", data ? (Array.isArray(data) ? data.length : "not array") : "null");
-		
+
 		if ((data == null || data == "" || (Array.isArray(data) && data.length === 0)) && latestQuery != "") {
 			console.log("No data but latestQuery exists, showing no results");
 			noResultsOutput();
@@ -1568,7 +1572,7 @@ function loadImages(startIndex, endIndex) {
 		let borderColorsIdx = fromIDtoColor(videoId, borderColors.length);
 		prevID = videoId;
 		//avsObj = getAvsObj(videoId, imgId, 'avs_' + imgId, thumbnailPath, keyframePath, resrowIdx, resColIdx - 1)
-		resultData = getResultData(videoId, imgId, thumbnailPath, imgId, frameNumber, keyframePath, score, videoUrl, videoUrlPreview, resrowIdx, resColIdx - 1)
+		resultData = getResultData(videoId, imgId, thumbnailPath, imgId, frameNumber, keyframePath, score, videoUrl, videoUrlPreview, resrowIdx, resColIdx - 1, res[i].frame_idx)
 
 		if (resColIdx > 0 && (resColIdx + newLine) % numResultsPerVideo == 0) {
 			imgGridResults += '<div class="item column-span-1"></div>';
@@ -1657,7 +1661,7 @@ function loadImages(startIndex, endIndex) {
 }
 
 
-function getResultData(videoId, imgId, thumb, frameName, frameNumber, keyframePath, score, videoUrl, videoUrlPreview, rowIdx, colIdx) {
+function getResultData(videoId, imgId, thumb, frameName, frameNumber, keyframePath, score, videoUrl, videoUrlPreview, rowIdx, colIdx, frame_idx = null) {
 	let resultData = new Object();
 	resultData.videoId = videoId;
 	resultData.imgId = imgId;
@@ -1671,6 +1675,7 @@ function getResultData(videoId, imgId, thumb, frameName, frameNumber, keyframePa
 	resultData.videoUrlPreview = videoUrlPreview;
 	resultData.rowIdx = rowIdx;
 	resultData.colIdx = colIdx;
+	resultData.frame_idx = frame_idx; // Add frame_idx to resultData
 	// Lưu thêm thông tin để fetch frame theo endpoint mới
 	resultData.customVideo = videoId;
 	resultData.customFrame = imgId;
@@ -1806,31 +1811,56 @@ const imgResult = (res, borderColor, img_loading = "eager") => {
 
 	// Xử lý format dữ liệu mới
 	let frameDisplayName = res.frameName || res.imgId;
-	let frameNumberDisplay = res.frameNumber || res.middleFrame || '';
+	let frameNumberDisplay = res.frame_idx !== undefined ? res.frame_idx : (res.frameNumber || res.middleFrame || '');
 	let scoreDisplay = res.score || '1.0';
 
 	// Kiểm tra xem có phải format custom không
 	let isCustomFormat = res.customVideo && res.customFrame;
 	let customVideoUrl = isCustomFormat ? host + "/video/" + encodeURIComponent(res.customVideo) : res.videoUrl;
 
-	return `
-		<div class="result-border" style="border-color: ${borderColor};">
-			<div class="myimg-thumbnail"  id="${res.imgId}" lang="${res.videoId}|${res.videoUrlPreview}" >
-                <img loading="${img_loading}" id="img${res.imgId}" class="myimg"  src="${res.thumb}" data-video="${res.customVideo || res.videoId}" data-frame="${res.customFrame || res.imgId}" onclick='avsCleanManuallySelected(); avsToggle(${jsonString}, event)' onerror="fetchFrameAsBlob(this)" />
-			</div>
-			<div  id="toolbar_icons_${res.imgId}">
-				<a class="font-tiny" title="View annotations of ${frameDisplayName},  Score: ${scoreDisplay}" href="indexedData.html?videoId=${res.videoId}&id=${res.imgId}" target="_blank"> ${frameNumberDisplay}</a>
-				<a title="Video summary" href="javascript:void(0);" onclick="openChildWindow('${res.videoId}', '${res.imgId}', '${frameDisplayName}')"><i class="fa fa-th font-normal" style="padding-left: 3px;"></i></a>
-				<a href="#" title="Play Video"><i title="Play Video" class="fa fa-play font-normal" style="color:#007bff;padding-left: 3px;" onclick="playVideoWindow('${customVideoUrl}', '${res.videoId}', '${res.imgId}'); return false;"></i></a>
-				<a href="#" class="isSimplified" title="image similarity"><img loading="${img_loading}" style="padding: 2px;" src="img/comboSim.svg" width=20 title="image similarity" alt="${res.imgId}" id="comboSim${res.imgId}" onclick="var queryObj=new Object(); queryObj.comboVisualSim='${res.imgId}'; searchByLink(queryObj); return false;"></a>
-				<a href="#" class="isAdvanced" title="Visual similarity"><img loading="${img_loading}" style="padding: 2px;" src="img/imgSim.png" width=20 title="Visual similarity (dinov2)" alt="${res.imgId}" id="gemSim${res.imgId}" onclick="var queryObj=new Object(); queryObj.vf='${res.imgId}'; searchByLink(queryObj); return false;"></a>
-				<a href="#" class="isAdvanced" title="semantic similarity""><img loading="${img_loading}" style="padding: 2px;" src="img/aladinSim.svg" width=20 title="semantic similarity" alt="${res.imgId}" id="aladinSim${res.imgId}" onclick="var queryObj=new Object(); queryObj.aladinSim='${res.imgId}'; searchByLink(queryObj); return false;"></a>
-				<a href="#" class="isAdvanced" title="semantic video  similarity"><img loading="${img_loading}" style="padding: 2px;" src="img/clipSim.svg" width=20 title="semantic video  similarity" alt="${res.imgId}" id="clipSim${res.imgId}" onclick="var queryObj=new Object(); queryObj.clipSim='${res.imgId}'; searchByLink(queryObj); return false;"></a>
+	// return `
+	// 	<div class="result-border" style="border-color: ${borderColor};">
+	// 		<div class="myimg-thumbnail"  id="${res.imgId}" lang="${res.videoId}|${res.videoUrlPreview}" >
+	//             <img loading="${img_loading}" id="img${res.imgId}" class="myimg"  src="${res.thumb}" data-video="${res.customVideo || res.videoId}" data-frame="${res.customFrame || res.imgId}" onclick='avsCleanManuallySelected(); avsToggle(${jsonString}, event)' onerror="fetchFrameAsBlob(this)" />
+	// 		</div>
+	// 		<div  id="toolbar_icons_${res.imgId}">
+	// 			<a class="font-tiny" title="View annotations of ${frameDisplayName},  Score: ${scoreDisplay}" href="indexedData.html?videoId=${res.videoId}&id=${res.imgId}" target="_blank"> ${frameNumberDisplay}</a>
+	// 			<a title="Video summary" href="javascript:void(0);" onclick="openChildWindow('${res.videoId}', '${res.imgId}', '${frameDisplayName}')"><i class="fa fa-th font-normal" style="padding-left: 3px;"></i></a>
+	// 			<a href="#" title="Play Video"><i title="Play Video" class="fa fa-play font-normal" style="color:#007bff;padding-left: 3px;" onclick="playVideoWindow('${customVideoUrl}', '${res.videoId}', '${res.imgId}'); return false;"></i></a>
+	// 			<a href="#" class="isSimplified" title="image similarity"><img loading="${img_loading}" style="padding: 2px;" src="img/comboSim.svg" width=20 title="image similarity" alt="${res.imgId}" id="comboSim${res.imgId}" onclick="var queryObj=new Object(); queryObj.comboVisualSim='${res.imgId}'; searchByLink(queryObj); return false;"></a>
+	// 			<a href="#" class="isAdvanced" title="Visual similarity"><img loading="${img_loading}" style="padding: 2px;" src="img/imgSim.png" width=20 title="Visual similarity (dinov2)" alt="${res.imgId}" id="gemSim${res.imgId}" onclick="var queryObj=new Object(); queryObj.vf='${res.imgId}'; searchByLink(queryObj); return false;"></a>
+	// 			<a href="#" class="isAdvanced" title="semantic similarity""><img loading="${img_loading}" style="padding: 2px;" src="img/aladinSim.svg" width=20 title="semantic similarity" alt="${res.imgId}" id="aladinSim${res.imgId}" onclick="var queryObj=new Object(); queryObj.aladinSim='${res.imgId}'; searchByLink(queryObj); return false;"></a>
+	// 			<a href="#" class="isAdvanced" title="semantic video  similarity"><img loading="${img_loading}" style="padding: 2px;" src="img/clipSim.svg" width=20 title="semantic video  similarity" alt="${res.imgId}" id="clipSim${res.imgId}" onclick="var queryObj=new Object(); queryObj.clipSim='${res.imgId}'; searchByLink(queryObj); return false;"></a>
 
-				<a href="#" title="Submit result"><span class="pull-right"><i id="submitBTN_${res.imgId}" title="Submit result" class="fa fa-arrow-alt-circle-up font-huge" style="color:#00AA00; padding-left: 0px;" onclick='submitVersion2(${jsonString});'> </i></span></a>
-			<div>
+	// 			<a href="#" title="Submit result"><span class="pull-right"><i id="submitBTN_${res.imgId}" title="Submit result" class="fa fa-arrow-alt-circle-up font-huge" style="color:#00AA00; padding-left: 0px;" onclick='submitVersion2(${jsonString});'> </i></span></a>
+	// 		<div>
+	// 	</div>
+	// 	`
+	return `
+	<div class="result-border" style="border-color: ${borderColor};">
+		<div class="myimg-thumbnail" id="${res.imgId}" lang="${res.videoId}|${res.videoUrlPreview}">
+			<img loading="${img_loading}" 
+				 id="img${res.imgId}" 
+				 class="myimg"  
+				 src="${res.thumb}" 
+				 data-video="${res.customVideo || res.videoId}" 
+				 data-frame="${res.customFrame || res.imgId}" 
+				 onclick='avsCleanManuallySelected(); avsToggle(${jsonString}, event)' 
+				 onerror="fetchFrameAsBlob(this)" />
 		</div>
-		`
+		<div id="toolbar_icons_${res.imgId}" style="display: flex; align-items: center; gap: 6px;">
+			<a href="#" title="Play Video">
+				<i title="Play Video" 
+				   class="fa fa-play font-normal" 
+				   style="color:#007bff;padding-left: 3px;" 
+				   onclick="playVideoWindow('${customVideoUrl}', '${res.videoId}', '${res.imgId}'); return false;">
+				</i>
+			</a>
+			<span class="frame-idx" style="font-size: 13px; color: #333;">frame-idx: ${res.frame_idx || ''}</span>
+		</div>
+	</div>
+`
+
 
 }
 
@@ -1872,8 +1902,8 @@ function playVideoWindow(videoURL, videoId, imgId) {
 			// Sử dụng URL mới cho format custom
 			videoURL = host + "/video/" + encodeURIComponent(resultItem.customVideo);
 			console.log("Using custom video URL:", videoURL);
-			// Với format mới, sử dụng middleFrame làm time
-			time = resultItem.middleFrame || 0;
+			// Với format mới, sử dụng frame_idx làm time nếu có, nếu không thì dùng middleFrame
+			time = resultItem.frame_idx !== undefined ? resultItem.frame_idx : (resultItem.middleFrame || 0);
 		} else {
 			// Với format cũ, sử dụng getStartTime
 			try {
