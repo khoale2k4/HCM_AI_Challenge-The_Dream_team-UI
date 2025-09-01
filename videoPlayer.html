@@ -62,13 +62,65 @@
 		    </p>
 		  </video>
 	</div>
+	
+	<!-- Hiển thị thông tin frame -->
+	<div id="frameInfo" style="margin-top: 10px; padding: 10px; background-color: #f8f9fa; border-radius: 5px; text-align: center;">
+		<div style="font-size: 16px; font-weight: bold; color: #333;">
+			<span id="currentTime">Time: 0.00s</span> | 
+			<span id="currentFrame">Frame: 0</span>
+		</div>
+		<div style="font-size: 14px; color: #666; margin-top: 5px;">
+			<span id="originalFrame">Original Frame ID: </span>
+		</div>
+		<div style="font-size: 12px; color: #888; margin-top: 3px;">
+			<span id="frameRate">Frame Rate: 60 fps</span> | 
+			<span id="formula">Formula: frame = 60 × time</span>
+		</div>
+	</div>
 
 <script type="text/javascript">
 	var myPlayer;
+	var originalFrame_idx = null;
+	
+	// Hàm tiện ích để chuyển đổi thời gian (giây) thành frame
+	function timeToFrame(time) {
+		return Math.round(60 * time); // Công thức: frame = 60 * time (giây)
+	}
+	
+	// Hàm cập nhật hiển thị thông tin frame
+	function updateFrameInfo() {
+		if (myPlayer) {
+			var currentTime = myPlayer.currentTime();
+			var currentFrame = timeToFrame(currentTime);
+			
+			document.getElementById('currentTime').textContent = 'Time: ' + currentTime.toFixed(2) + 's';
+			document.getElementById('currentFrame').textContent = 'Frame: ' + currentFrame;
+		}
+	}
+	
+	// Hàm nhảy đến frame gốc
+	function gotoOriginalFrame() {
+		if (myPlayer && originalFrame_idx) {
+			var originalTime = originalFrame_idx / 60; // Chuyển đổi frame_idx thành thời gian
+			myPlayer.currentTime(originalTime);
+			console.log("Jumping to original frame:", originalFrame_idx, "at time:", originalTime);
+		}
+	}
+	
 	function loadPage() {
 		url = $.urlParam('url');
 		t = $.urlParam('t');
 		frameID = $.urlParam('frameid');
+		originalFrame_idx = $.urlParam('frame_idx');
+		
+		// Hiển thị thông tin frame gốc
+		if (originalFrame_idx) {
+			var originalTime = originalFrame_idx / 60;
+			document.getElementById('originalFrame').textContent = 'Original Frame ID: ' + originalFrame_idx + ' (Time: ' + originalTime.toFixed(2) + 's)';
+		} else {
+			document.getElementById('originalFrame').textContent = 'Original Frame ID: ' + frameID;
+		}
+		
 		toLog = '{"query":[{"videoplayer":"' + frameID + '"}], "parameters":[{}]}'
 		log(toLog)
 		myPlayer = videojs('vbsvideo');
@@ -76,6 +128,59 @@
 		myPlayer.currentTime(t);
 		myPlayer.muted(true);//	myPlayer.autoplay(true);
 		myPlayer.play();
+		
+		// Cập nhật thông tin frame ban đầu
+		updateFrameInfo();
+		
+		// Thêm event listener để cập nhật thông tin frame khi video phát
+		myPlayer.on('timeupdate', function() {
+			updateFrameInfo();
+		});
+		
+		// Thêm event listener để cập nhật khi video được seek
+		myPlayer.on('seeked', function() {
+			updateFrameInfo();
+		});
+		
+		// Thêm event listener để cập nhật khi video được load
+		myPlayer.on('loadedmetadata', function() {
+			updateFrameInfo();
+		});
+		
+		// Thêm event listener để cập nhật khi video được play
+		myPlayer.on('play', function() {
+			updateFrameInfo();
+		});
+		
+		// Thêm event listener để cập nhật khi video được pause
+		myPlayer.on('pause', function() {
+			updateFrameInfo();
+		});
+		
+		// Thêm event listener để cập nhật khi video được ended
+		myPlayer.on('ended', function() {
+			updateFrameInfo();
+		});
+		
+		// Thêm event listener để cập nhật khi video được ratechange
+		myPlayer.on('ratechange', function() {
+			updateFrameInfo();
+		});
+		
+		// Thêm event listener để cập nhật khi video được volumechange
+		myPlayer.on('volumechange', function() {
+			updateFrameInfo();
+		});
+		
+		// Thêm event listener để cập nhật khi video được waiting
+		myPlayer.on('waiting', function() {
+			updateFrameInfo();
+		});
+		
+		// Thêm event listener để cập nhật khi video được canplay
+		myPlayer.on('canplay', function() {
+			updateFrameInfo();
+		});
 	}
 	loadConfig().then(loadPage);
 
@@ -84,8 +189,14 @@
 
 
 
-  <button id="submit" class="btn btn-warning btn-sm"
+  <div style="margin-top: 10px; text-align: center;">
+    <button id="submit" class="btn btn-warning btn-sm"
 					title="Submit result at current play time" onclick="if (!checkQA()) submitAtCurrentPlayTime();">
 					<i class="fa fa-play"> Submit</i></button>
+    
+    <button id="gotoOriginal" class="btn btn-info btn-sm" style="margin-left: 10px;"
+					title="Go to original frame time" onclick="gotoOriginalFrame();">
+					<i class="fa fa-undo"> Go to Original Frame</i></button>
+  </div>
 </body>
 </html>

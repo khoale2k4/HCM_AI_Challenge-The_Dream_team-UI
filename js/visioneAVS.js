@@ -36,6 +36,11 @@ function submitAVS(selectedItem) {
 	avsHilightlighSubmittedVideos();
 }*/
 
+// Hàm tiện ích để chuyển đổi frame_idx thành thời gian (giây)
+function frameToTime(frame_idx) {
+	return frame_idx / 60; // Công thức: thời gian (giây) = frame_idx / 60
+}
+
 const imgSelected = (selectedItem, videoUrl, videoUrlPreview, img_loading="eager") => {
 	selectedString = JSON.stringify(selectedItem);
 
@@ -111,7 +116,23 @@ function selectImg(selectedItem) {
 
 			var elementExists = document.getElementById(playerId);
 
-			var middleTime = getMiddleTimestamp(imgIdAVS);
+			// Tìm frame_idx từ kết quả nếu có
+			let frame_idx = null;
+			let middleTime = 0;
+			
+			if (res && Array.isArray(res)) {
+				let resultItem = res.find(item => item.imgId === imgIdAVS);
+				if (resultItem && resultItem.frame_idx !== undefined) {
+					frame_idx = resultItem.frame_idx;
+					middleTime = frameToTime(frame_idx);
+					console.log("Using frame_idx for AVS hover:", frame_idx, "-> time:", middleTime);
+				} else {
+					middleTime = getMiddleTimestamp(imgIdAVS);
+				}
+			} else {
+				middleTime = getMiddleTimestamp(imgIdAVS);
+			}
+			
 			var startTime = middleTime -2;
 			var endTime = middleTime+2;
 			if (elementExists != null) {
