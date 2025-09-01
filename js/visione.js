@@ -79,6 +79,7 @@ var prevCanvasObjects = [];
 var isCanvasClean = [];
 var isReset = false;
 var host = 'http://14.225.241.236:8000';
+var fps = 60;
 
 
 var canvases;
@@ -1616,24 +1617,7 @@ function loadImages(startIndex, endIndex) {
 
 				//var startTime = getStartTime(this.id);
 				//var endTime = getEndTime(this.id);
-				
-				// Tìm frame_idx từ kết quả nếu có
-				let frame_idx = null;
-				let middleTime = 0;
-				
-				if (res && Array.isArray(res)) {
-					let resultItem = res.find(item => item.imgId === this.id);
-					if (resultItem && resultItem.frame_idx !== undefined) {
-						frame_idx = resultItem.frame_idx;
-						middleTime = frameToTime(frame_idx);
-						console.log("Using frame_idx for hover:", frame_idx, "-> time:", middleTime);
-					} else {
-						middleTime = getMiddleTimestamp(this.id);
-					}
-				} else {
-					middleTime = getMiddleTimestamp(this.id);
-				}
-				
+				var middleTime = getMiddleTimestamp(this.id);
 				var startTime = middleTime - 2;
 				var endTime = middleTime + 2;
 				if (elementExists != null) {
@@ -1825,6 +1809,7 @@ function hideOverlay(img_overlay) {
 
 const imgResult = (res, borderColor, img_loading = "eager") => {
 	jsonString = JSON.stringify(res);
+	console.log(jsonString);
 
 	// Xử lý format dữ liệu mới
 	let frameDisplayName = res.frameName || res.imgId;
@@ -1870,7 +1855,7 @@ const imgResult = (res, borderColor, img_loading = "eager") => {
 				<i title="Play Video" 
 				   class="fa fa-play font-normal" 
 				   style="color:#007bff;padding-left: 3px;" 
-				   onclick="playVideoWindow('${customVideoUrl}', '${res.videoId}', '${res.imgId}'); return false;">
+				   onclick="playVideoWindow('${customVideoUrl}', '${res.videoId}', '${res.imgId}', '${res.frame_idx}'); return false;">
 				</i>
 			</a>
 			<span class="frame-idx" style="font-size: 13px; color: #333;">frame-idx: ${res.frame_idx || ''}</span>
@@ -1903,45 +1888,24 @@ function openChildWindow(videoId, imgId, frameName) {
 	};
 }
 
-// Hàm tiện ích để chuyển đổi frame_idx thành thời gian (giây)
-function frameToTime(frame_idx) {
-	return frame_idx / 60; // Công thức: thời gian (giây) = frame_idx / 60
-}
-
-// Hàm tiện ích để chuyển đổi thời gian (giây) thành frame
-function timeToFrame(time) {
-	return Math.round(60 * time); // Công thức: frame = 60 * time (giây)
-}
-
-function playVideoWindow(videoURL, videoId, imgId) {
-	console.log("playVideoWindow called with:", { videoURL, videoId, imgId });
+function playVideoWindow(videoURL, videoId, imgId, frame_idx) {
+	console.log("playVideoWindow called with:", { videoURL, videoId, imgId, frame_idx });
 
 	let params = `scrollbars=no,status=no,location=no,toolbar=no,menubar=no,width=850,height=710,left=50,top=50`;
 
 	// Kiểm tra xem có phải format mới không
 	let isCustomFormat = false;
 	let time = 0; // Default time
-	let frame_idx = null;
 
 	if (res && Array.isArray(res)) {
 		let resultItem = res.find(item => item.imgId === imgId);
 		if (resultItem && resultItem.customVideo) {
 			isCustomFormat = true;
 			// Sử dụng URL mới cho format custom
-			videoURL = host + "/video/" + encodeURIComponent(resultItem.customVideo);
+			videoURL = host + "/video/" + encodeURIComponent(resultItem.customVideo) + '#t=' + (frame_idx / 60);
 			console.log("Using custom video URL:", videoURL);
-			
-			// Lấy frame_idx từ kết quả
-			frame_idx = resultItem.frame_idx;
-			if (frame_idx !== undefined) {
-				// Tính toán thời gian từ frame_idx
-				time = frameToTime(frame_idx);
-				console.log("Frame_idx:", frame_idx, "-> Time:", time, "seconds");
-			} else {
-				// Fallback: sử dụng middleFrame
-				time = resultItem.middleFrame || 0;
-				console.log("Using middleFrame as time:", time);
-			}
+			// Với format mới, sử dụng frame_idx làm time nếu có, nếu không thì dùng middleFrame
+			time = resultItem.frame_idx !== undefined ? resultItem.frame_idx : (resultItem.middleFrame || 0);
 		} else {
 			// Với format cũ, sử dụng getStartTime
 			try {
@@ -1961,15 +1925,7 @@ function playVideoWindow(videoURL, videoId, imgId) {
 		}
 	}
 
-	// Tạo URL cho videoPlayer.html với thông tin frame_idx
-	let playerUrl = "videoPlayer.html?videoid=" + encodeURIComponent(videoId) +
-		"&frameid=" + encodeURIComponent(imgId) +
-		"&url=" + encodeURIComponent(videoURL) +
-		"&t=" + time +
-		"&frame_idx=" + (frame_idx || "");
-
-	console.log("Opening video player with URL:", playerUrl);
-	var myWindow = window.open(playerUrl, "playvideo", params);
+	var myWindow = window.open(videoURL, "playvideo", params);
 
 	// Kiểm tra xem window có mở thành công không
 	if (myWindow) {
