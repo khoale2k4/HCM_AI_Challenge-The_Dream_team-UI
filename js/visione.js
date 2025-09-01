@@ -748,6 +748,13 @@ function search2(query) {
 			let textual = obj.query?.[0]?.textual || null;
 			let ocr = obj.query?.[1]?.textual || null;
 
+			// dev
+			setResults(
+				[{ video: "L22_V030.mp4", frame: '139.jpg', frame_idx: 2000 },
+				{ video: "L22_V030.mp4", frame: '083.jpg', frame_idx: 2100 }]
+			);
+			return;
+
 			$.ajax({
 				type: "POST",
 				async: true,
@@ -897,10 +904,10 @@ function search3(queries) {
 						videoObj.frames.map(frameObj => {
 							let idxStr = frameObj.frame_idx;
 							let lastUnderscore = idxStr.lastIndexOf("_");
-							let cleanIdx = lastUnderscore !== -1 
-								? idxStr.substring(lastUnderscore + 1) 
+							let cleanIdx = lastUnderscore !== -1
+								? idxStr.substring(lastUnderscore + 1)
 								: idxStr;
-					
+
 							return {
 								video: frameObj.video,
 								frame: frameObj.frame,
@@ -1902,7 +1909,8 @@ function playVideoWindow(videoURL, videoId, imgId, frame_idx) {
 		if (resultItem && resultItem.customVideo) {
 			isCustomFormat = true;
 			// Sử dụng URL mới cho format custom
-			videoURL = host + "/video/" + encodeURIComponent(resultItem.customVideo) + '#t=' + (frame_idx / 60);
+			// http://127.0.0.1:5500/videoPlayer.html?url=http://14.225.241.236:8000/video/L22_V030.mp4&t=100
+			videoURL = "http://127.0.0.1:5500/videoPlayer.html?url=" + host + "/video/" + encodeURIComponent(resultItem.customVideo) + '&t=' + (frame_idx / 60);
 			console.log("Using custom video URL:", videoURL);
 			// Với format mới, sử dụng frame_idx làm time nếu có, nếu không thì dùng middleFrame
 			time = resultItem.frame_idx !== undefined ? resultItem.frame_idx : (resultItem.middleFrame || 0);

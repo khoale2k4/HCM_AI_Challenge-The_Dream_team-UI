@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <link href="https://vjs.zencdn.net/7.18.1/video-js.css" rel="stylesheet" />
-  <script src="https://vjs.zencdn.net/7.18.1/video.min.js"></script>
-  <script src="js/jquery-3.3.1.min.js"></script>
-  <script src="js/js-yaml.min.js"></script>
-  <script src="js/visione.js"></script>
 
-  <!-- If you'd like to support IE8 (for Video.js versions prior to v7) -->
-  <!-- <script src="https://vjs.zencdn.net/ie8/1.1.2/videojs-ie8.min.js"></script> -->
+<head>
+	<link href="https://vjs.zencdn.net/7.18.1/video-js.css" rel="stylesheet" />
+	<script src="https://vjs.zencdn.net/7.18.1/video.min.js"></script>
+	<script src="js/jquery-3.3.1.min.js"></script>
+	<script src="js/js-yaml.min.js"></script>
+	<script src="js/visione.js"></script>
+
+	<!-- If you'd like to support IE8 (for Video.js versions prior to v7) -->
+	<!-- <script src="https://vjs.zencdn.net/ie8/1.1.2/videojs-ie8.min.js"></script> -->
 </head>
 
 <body>
@@ -22,181 +23,183 @@
 			return isQA;
 		}
 
-		$.urlParam = function(name) {
+		$.urlParam = function (name) {
 			var results = new RegExp('[\?&]' + name + '=([^&#]*)')
-					.exec(window.location.href);
+				.exec(window.location.href);
 			return results[1] || 0;
 		}
 
-	  	function submitAtCurrentPlayTime() {
-	  		myPlayer.pause();
-	  		var whereYouAt = myPlayer.currentTime();
-	  		videoid = $.urlParam('videoid');
+		function submitAtCurrentPlayTime() {
+			myPlayer.pause();
+			var whereYouAt = myPlayer.currentTime();
+			videoid = $.urlParam('videoid');
 			if (submitAlert()) {
-	  			res = submitAtTime(videoid, whereYouAt);
+				res = submitAtTime(videoid, whereYouAt);
 				console.log(res);
 				alert('Server response: ' + res);
-	  		}
-	  	}
+			}
+		}
 	</script>
 
-	<div id='videoDiv'>
-		<video
-
-		id="vbsvideo"
-		    class="video-js"
-		    controls
-		    preload="auto"
-		    width="640"
-		    height="480"
-		    poster="MY_VIDEO_POSTER.jpg"
-		    data-setup="{}"
-		  >
-		    <source src="" type="video/mp4" />
-		    <source src="MY_VIDEO.webm" type="video/webm" />
-		    <p class="vjs-no-js">
-		      To view this video please enable JavaScript, and consider upgrading to a
-		      web browser that
-		      <a href="https://videojs.com/html5-video-support/" target="_blank"
-		        >supports HTML5 video</a>
-		    </p>
-		  </video>
+	<div id="videoDiv">
+		<video id="vbsvideo" class="video-js" controls preload="auto" width="640" height="480" data-setup="{}">
+			<p class="vjs-no-js">
+				To view this video please enable JavaScript, and consider upgrading to a
+				web browser that
+				<a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+			</p>
+		</video>
 	</div>
-	
+
+	<style>
+		#videoDiv {
+			display: flex;
+			justify-content: center;
+			/* canh ngang */
+			align-items: center;
+			/* canh dọc */
+			background: #f9f9f9;
+			/* tùy chọn */
+		}
+	</style>
+
 	<!-- Hiển thị thông tin frame -->
-	<div id="frameInfo" style="margin-top: 10px; padding: 10px; background-color: #f8f9fa; border-radius: 5px; text-align: center;">
+	<div id="frameInfo"
+		style="margin-top: 10px; padding: 10px; background-color: #f8f9fa; border-radius: 5px; text-align: center;">
 		<div style="font-size: 16px; font-weight: bold; color: #333;">
-			<span id="currentTime">Time: 0.00s</span> | 
+			<span id="currentTime">Time: 0.00s</span> |
 			<span id="currentFrame">Frame: 0</span>
 		</div>
-		<div style="font-size: 14px; color: #666; margin-top: 5px;">
+		<!-- <div style="font-size: 14px; color: #666; margin-top: 5px;">
 			<span id="originalFrame">Original Frame ID: </span>
 		</div>
 		<div style="font-size: 12px; color: #888; margin-top: 3px;">
-			<span id="frameRate">Frame Rate: 60 fps</span> | 
+			<span id="frameRate">Frame Rate: 60 fps</span> |
 			<span id="formula">Formula: frame = 60 × time</span>
-		</div>
+		</div> -->
 	</div>
 
-<script type="text/javascript">
-	var myPlayer;
-	var originalFrame_idx = null;
-	
-	// Hàm tiện ích để chuyển đổi thời gian (giây) thành frame
-	function timeToFrame(time) {
-		return Math.round(60 * time); // Công thức: frame = 60 * time (giây)
-	}
-	
-	// Hàm cập nhật hiển thị thông tin frame
-	function updateFrameInfo() {
-		if (myPlayer) {
-			var currentTime = myPlayer.currentTime();
-			var currentFrame = timeToFrame(currentTime);
-			
-			document.getElementById('currentTime').textContent = 'Time: ' + currentTime.toFixed(2) + 's';
-			document.getElementById('currentFrame').textContent = 'Frame: ' + currentFrame;
+	<script type="text/javascript">
+		var myPlayer;
+		var originalFrame_idx = null;
+
+		// Hàm tiện ích để chuyển đổi thời gian (giây) thành frame
+		function timeToFrame(time) {
+			return Math.round(60 * time); // Công thức: frame = 60 * time (giây)
 		}
-	}
-	
-	// Hàm nhảy đến frame gốc
-	function gotoOriginalFrame() {
-		if (myPlayer && originalFrame_idx) {
-			var originalTime = originalFrame_idx / 60; // Chuyển đổi frame_idx thành thời gian
-			myPlayer.currentTime(originalTime);
-			console.log("Jumping to original frame:", originalFrame_idx, "at time:", originalTime);
+
+		// Hàm cập nhật hiển thị thông tin frame
+		function updateFrameInfo() {
+			if (myPlayer) {
+				var currentTime = myPlayer.currentTime();
+				var currentFrame = timeToFrame(currentTime);
+
+				document.getElementById('currentTime').textContent = 'Time: ' + currentTime.toFixed(2) + 's';
+				document.getElementById('currentFrame').textContent = 'Frame: ' + currentFrame;
+			}
 		}
-	}
-	
-	function loadPage() {
-		url = $.urlParam('url');
-		t = $.urlParam('t');
-		frameID = $.urlParam('frameid');
-		originalFrame_idx = $.urlParam('frame_idx');
-		
-		// Hiển thị thông tin frame gốc
-		if (originalFrame_idx) {
-			var originalTime = originalFrame_idx / 60;
-			document.getElementById('originalFrame').textContent = 'Original Frame ID: ' + originalFrame_idx + ' (Time: ' + originalTime.toFixed(2) + 's)';
-		} else {
-			document.getElementById('originalFrame').textContent = 'Original Frame ID: ' + frameID;
+
+		// Hàm nhảy đến frame gốc
+		function gotoOriginalFrame() {
+			if (myPlayer && originalFrame_idx) {
+				var originalTime = originalFrame_idx / 60; // Chuyển đổi frame_idx thành thời gian
+				myPlayer.currentTime(originalTime);
+				console.log("Jumping to original frame:", originalFrame_idx, "at time:", originalTime);
+			}
 		}
-		
-		toLog = '{"query":[{"videoplayer":"' + frameID + '"}], "parameters":[{}]}'
-		log(toLog)
-		myPlayer = videojs('vbsvideo');
-		myPlayer.src({ type: "video/mp4", src: url});
-		myPlayer.currentTime(t);
-		myPlayer.muted(true);//	myPlayer.autoplay(true);
-		myPlayer.play();
-		
-		// Cập nhật thông tin frame ban đầu
-		updateFrameInfo();
-		
-		// Thêm event listener để cập nhật thông tin frame khi video phát
-		myPlayer.on('timeupdate', function() {
+
+		function loadPage() {
+			url = $.urlParam('url');
+			t = $.urlParam('t');
+			console.log("loadpage called");
+			// frameID = $.urlParam('frameid');
+			// originalFrame_idx = $.urlParam('frame_idx');
+
+			// Hiển thị thông tin frame gốc
+			// if (originalFrame_idx) {
+			// 	var originalTime = originalFrame_idx / 60;
+			// 	document.getElementById('originalFrame').textContent = 'Original Frame ID: ' + originalFrame_idx + ' (Time: ' + originalTime.toFixed(2) + 's)';
+			// } else {
+			// 	document.getElementById('originalFrame').textContent = 'Original Frame ID: ' + frameID;
+			// }
+
+			toLog = '{"query":[{}], "parameters":[{}]}'
+			log(toLog)
+			myPlayer = videojs('vbsvideo');
+			myPlayer.src({ type: "video/mp4", src: url });
+			myPlayer.currentTime(t);
+			myPlayer.muted(true);//	myPlayer.autoplay(true);
+			myPlayer.play();
+
+			// Cập nhật thông tin frame ban đầu
 			updateFrameInfo();
-		});
-		
-		// Thêm event listener để cập nhật khi video được seek
-		myPlayer.on('seeked', function() {
-			updateFrameInfo();
-		});
-		
-		// Thêm event listener để cập nhật khi video được load
-		myPlayer.on('loadedmetadata', function() {
-			updateFrameInfo();
-		});
-		
-		// Thêm event listener để cập nhật khi video được play
-		myPlayer.on('play', function() {
-			updateFrameInfo();
-		});
-		
-		// Thêm event listener để cập nhật khi video được pause
-		myPlayer.on('pause', function() {
-			updateFrameInfo();
-		});
-		
-		// Thêm event listener để cập nhật khi video được ended
-		myPlayer.on('ended', function() {
-			updateFrameInfo();
-		});
-		
-		// Thêm event listener để cập nhật khi video được ratechange
-		myPlayer.on('ratechange', function() {
-			updateFrameInfo();
-		});
-		
-		// Thêm event listener để cập nhật khi video được volumechange
-		myPlayer.on('volumechange', function() {
-			updateFrameInfo();
-		});
-		
-		// Thêm event listener để cập nhật khi video được waiting
-		myPlayer.on('waiting', function() {
-			updateFrameInfo();
-		});
-		
-		// Thêm event listener để cập nhật khi video được canplay
-		myPlayer.on('canplay', function() {
-			updateFrameInfo();
-		});
-	}
-	loadConfig().then(loadPage);
+
+			// Thêm event listener để cập nhật thông tin frame khi video phát
+			myPlayer.on('timeupdate', function () {
+				updateFrameInfo();
+			});
+
+			// Thêm event listener để cập nhật khi video được seek
+			myPlayer.on('seeked', function () {
+				updateFrameInfo();
+			});
+
+			// Thêm event listener để cập nhật khi video được load
+			myPlayer.on('loadedmetadata', function () {
+				updateFrameInfo();
+			});
+
+			// Thêm event listener để cập nhật khi video được play
+			myPlayer.on('play', function () {
+				updateFrameInfo();
+			});
+
+			// Thêm event listener để cập nhật khi video được pause
+			myPlayer.on('pause', function () {
+				updateFrameInfo();
+			});
+
+			// Thêm event listener để cập nhật khi video được ended
+			myPlayer.on('ended', function () {
+				updateFrameInfo();
+			});
+
+			// Thêm event listener để cập nhật khi video được ratechange
+			myPlayer.on('ratechange', function () {
+				updateFrameInfo();
+			});
+
+			// Thêm event listener để cập nhật khi video được volumechange
+			myPlayer.on('volumechange', function () {
+				updateFrameInfo();
+			});
+
+			// Thêm event listener để cập nhật khi video được waiting
+			myPlayer.on('waiting', function () {
+				updateFrameInfo();
+			});
+
+			// Thêm event listener để cập nhật khi video được canplay
+			myPlayer.on('canplay', function () {
+				updateFrameInfo();
+			});
+		}
+		loadPage();
 
 
-</script>
+	</script>
 
 
 
-  <div style="margin-top: 10px; text-align: center;">
-    <button id="submit" class="btn btn-warning btn-sm"
-					title="Submit result at current play time" onclick="if (!checkQA()) submitAtCurrentPlayTime();">
-					<i class="fa fa-play"> Submit</i></button>
-    
-    <button id="gotoOriginal" class="btn btn-info btn-sm" style="margin-left: 10px;"
-					title="Go to original frame time" onclick="gotoOriginalFrame();">
-					<i class="fa fa-undo"> Go to Original Frame</i></button>
-  </div>
+	<div style="margin-top: 10px; text-align: center;">
+		<!-- <button id="submit" class="btn btn-warning btn-sm" title="Submit result at current play time"
+			onclick="if (!checkQA()) submitAtCurrentPlayTime();">
+			<i class="fa fa-play"> Submit</i></button>
+
+		<button id="gotoOriginal" class="btn btn-info btn-sm" style="margin-left: 10px;"
+			title="Go to original frame time" onclick="gotoOriginalFrame();">
+			<i class="fa fa-undo"> Go to Original Frame</i></button> -->
+	</div>
 </body>
+
 </html>
