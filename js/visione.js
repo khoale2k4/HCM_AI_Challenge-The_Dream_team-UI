@@ -762,6 +762,7 @@ function search2(query) {
 				data: JSON.stringify({
 					query: isAdvanced ? null : textual,
 					task: isAdvanced ? "visual-kis" : "textual-kis",
+					type: "non-temporal",
 					ocr: isAdvanced ? ocr : null,
 					objects: isAdvanced ? getCanvas0Objects() : null,
 					colors: isAdvanced ? getCanvas0ColorsString() : null,
@@ -776,7 +777,7 @@ function search2(query) {
 					let normalized = data.map(item => ({
 						video: item.video,
 						frame: item.frame,
-						frame_idx: item.frame_idx
+						frame_idx: parseInt(item.frame)
 					}));
 
 					// group theo video
@@ -1895,7 +1896,7 @@ function openChildWindow(videoId, imgId, frameName) {
 	};
 }
 
-function playVideoWindow(videoURL, videoId, imgId, frame_idx) {
+async function playVideoWindow(videoURL, videoId, imgId, frame_idx) {
 	console.log("playVideoWindow called with:", { videoURL, videoId, imgId, frame_idx });
 
 	let params = `scrollbars=no,status=no,location=no,toolbar=no,menubar=no,width=850,height=710,left=50,top=50`;
@@ -1908,9 +1909,11 @@ function playVideoWindow(videoURL, videoId, imgId, frame_idx) {
 		let resultItem = res.find(item => item.imgId === imgId);
 		if (resultItem && resultItem.customVideo) {
 			isCustomFormat = true;
+			let res = await fetch("http://14.225.241.236:8000/video/fps/" + videoId);
+			let data = await res.json();
 			// Sử dụng URL mới cho format custom
 			// http://127.0.0.1:5500/videoPlayer.html?url=http://14.225.241.236:8000/video/L22_V030.mp4&t=100
-			videoURL = "http://127.0.0.1:5500/videoPlayer.html?url=" + host + "/video/" + encodeURIComponent(resultItem.customVideo) + '&t=' + (frame_idx / 60);
+			videoURL = "http://127.0.0.1:5500/videoPlayer.html?url=" + host + "/video/" + encodeURIComponent(resultItem.customVideo) + '&t=' + (frame_idx / data);
 			console.log("Using custom video URL:", videoURL);
 			// Với format mới, sử dụng frame_idx làm time nếu có, nếu không thì dùng middleFrame
 			time = resultItem.frame_idx !== undefined ? resultItem.frame_idx : (resultItem.middleFrame || 0);
