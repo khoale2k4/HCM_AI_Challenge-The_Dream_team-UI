@@ -94,13 +94,16 @@
 			try {
 				let res = await fetch("http://14.225.241.236:8000/video/fps/" + videoid);
 				let data = await res.json();
-				if (data.fps) {
-					videoFPS = data.fps;
+				console.log(data);
+				if (data) {
+					videoFPS = data;
 					console.log("✅ FPS fetched from API:", videoFPS);
 					// Hiển thị ra UI
-					document.getElementById("frameInfo").insertAdjacentHTML("beforeend",
-						`<div style="font-size:14px;color:#666;margin-top:5px;">Frame Rate: ${videoFPS} fps</div>`
-					);
+					// document.getElementById("frameInfo").insertAdjacentHTML("beforeend",
+					// 	`<div style="font-size:14px;color:#666;margin-top:5px;">Frame Rate: ${videoFPS} fps</div>`
+					// );
+					var currentTime = myPlayer.currentTime();
+					document.getElementById('currentFrame').textContent = 'Frame: ' + (currentTime * videoFPS).toFixed(0);
 				}
 			} catch (err) {
 				console.error("❌ Error fetching FPS:", err);
@@ -117,7 +120,7 @@
 				var currentFrame = timeToFrame(currentTime);
 	
 				document.getElementById('currentTime').textContent = 'Time: ' + currentTime.toFixed(2) + 's';
-				document.getElementById('currentFrame').textContent = 'Frame: ' + currentFrame;
+				// document.getElementById('currentFrame').textContent = 'Frame: ' + currentFrame;
 			}
 		}
 	
