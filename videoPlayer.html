@@ -82,114 +82,71 @@
 	<script type="text/javascript">
 		var myPlayer;
 		var originalFrame_idx = null;
-
-		// Hàm tiện ích để chuyển đổi thời gian (giây) thành frame
-		function timeToFrame(time) {
-			return Math.round(60 * time); // Công thức: frame = 60 * time (giây)
+		var videoFPS = 60; 
+	
+		function getVideoId() {
+			const urlParam = $.urlParam("url"); // http://14.225.241.236:8000/video/L22_V030.mp4
+			if (!urlParam) return null;
+			return urlParam.split("/").pop();   // => L22_V030.mp4
 		}
-
-		// Hàm cập nhật hiển thị thông tin frame
+	
+		async function fetchFPS(videoid) {
+			try {
+				let res = await fetch("http://14.225.241.236:8000/video/fps/" + videoid);
+				let data = await res.json();
+				if (data.fps) {
+					videoFPS = data.fps;
+					console.log("✅ FPS fetched from API:", videoFPS);
+					// Hiển thị ra UI
+					document.getElementById("frameInfo").insertAdjacentHTML("beforeend",
+						`<div style="font-size:14px;color:#666;margin-top:5px;">Frame Rate: ${videoFPS} fps</div>`
+					);
+				}
+			} catch (err) {
+				console.error("❌ Error fetching FPS:", err);
+			}
+		}
+	
+		function timeToFrame(time) {
+			return Math.round(videoFPS * time);
+		}
+	
 		function updateFrameInfo() {
 			if (myPlayer) {
 				var currentTime = myPlayer.currentTime();
 				var currentFrame = timeToFrame(currentTime);
-
+	
 				document.getElementById('currentTime').textContent = 'Time: ' + currentTime.toFixed(2) + 's';
 				document.getElementById('currentFrame').textContent = 'Frame: ' + currentFrame;
 			}
 		}
-
-		// Hàm nhảy đến frame gốc
-		function gotoOriginalFrame() {
-			if (myPlayer && originalFrame_idx) {
-				var originalTime = originalFrame_idx / 60; // Chuyển đổi frame_idx thành thời gian
-				myPlayer.currentTime(originalTime);
-				console.log("Jumping to original frame:", originalFrame_idx, "at time:", originalTime);
-			}
-		}
-
+	
 		function loadPage() {
-			url = $.urlParam('url');
-			t = $.urlParam('t');
-			console.log("loadpage called");
-			// frameID = $.urlParam('frameid');
-			// originalFrame_idx = $.urlParam('frame_idx');
-
-			// Hiển thị thông tin frame gốc
-			// if (originalFrame_idx) {
-			// 	var originalTime = originalFrame_idx / 60;
-			// 	document.getElementById('originalFrame').textContent = 'Original Frame ID: ' + originalFrame_idx + ' (Time: ' + originalTime.toFixed(2) + 's)';
-			// } else {
-			// 	document.getElementById('originalFrame').textContent = 'Original Frame ID: ' + frameID;
-			// }
-
-			toLog = '{"query":[{}], "parameters":[{}]}'
-			log(toLog)
+			let url = $.urlParam('url');
+			let t = $.urlParam('t');
+			let videoid = getVideoId();
+	
 			myPlayer = videojs('vbsvideo');
 			myPlayer.src({ type: "video/mp4", src: url });
 			myPlayer.currentTime(t);
-			myPlayer.muted(true);//	myPlayer.autoplay(true);
+			myPlayer.muted(true);
 			myPlayer.play();
-
-			// Cập nhật thông tin frame ban đầu
-			updateFrameInfo();
-
-			// Thêm event listener để cập nhật thông tin frame khi video phát
-			myPlayer.on('timeupdate', function () {
-				updateFrameInfo();
-			});
-
-			// Thêm event listener để cập nhật khi video được seek
-			myPlayer.on('seeked', function () {
-				updateFrameInfo();
-			});
-
-			// Thêm event listener để cập nhật khi video được load
-			myPlayer.on('loadedmetadata', function () {
-				updateFrameInfo();
-			});
-
-			// Thêm event listener để cập nhật khi video được play
-			myPlayer.on('play', function () {
-				updateFrameInfo();
-			});
-
-			// Thêm event listener để cập nhật khi video được pause
-			myPlayer.on('pause', function () {
-				updateFrameInfo();
-			});
-
-			// Thêm event listener để cập nhật khi video được ended
-			myPlayer.on('ended', function () {
-				updateFrameInfo();
-			});
-
-			// Thêm event listener để cập nhật khi video được ratechange
-			myPlayer.on('ratechange', function () {
-				updateFrameInfo();
-			});
-
-			// Thêm event listener để cập nhật khi video được volumechange
-			myPlayer.on('volumechange', function () {
-				updateFrameInfo();
-			});
-
-			// Thêm event listener để cập nhật khi video được waiting
-			myPlayer.on('waiting', function () {
-				updateFrameInfo();
-			});
-
-			// Thêm event listener để cập nhật khi video được canplay
-			myPlayer.on('canplay', function () {
-				updateFrameInfo();
+	
+			myPlayer.on('timeupdate', updateFrameInfo);
+			myPlayer.on('seeked', updateFrameInfo);
+			myPlayer.on('loadedmetadata', updateFrameInfo);
+	
+			// Khi pause thì fetch fps từ API
+			myPlayer.on('pause', async function () {
+				console.log("Video paused, fetching FPS...");
+				if (videoid) {
+					await fetchFPS(videoid);
+					updateFrameInfo();
+				}
 			});
 		}
 		loadPage();
-
-
 	</script>
-
-
 
 	<div style="margin-top: 10px; text-align: center;">
 		<!-- <button id="submit" class="btn btn-warning btn-sm" title="Submit result at current play time"

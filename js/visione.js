@@ -749,11 +749,11 @@ function search2(query) {
 			let ocr = obj.query?.[1]?.textual || null;
 
 			// dev
-			// setResults(
-			// 	[{ video: "L22_V030.mp4", frame: '139.jpg', frame_idx: 2000 },
-			// 	{ video: "L22_V030.mp4", frame: '083.jpg', frame_idx: 2100 }]
-			// );
-			// return;
+			setResults(
+				[{ video: "L22_V030.mp4", frame: '139.jpg', frame_idx: 2000 },
+				{ video: "L22_V030.mp4", frame: '083.jpg', frame_idx: 2100 }]
+			);
+			return;
 
 			$.ajax({
 				type: "POST",
