@@ -864,9 +864,10 @@ function search3(queries) {
 		$.ajax({
 			type: "POST",
 			async: true,
-			url: searchUrl + '/temporal_search',
+			url: searchUrl,
 			data: JSON.stringify({
 				queries: queries,
+				type: "temporal",
 			}),
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",
@@ -903,16 +904,10 @@ function search3(queries) {
 				if (data && Array.isArray(data)) {
 					list = data.flatMap(videoObj =>
 						videoObj.frames.map(frameObj => {
-							let idxStr = frameObj.frame_idx;
-							let lastUnderscore = idxStr.lastIndexOf("_");
-							let cleanIdx = lastUnderscore !== -1
-								? idxStr.substring(lastUnderscore + 1)
-								: idxStr;
-
 							return {
 								video: frameObj.video,
 								frame: frameObj.frame,
-								frame_idx: cleanIdx
+								frame_idx: parseInt(frameObj.frame)
 							};
 						})
 					);

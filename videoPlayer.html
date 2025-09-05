@@ -67,7 +67,7 @@
 	<div id="frameInfo"
 		style="margin-top: 10px; padding: 10px; background-color: #f8f9fa; border-radius: 5px; text-align: center;">
 		<div style="font-size: 16px; font-weight: bold; color: #333;">
-			<span id="currentTime">Time: 0.00s</span> |
+			<span id="currentTime">Time: 0</span> |
 			<span id="currentFrame">Frame: 0</span>
 		</div>
 		<!-- <div style="font-size: 14px; color: #666; margin-top: 5px;">
@@ -81,76 +81,96 @@
 
 	<script type="text/javascript">
 		var myPlayer;
-		var originalFrame_idx = null;
-		var videoFPS = 60; 
-	
+		var videoFPS = 60;
+
 		function getVideoId() {
-			const urlParam = $.urlParam("url"); // http://14.225.241.236:8000/video/L22_V030.mp4
+			const urlParam = $.urlParam("url");
 			if (!urlParam) return null;
 			return urlParam.split("/").pop();   // => L22_V030.mp4
 		}
-	
+
+		function getTime(seconds) {
+			const min = Math.floor(seconds / 60);
+			const sec = Math.floor(seconds % 60);
+			return min + ":" + (sec < 10 ? "0" + sec : sec);
+		}
+
 		async function fetchFPS(videoid) {
 			try {
 				let res = await fetch("http://14.225.241.236:8000/video/fps/" + videoid);
 				let data = await res.json();
-				console.log(data);
 				if (data) {
 					videoFPS = data;
 					console.log("✅ FPS fetched from API:", videoFPS);
-					// Hiển thị ra UI
-					// document.getElementById("frameInfo").insertAdjacentHTML("beforeend",
-					// 	`<div style="font-size:14px;color:#666;margin-top:5px;">Frame Rate: ${videoFPS} fps</div>`
-					// );
-					var currentTime = myPlayer.currentTime();
-					document.getElementById('currentFrame').textContent = 'Frame: ' + (currentTime * videoFPS).toFixed(0);
 				}
 			} catch (err) {
 				console.error("❌ Error fetching FPS:", err);
 			}
 		}
-	
+
 		function timeToFrame(time) {
 			return Math.round(videoFPS * time);
 		}
-	
+
 		function updateFrameInfo() {
 			if (myPlayer) {
 				var currentTime = myPlayer.currentTime();
 				var currentFrame = timeToFrame(currentTime);
-	
-				document.getElementById('currentTime').textContent = 'Time: ' + currentTime.toFixed(2) + 's';
-				// document.getElementById('currentFrame').textContent = 'Frame: ' + currentFrame;
+
+				document.getElementById('currentTime').textContent = 'Time: ' + getTime(currentTime.toFixed(0)) + '';
+				document.getElementById('currentFrame').textContent = 'Frame: ' + currentFrame;
 			}
 		}
-	
-		function loadPage() {
+
+		async function loadPage() {
 			let url = $.urlParam('url');
 			let t = $.urlParam('t');
 			let videoid = getVideoId();
-	
+			
+			if (videoid) {
+				document.title = videoid;
+				await fetchFPS(videoid);
+			}
+
 			myPlayer = videojs('vbsvideo');
 			myPlayer.src({ type: "video/mp4", src: url });
-			myPlayer.currentTime(t);
+			myPlayer.currentTime(t || 0);
 			myPlayer.muted(true);
 			myPlayer.play();
-	
+
+			// update khi video chạy
 			myPlayer.on('timeupdate', updateFrameInfo);
 			myPlayer.on('seeked', updateFrameInfo);
 			myPlayer.on('loadedmetadata', updateFrameInfo);
-	
-			// Khi pause thì fetch fps từ API
-			myPlayer.on('pause', async function () {
-				console.log("Video paused, fetching FPS...");
-				if (videoid) {
-					await fetchFPS(videoid);
-					updateFrameInfo();
-				}
-			});
 		}
-		loadPage();
-	</script>
 
+		loadPage();
+
+		document.addEventListener("keydown", function (event) {
+			if (!myPlayer) return;
+
+			switch (event.code) {
+				case "Space":
+					event.preventDefault();
+					if (myPlayer.paused()) {
+						myPlayer.play();
+					} else {
+						myPlayer.pause();
+					}
+					break;
+
+				case "ArrowRight":
+					event.preventDefault();
+					myPlayer.currentTime(myPlayer.currentTime() + 5);
+					break;
+
+				case "ArrowLeft":
+					event.preventDefault();
+					myPlayer.currentTime(myPlayer.currentTime() - 5);
+					break;
+			}
+		});
+	</script>
 	<div style="margin-top: 10px; text-align: center;">
 		<!-- <button id="submit" class="btn btn-warning btn-sm" title="Submit result at current play time"
 			onclick="if (!checkQA()) submitAtCurrentPlayTime();">
