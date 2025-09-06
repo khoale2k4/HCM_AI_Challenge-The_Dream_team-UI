@@ -749,7 +749,22 @@ function search2(query) {
 			let ocr = obj.query?.[1]?.textual || null;
 
 			// dev
-			// setResults(
+			// res = [
+			// {
+			//     "score": 1.3011644780635834,
+			//     "video": "K12_V026.mp4",
+			//     "frame": "12558.jpg",
+			//     "frame_idx": 757,
+			//     "rank": 1
+			// },
+			// {
+			//     "score": 1.0869958081188433,
+			//     "video": "L30_V027.mp4",
+			//     "frame": "4636.jpg",
+			//     "frame_idx": 68,
+			//     "rank": 2
+			// },];
+			// showResultsFlat(
 			// 	[{ video: "L22_V030.mp4", frame: '139.jpg', frame_idx: 2000 },
 			// 	{ video: "L22_V030.mp4", frame: '083.jpg', frame_idx: 2100 }]
 			// );
@@ -771,45 +786,15 @@ function search2(query) {
 				contentType: "application/json; charset=utf-8",
 				dataType: "json",
 				success: function (data) {
-					let grouped = {};
-
-					// giữ nguyên đủ thông tin
 					let normalized = data.map(item => ({
 						video: item.video,
 						frame: item.frame,
 						frame_idx: parseInt(item.frame)
 					}));
 
-					// group theo video
-					normalized.forEach(({ video, frame, frame_idx }) => {
-						if (!grouped[video]) grouped[video] = [];
-						grouped[video].push({ frame, frame_idx });
-					});
-
-					let videos = Object.keys(grouped);
-
-					let result = [];
-					let currentIndex = 0;
-					let totalFrames = normalized.length;
-
-					while (result.length < totalFrames) {
-						let video = videos[currentIndex];
-						let frames = grouped[video].splice(0, 6);
-
-						frames.forEach(({ frame, frame_idx }) => {
-							result.push({ video, frame, frame_idx });
-						});
-
-						currentIndex = (currentIndex + 1) % videos.length;
-					}
-
-					console.log(result);
-					// bây giờ result sẽ là:
-					// { video: 'L21_V012.mp4', frame: '139.jpg', frame_idx: 0 }
-					// { video: 'L21_V012.mp4', frame: '166.jpg', frame_idx: 1 }
-					// ...
-
-					setResults(result);
+					setResults([{ video: "L22_V030.mp4", frame: '139.jpg', frame_idx: 2000 },
+					{ video: "L22_V030.mp4", frame: '083.jpg', frame_idx: 2100 }]);
+					showResultsFlat(normalized); // Gọi hàm hiển thị mới
 				},
 
 				error: function (xhr, status, error) {
@@ -1585,7 +1570,7 @@ function loadImages(startIndex, endIndex) {
 
 		imgGridResults += '<div data-videoid="' + videoId + '" id="res_' + imgId + '" data-row="' + resrowIdx + '" data-col="' + (resColIdx - 1) + '" class="item column-span-1">'
 		//imgGridResults += imgResult(resultData, borderColors[borderColorsIdx], JSON.stringify(avsObj), isAdvanced, img_loading)
-		imgGridResults += imgResult(resultData, borderColors[borderColorsIdx], img_loading)
+		imgGridResults += imgResult(resultData, borderColors[borderColorsIdx], img_loading, true);
 		imgGridResults += '</div>'
 		resMatrix[resrowIdx][resColIdx - 1] = res[i];
 
@@ -1810,7 +1795,7 @@ function hideOverlay(img_overlay) {
 	document.getElementById(img_overlay).style.opacity = 0;
 }
 
-const imgResult = (res, borderColor, img_loading = "eager") => {
+const imgResult = (res, borderColor, img_loading = "eager", isRow = false) => {
 	jsonString = JSON.stringify(res);
 	console.log(jsonString);
 
@@ -1840,6 +1825,7 @@ const imgResult = (res, borderColor, img_loading = "eager") => {
 	// 			<a href="#" title="Submit result"><span class="pull-right"><i id="submitBTN_${res.imgId}" title="Submit result" class="fa fa-arrow-alt-circle-up font-huge" style="color:#00AA00; padding-left: 0px;" onclick='submitVersion2(${jsonString});'> </i></span></a>
 	// 		<div>
 	// 	</div>
+	//  onclick='avsCleanManuallySelected(); avsToggle(${jsonString}, event)' 
 	// 	`
 	return `
 	<div class="result-border" style="border-color: ${borderColor};">
@@ -1850,18 +1836,18 @@ const imgResult = (res, borderColor, img_loading = "eager") => {
 				 src="${res.thumb}" 
 				 data-video="${res.customVideo || res.videoId}" 
 				 data-frame="${res.customFrame || res.imgId}" 
-				 onclick='avsCleanManuallySelected(); avsToggle(${jsonString}, event)' 
 				 onerror="fetchFrameAsBlob(this)" />
 		</div>
 		<div id="toolbar_icons_${res.imgId}" style="display: flex; align-items: center; gap: 6px;">
 			<a href="#" title="Play Video">
-				<i title="Play Video" 
+				<i id="playBtn_${res.videoId.split('.')[0] + "_" + res.imgId.split('.')[0]}"
+				   title="Play Video" 
 				   class="fa fa-play font-normal" 
 				   style="color:#007bff;padding-left: 3px;" 
 				   onclick="playVideoWindow('${customVideoUrl}', '${res.videoId}', '${res.imgId}', '${res.frame_idx}'); return false;">
 				</i>
 			</a>
-			<span class="frame-idx" style="font-size: 13px; color: #333;">frame-idx: ${res.frame_idx || ''}</span>
+			<span class="frame-idx" style="font-size: 13px; color: #333;">${isRow ? "" : res.videoId.split('.')[0] + ", "}${res.frame_idx || ''}</span>
 		</div>
 	</div>
 `
@@ -1891,8 +1877,27 @@ function openChildWindow(videoId, imgId, frameName) {
 	};
 }
 
+function setLoading(btnId) {
+    const btn = document.getElementById(btnId);
+    if (btn) {
+        btn.classList.remove("fa-play");
+        btn.classList.add("fa-spinner", "fa-spin"); // loading xoay
+    }
+}
+
+function setPlay(btnId) {
+    const btn = document.getElementById(btnId);
+    if (btn) {
+        btn.classList.remove("fa-spinner", "fa-spin");
+        btn.classList.add("fa-play"); // trở lại play
+    }
+}
+
 async function playVideoWindow(videoURL, videoId, imgId, frame_idx) {
 	console.log("playVideoWindow called with:", { videoURL, videoId, imgId, frame_idx });
+	console.log("start playing...")
+	let btnId = 'playBtn_' + videoId.split('.')[0] + '_' + imgId.split('.')[0];
+	setLoading(btnId);
 
 	let params = `scrollbars=no,status=no,location=no,toolbar=no,menubar=no,width=850,height=710,left=50,top=50`;
 
@@ -1901,19 +1906,26 @@ async function playVideoWindow(videoURL, videoId, imgId, frame_idx) {
 	let time = 0; // Default time
 
 	if (res && Array.isArray(res)) {
-		let resultItem = res.find(item => item.imgId === imgId);
-		if (resultItem && resultItem.customVideo) {
+		let resultItem = res.find(item => (item.frame === imgId || item.imgId === imgId));
+		console.log("res not null")
+		console.log(imgId)
+		console.log(res)
+		console.log(resultItem)
+		// {video: 'K16_V016.mp4', frame: '10062.jpg', frame_idx: 10062}
+		if (resultItem) {
 			isCustomFormat = true;
+			console.log('resultItem not null')
 			let res = await fetch("http://14.225.241.236:8000/video/fps/" + videoId);
 			let data = await res.json();
 			// Sử dụng URL mới cho format custom
 			// http://127.0.0.1:5500/videoPlayer.html?url=http://14.225.241.236:8000/video/L22_V030.mp4&t=100
-			videoURL = "http://127.0.0.1:5500/videoPlayer.html?url=" + host + "/video/" + encodeURIComponent(resultItem.customVideo) + '&t=' + (frame_idx / data);
+			videoURL = "http://127.0.0.1:5500/videoPlayer.html?url=" + host + "/video/" + encodeURIComponent(resultItem.video ?? resultItem.videoId) + '&t=' + (frame_idx / data);
 			console.log("Using custom video URL:", videoURL);
 			// Với format mới, sử dụng frame_idx làm time nếu có, nếu không thì dùng middleFrame
 			time = resultItem.frame_idx !== undefined ? resultItem.frame_idx : (resultItem.middleFrame || 0);
 		} else {
 			// Với format cũ, sử dụng getStartTime
+			console.log('resultItem null')
 			try {
 				time = getStartTime(imgId);
 			} catch (e) {
@@ -1923,6 +1935,7 @@ async function playVideoWindow(videoURL, videoId, imgId, frame_idx) {
 		}
 	} else {
 		// Fallback
+		console.log("res null")
 		try {
 			time = getStartTime(imgId);
 		} catch (e) {
@@ -1930,6 +1943,7 @@ async function playVideoWindow(videoURL, videoId, imgId, frame_idx) {
 			time = 0;
 		}
 	}
+	setPlay(btnId);
 
 	var myWindow = window.open(videoURL, "playvideo", params);
 
@@ -3284,6 +3298,102 @@ async function checkServices() {
 	if (isError) {
 		alert(message);
 	}
+}
+
+function showResultsFlat(data) {
+	try {
+		displayAdvanced(true);
+		avsCleanManuallySelected();
+
+		$('html,body').scrollTop(0);
+		$("#imgGridResults").empty();
+		$('#content').scrollTop(0);
+		resMatrix = [];
+		colIdx = 1;
+		rowIdx = -1;
+		visibleImages = 0;
+		framesCache = [];
+
+		console.log("showResultsFlat - data:", data);
+
+		if ((data == null || data == "" || (Array.isArray(data) && data.length === 0)) && latestQuery != "") {
+			console.log("No data, showing no results");
+			noResultsOutput();
+		} else if (data != null && data != "" && !(Array.isArray(data) && data.length === 0)) {
+			console.log("Processing valid data");
+			if (!isAdvanced) {
+				displaySimplifiedUI();
+			}
+
+			try {
+				res = data;
+				console.log("Set res = data, res length:", res ? res.length : "null");
+
+				if (res.length == 0) {
+					console.log("Res length is 0, showing no results");
+					noResultsOutput();
+				} else {
+					console.log("Res length > 0, loading images flatly");
+					noResultsOutput(false);
+					loadImagesFlat(0, batchSize);
+				}
+			} catch (e) {
+				console.log("Error processing data:", e);
+				noResultsOutput();
+			}
+		}
+
+		updateAVSInfo();
+		if (localStorage.getItem('taskType') === 'avs') {
+			avsHideSubmittedVideos();
+		} else {
+			avsHilightlighSubmittedVideos();
+		}
+
+	} finally {
+		loadingSpinner.style.display = 'none';
+	}
+}
+
+// Hàm mới để tải hình ảnh mà không nhóm theo video
+function loadImagesFlat(startIndex, endIndex) {
+	let img_loading = "eager";
+
+	for (let i = startIndex; i < Math.min(endIndex, res.length); i++) {
+		let imgGridResults = "";
+		let item = res[i];
+
+		let videoId = item.video;
+		let imgId = item.frame;
+		let frame_idx = item.frame_idx;
+
+		let keyframePath, thumbnailPath, videoUrl, videoUrlPreview;
+		// Logic tạo URL cho từng item
+		const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+		keyframePath = transparentPixel;
+		thumbnailPath = transparentPixel;
+		videoUrl = host + "/video/" + encodeURIComponent(videoId);
+		videoUrlPreview = host + "/video/" + encodeURIComponent(videoId);
+
+		// Thêm div cho từng item
+		imgGridResults += '<div data-videoid="' + videoId + '" id="res_' + imgId + '_' + i + '" class="item column-span-1">';
+		let borderColorsIdx = fromIDtoColor(videoId, borderColors.length);
+
+		resultData = getResultData(videoId, imgId, thumbnailPath, imgId, frame_idx, keyframePath, 1.0, videoUrl, videoUrlPreview, null, null, frame_idx);
+		imgGridResults += imgResult(resultData, borderColors[borderColorsIdx], img_loading);
+		imgGridResults += '</div>';
+
+		$("#imgGridResults").append(imgGridResults);
+
+		// Fetch frame và gán blob URL
+		const imgEl = document.getElementById('img' + imgId);
+		if (imgEl) {
+			fetchFrameAsBlob(imgEl);
+		}
+	}
+
+	resultsVisualization();
+	visibleImages = Math.min(endIndex, res.length);
 }
 
 // Fetch frame bằng endpoint mới và gán blob URL cho <img>
