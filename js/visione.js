@@ -721,10 +721,101 @@ function setResults(data) {
 
 	console.log("Converted results:", results);
 	console.log("Results length after conversion:", results ? results.length : "null");
+
+	// Nhóm dữ liệu theo video để showResults hoạt động đúng
+	let groupedResults = {};
+	if (results) {
+		results.forEach(item => {
+			if (!groupedResults[item.videoId]) {
+				groupedResults[item.videoId] = [];
+			}
+			groupedResults[item.videoId].push(item);
+		});
+	}
+
+	// Gán kết quả đã nhóm vào resMatrix và res
+	resMatrix = Object.values(groupedResults);
+	res = results; // Giữ res là mảng phẳng để các hàm khác có thể dùng
 	resultsSortedByVideo = results;
 
-	// Call showResults directly with results instead of going through groupResults
-	showResults(results);
+	// Gọi hàm showResults với ma trận đã nhóm
+	showResults(resMatrix);
+}
+
+function downloadCSV() {
+	if (!res || res.length === 0) {
+		alert('No results to download.');
+		return;
+	}
+
+	let csvContent = "";
+	let fileName = "";
+	let isTemporal = latestQuery.includes('"queries"');
+
+	// Check if the search was non-temporal (using search2)
+	if (latestQuery.includes('"task":"visual-kis"') || latestQuery.includes('"task":"textual-kis"')) {
+		// csvContent += "video,frame\n";
+		let limitedResults = res.slice(0, 100);
+		limitedResults.forEach(item => {
+			csvContent += `${item.video.split(".")[0]},${item.frame.split(".")[0]}\n`;
+		});
+		fileName = "non_temporal_search_results.csv";
+	}
+	// Check if the search was temporal (using search3)
+	else if (isTemporal) {
+		let temporalResults = {};
+		let uniqueVideoIds = new Set();
+		let videoIdCount = 0;
+
+		// Collect unique video IDs, up to a limit of 100
+		for (const item of res) {
+			if (!item.videoId || uniqueVideoIds.has(item.videoId)) {
+				continue;
+			}
+			if (videoIdCount >= 100) {
+				break;
+			}
+			uniqueVideoIds.add(item.videoId);
+			videoIdCount++;
+		}
+
+		// Now, collect frames for only those 100 unique video IDs
+		res.forEach(item => {
+			if (uniqueVideoIds.has(item.videoId)) {
+				if (!temporalResults[item.videoId]) {
+					temporalResults[item.videoId] = [];
+				}
+				// Push the frame number (e.g., "13830")
+				temporalResults[item.videoId].push(item.imgId.split(".")[0]);
+			}
+		});
+
+		// Create CSV header and content
+		// csvContent += "video,frames\n";
+
+		for (const videoId in temporalResults) {
+			const frames = temporalResults[videoId].join(',');
+			csvContent += `${videoId.split(".")[0]},${frames}\n`;
+		}
+
+		fileName = "temporal_search_results.csv";
+	} else {
+		alert("Could not determine search type to format CSV.");
+		return;
+	}
+
+	// Create and download the CSV file
+	const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+	const link = document.createElement("a");
+	if (link.download !== undefined) {
+		const url = URL.createObjectURL(blob);
+		link.setAttribute("href", url);
+		link.setAttribute("download", fileName);
+		link.style.visibility = 'hidden';
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+	}
 }
 
 function search2(query) {
@@ -736,7 +827,7 @@ function search2(query) {
 		loadingSpinner = document.getElementById('loading-spinner');
 
 		loadingSpinner.style.display = 'block';
-		latestQuery = query
+		latestQuery = '"task":"textual-kis"';
 		if (query == "") {
 			setResults(query)
 		} else {
@@ -791,7 +882,7 @@ function search2(query) {
 						frame: item.frame,
 						frame_idx: parseInt(item.frame)
 					}));
-
+					console.log('normalized. length', normalized.length)
 					setResults([{ video: "L22_V030.mp4", frame: '139.jpg', frame_idx: 2000 },
 					{ video: "L22_V030.mp4", frame: '083.jpg', frame_idx: 2100 }]);
 					showResultsFlat(normalized); // Gọi hàm hiển thị mới
@@ -840,7 +931,7 @@ function search3(queries) {
 		loadingSpinner = document.getElementById('loading-spinner');
 
 		loadingSpinner.style.display = 'block';
-		latestQuery = JSON.stringify(queries); // Set latestQuery for temporal search
+		latestQuery = '"queries"'; // Set latestQuery for temporal search
 		console.log("Set latestQuery:", latestQuery);
 		var searchUrl = host;
 
@@ -856,35 +947,9 @@ function search3(queries) {
 			}),
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",
+			// Inside the success function of the search3 AJAX call
 			success: function (data) {
 				console.log("Temporal search API response:", data);
-				console.log("Response type:", typeof data);
-				console.log("Response length:", data ? (Array.isArray(data) ? data.length : "not array") : "null");
-
-				// [
-				//     {
-				//         "video": "video_1.mp4",
-				//         "best_score": 0.2629026174545288,
-				//         "frames": [
-				//             {
-				//                 "video": "video_1.mp4",
-				//                 "frame": "end_46.jpg",
-				//                 "frame_idx": 128
-				//             }
-				//         ]
-				//     },
-				//     {
-				//         "video": "video_2.mp4",
-				//         "best_score": 0.2523205280303955,
-				//         "frames": [
-				//             {
-				//                 "video": "video_2.mp4",
-				//                 "frame": "middle_114.jpg",
-				//                 "frame_idx": 320
-				//             }
-				//         ]
-				//     }
-				// ]
 				let list = [];
 				if (data && Array.isArray(data)) {
 					list = data.flatMap(videoObj =>
@@ -892,21 +957,17 @@ function search3(queries) {
 							return {
 								video: frameObj.video,
 								frame: frameObj.frame,
-								frame_idx: parseInt(frameObj.frame)
+								frame_idx: parseInt(frameObj.frame_idx || frameObj.frame)
 							};
 						})
 					);
-
 				} else {
 					console.log("Data is not an array or is null, using empty list");
 				}
 				console.log("Temporal search results:", list);
-				console.log("Data type:", typeof list);
-				console.log("Data length:", list ? list.length : "null");
 
-				console.log("About to call setResults with list:", list);
-				showResultsFlat(list);
-				// setResults(list);
+				// Gửi dữ liệu trực tiếp đến setResults để xử lý nhất quán
+				setResults(list);
 			},
 			error: function (xhr, status, error) {
 				console.log("Temporal search AJAX error - Status:", status);
@@ -919,27 +980,33 @@ function search3(queries) {
 					let testData = [
 						{
 							"video": "L21_V012.mp4",
-							"frame": "139.jpg"
+							"frame": "139.jpg",
+							"frame_idx": 139
 						},
 						{
 							"video": "L21_V012.mp4",
-							"frame": "166.jpg"
+							"frame": "166.jpg",
+							"frame_idx": 166
 						},
 						{
 							"video": "L22_V029.mp4",
-							"frame": "127.jpg"
+							"frame": "127.jpg",
+							"frame_idx": 127
 						},
 						{
 							"video": "L22_V029.mp4",
-							"frame": "202.jpg"
+							"frame": "202.jpg",
+							"frame_idx": 202
 						},
 						{
 							"video": "L25_V069.mp4",
-							"frame": "072.jpg"
+							"frame": "072.jpg",
+							"frame_idx": 72
 						},
 						{
 							"video": "L25_V069.mp4",
-							"frame": "253.jpg"
+							"frame": "253.jpg",
+							"frame_idx": 253
 						}
 					];
 					console.log("About to call setResults with testData:", testData);
@@ -1258,23 +1325,35 @@ function showResults(data) {
 			console.log("No data but latestQuery exists, showing no results");
 			noResultsOutput();
 		} else if (data != null && data != "" && !(Array.isArray(data) && data.length === 0)) {
+			document.getElementById('downloadCsvBtn').style.display = 'inline-block';
 			console.log("Processing valid data");
 			if (!isAdvanced)
 				displaySimplifiedUI();
 			try {
-				res = data;
-				console.log("Set res = data, res length:", res ? res.length : "null");
-				if (res.length == 0) {
-					console.log("Res length is 0, showing no results");
-					noResultsOutput();
+				// Logic chung cho cả temporal và non-temporal
+				if (data && data.length > 0) {
+					// Gán dữ liệu temporal đã được nhóm vào resMatrix
+					resMatrix = data;
+					res = data.flat(); // Tạo mảng phẳng để các hàm khác có thể dùng
+
+					console.log("Set resMatrix and res, resMatrix length:", resMatrix ? resMatrix.length : "null");
+					console.log("Set resMatrix and res, res length:", res ? res.length : "null");
+
+					if (res.length == 0) {
+						console.log("Res length is 0, showing no results");
+						noResultsOutput();
+					} else {
+						console.log("Res length > 0, loading images");
+						noResultsOutput(false);
+						//document.getElementById('newsession').style.display = 'block';
+						resColIdx = 1;
+						resrowIdx = 0;
+						visibleImages = 0;
+						loadImages(0, batchSize);
+					}
 				} else {
-					console.log("Res length > 0, loading images");
-					noResultsOutput(false);
-					//document.getElementById('newsession').style.display = 'block';
-					resColIdx = 1;
-					resrowIdx = 0;
-					visibleImages = 0;
-					loadImages(0, batchSize);
+					console.log("Data is empty or invalid");
+					noResultsOutput();
 				}
 			} catch (e) {
 				console.log("Error processing data:", e);
@@ -1479,7 +1558,7 @@ window.debugCanvasState = function () {
 	}
 };
 
-var batchSize = 80;
+var batchSize = 200;
 var visibleImages = 0;
 var resColIdx = 1;
 var resrowIdx = 0;
@@ -1497,10 +1576,11 @@ function loadImages(startIndex, endIndex) {
 	let newLine = 0;
 	for (var i = startIndex; i < extendedBatch; i++) {
 		var imgGridResults = ""
-		let imgId = res[i].imgId;
-		let videoId = res[i].videoId;
-
-		let score = res[i].score;
+		// Lấy dữ liệu từ mảng phẳng res
+		let item = res[i];
+		let imgId = item.imgId;
+		let videoId = item.videoId;
+		let score = item.score;
 
 		let path = videoId + "/" + imgId;
 
@@ -1508,8 +1588,7 @@ function loadImages(startIndex, endIndex) {
 		let frameNumber = result ? result[1] || result[2] || result[3] : null;
 
 		// Xử lý format dữ liệu mới
-		let isCustomFormat = res[i].customVideo && res[i].customFrame;
-
+		let isCustomFormat = item.customVideo && item.customFrame;
 
 		if (i > 0 && videoId != prevID) {
 			//patch to avoid same video on two rows
@@ -1524,18 +1603,16 @@ function loadImages(startIndex, endIndex) {
 			imgGridResults += '<div data-videoid="' + prevID + '" class="hline column-span-' + numResultsPerVideo + '"></div>';
 		}
 
-		// Xử lý URL cho format dữ liệu mới
+		// Logic để tạo URL hình ảnh
 		let keyframePath, thumbnailPath, videoUrl, videoUrlPreview;
+		const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+		keyframePath = transparentPixel;
+		thumbnailPath = transparentPixel;
 
 		if (isCustomFormat) {
 			// Format mới: sử dụng URL pattern mới
-			let frameName = res[i].customFrame;
-			let videoName = res[i].customVideo;
-
-			// Không dùng /image nữa; dùng placeholder và sẽ fetch qua /frame
-			const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
-			keyframePath = transparentPixel;
-			thumbnailPath = transparentPixel;
+			let frameName = item.customFrame;
+			let videoName = item.customVideo;
 
 			videoUrl = host + "/video/" + encodeURIComponent(videoName);
 			videoUrlPreview = host + "/video/" + encodeURIComponent(videoName);
@@ -1545,8 +1622,6 @@ function loadImages(startIndex, endIndex) {
 			console.log("Video URL:", videoUrl);
 		} else {
 			// Format cũ: sử dụng URL patterns
-			keyframePath = keyFramesUrl + path + ".png";
-			thumbnailPath = thumbnailUrl + path + ".jpg";
 			videoUrl = videoUrlPrefix + videoId + "-medium.mp4";
 			videoUrlPreview = videoshrinkUrl + videoId + "-tiny.mp4";
 		}
@@ -1561,24 +1636,26 @@ function loadImages(startIndex, endIndex) {
 		}
 		let borderColorsIdx = fromIDtoColor(videoId, borderColors.length);
 		prevID = videoId;
-		//avsObj = getAvsObj(videoId, imgId, 'avs_' + imgId, thumbnailPath, keyframePath, resrowIdx, resColIdx - 1)
-		resultData = getResultData(videoId, imgId, thumbnailPath, imgId, frameNumber, keyframePath, score, videoUrl, videoUrlPreview, resrowIdx, resColIdx - 1, res[i].frame_idx)
+
+		// Tạo uniqueId và imgResult
+		let uniqueId = item.videoId + '_' + item.imgId.split('.')[0] + '_' + i;
+		resultData = getResultData(item.videoId, item.imgId, thumbnailPath, item.imgId, item.frame_idx, keyframePath, 1.0, videoUrl, videoUrlPreview, null, null, item.frame_idx);
 
 		if (resColIdx > 0 && (resColIdx + newLine) % numResultsPerVideo == 0) {
 			imgGridResults += '<div class="item column-span-1"></div>';
 			newLine = 1;
 		}
 
-		imgGridResults += '<div data-videoid="' + videoId + '" id="res_' + imgId + '" data-row="' + resrowIdx + '" data-col="' + (resColIdx - 1) + '" class="item column-span-1">'
-		//imgGridResults += imgResult(resultData, borderColors[borderColorsIdx], JSON.stringify(avsObj), isAdvanced, img_loading)
-		imgGridResults += imgResult(resultData, borderColors[borderColorsIdx], img_loading, true);
+		imgGridResults += '<div data-videoid="' + videoId + '" id="res_' + uniqueId + '" data-row="' + resrowIdx + '" data-col="' + (resColIdx - 1) + '" class="item column-span-1">'
+		imgGridResults += imgResult(resultData, borderColors[borderColorsIdx], img_loading, uniqueId);
 		imgGridResults += '</div>'
 		resMatrix[resrowIdx][resColIdx - 1] = res[i];
 
 		resColIdx++;
 		$("#imgGridResults").append(imgGridResults);
-		// Sau khi phần tử được thêm vào DOM, gọi fetch frame bằng endpoint mới
-		const imgEl = document.getElementById('img' + imgId);
+
+		// Gọi hàm fetchFrameAsBlob ngay sau khi thêm vào DOM
+		const imgEl = document.getElementById('img_' + uniqueId);
 		if (imgEl) {
 			fetchFrameAsBlob(imgEl);
 		}
@@ -1797,22 +1874,22 @@ function hideOverlay(img_overlay) {
 }
 
 const imgResult = (res, borderColor, img_loading = "eager", uniqueId) => {
-    jsonString = JSON.stringify(res);
-    let frameDisplayName = res.frameName || res.imgId;
-    let frameNumberDisplay = res.frame_idx !== undefined ? res.frame_idx : (res.frameNumber || res.middleFrame || '');
+	jsonString = JSON.stringify(res);
+	let frameDisplayName = res.frameName || res.imgId;
+	let frameNumberDisplay = res.frame_idx !== undefined ? res.frame_idx : (res.frameNumber || res.middleFrame || '');
 
-    let isCustomFormat = res.customVideo && res.customFrame;
-    let customVideoUrl = isCustomFormat ? host + "/video/" + encodeURIComponent(res.customVideo) : res.videoUrl;
+	let isCustomFormat = res.customVideo && res.customFrame;
+	let customVideoUrl = isCustomFormat ? host + "/video/" + encodeURIComponent(res.customVideo) : res.videoUrl;
 
-    return `
+	return `
     <div class="result-border" style="border-color: ${borderColor};">
         <div class="myimg-thumbnail" id="${uniqueId}" lang="${res.videoId}|${res.videoUrlPreview}">
             <img loading="${img_loading}" 
                  id="img_${uniqueId}" 
                  class="myimg"  
                  src="${res.thumb}" 
-                 data-video="${res.customVideo || res.videoId}" 
-                 data-frame="${res.customFrame || res.imgId}" 
+             data-video="${res.customVideo || res.videoId}" 
+             data-frame="${res.customFrame || res.imgId}"
                  onerror="fetchFrameAsBlob(this)" />
         </div>
         <div id="toolbar_icons_${uniqueId}" style="display: flex; align-items: center; gap: 6px;">
@@ -2849,6 +2926,7 @@ async function init() {
 
 	document.onkeydown = checkKey;
 
+	document.getElementById('downloadCsvBtn').addEventListener('click', downloadCSV);
 	$(document).on('keydown', 'input[type="text"], textarea', function (event) {
 		if (event.key === 'Enter' || event.keyCode === 13) {
 			event.preventDefault();
@@ -3196,6 +3274,7 @@ async function init() {
 		loadingNextResults();
 	});
 
+
 }
 
 function loadingNextResults() {
@@ -3295,6 +3374,7 @@ function showResultsFlat(data) {
 			console.log("No data, showing no results");
 			noResultsOutput();
 		} else if (data != null && data != "" && !(Array.isArray(data) && data.length === 0)) {
+			document.getElementById('downloadCsvBtn').style.display = 'inline-block';
 			console.log("Processing valid data");
 			if (!isAdvanced) {
 				displaySimplifiedUI();
@@ -3373,24 +3453,31 @@ function loadImagesFlat(startIndex, endIndex) {
 
 // Fetch frame bằng endpoint mới và gán blob URL cho <img>
 async function fetchFrameAsBlob(imgEl) {
-    try {
-        const videoName = imgEl.getAttribute('data-video');
-        const frameName = imgEl.getAttribute('data-frame');
-        if (!videoName || !frameName) return;
+	try {
+		const videoName = imgEl.getAttribute('data-video');
+		const frameName = imgEl.getAttribute('data-frame');
+		if (!videoName || !frameName) {
+			console.log('fetchFrameAsBlob: Missing data attributes', { videoName, frameName });
+			return;
+		}
 
-        const response = await fetch(host + '/frame', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ video: videoName, frame: frameName })
-        });
-        if (!response.ok) throw new Error('Frame fetch failed: ' + response.status);
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
-        imgEl.onload = () => URL.revokeObjectURL(url);
-        imgEl.src = url;
-    } catch (err) {
-        console.log('fetchFrameAsBlob error:', err);
-    }
+		console.log('fetchFrameAsBlob: Fetching frame', { videoName, frameName });
+		const response = await fetch(host + '/frame', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ video: videoName, frame: frameName })
+		});
+		if (!response.ok) throw new Error('Frame fetch failed: ' + response.status);
+		const blob = await response.blob();
+		const url = URL.createObjectURL(blob);
+		imgEl.onload = () => URL.revokeObjectURL(url);
+		imgEl.src = url;
+		console.log('fetchFrameAsBlob: Successfully loaded frame for', { videoName, frameName });
+	} catch (err) {
+		console.log('fetchFrameAsBlob error:', err);
+		// Fallback to placeholder image on error
+		imgEl.src = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+	}
 }
 
 function setPalette(palette) {
@@ -3426,6 +3513,7 @@ function setPalette(palette) {
 }
 
 function noResultsOutput(isNoResult = true) {
+	// document.getElementById('downloadCsvBtn').style.display = 'none';
 	var elemento = $('#imgGridResults');
 	if (isNoResult) {
 		elemento.removeClass('gridcontainer');

@@ -2015,6 +2015,12 @@
           </div>
 
         </div>
+        <div class="headerItem">
+          <button id="downloadCsvBtn" style="display: inline; margin-top: 10px;" class="btn btn-primary"
+            title="Download results as CSV">
+            <i class="fa fa-download"></i> Download CSV
+          </button>
+        </div>
 
       </div>
       <div id="hourglass-start" class="headerItem fa fa-hourglass-start fa-1x"
@@ -2038,8 +2044,8 @@
       <div class="headerItem" id="simplified1">
         <div id="div_textual1">
           <div class="Icon-inside">
-            <textarea id="textual2" type="text" class="textualquery1 font-normal" cols="40" placeholder="Temporal search..."
-              style="height: 40px; resize: none; overflow: hidden;" on=""></textarea>
+            <textarea id="textual2" type="text" class="textualquery1 font-normal" cols="40"
+              placeholder="Temporal search..." style="height: 40px; resize: none; overflow: hidden;" on=""></textarea>
             <i id="cancelText1" class="fa fa-times fa-lg fa-fw" aria-hidden="true"
               style="right:30px; color:gray; display:none"></i>
             <i class="fa fa-search fa-lg fa-fw" style="left:10px; color:gray;"></i>
@@ -2047,14 +2053,17 @@
               style="left:10px; color:gray;"></i>
           </div>
         </div>
-        <div id="temporal-queries-container" style="margin-top: 45px; width: 28vw; position: relative; z-index: 1; clear: both;">
+        <div id="temporal-queries-container"
+          style="margin-top: 45px; width: 28vw; position: relative; z-index: 1; clear: both;">
           <!-- Dynamic textareas will be added here -->
         </div>
         <div id="temporal-controls" style="margin-top: 5px; text-align: center; position: relative; z-index: 1000;">
-          <button id="collapse-all-btn" style="background: #007bff; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; margin-right: 5px; transition: all 0.3s ease; position: relative; z-index: 1001;">
+          <button id="collapse-all-btn"
+            style="background: #007bff; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; margin-right: 5px; transition: all 0.3s ease; position: relative; z-index: 1001;">
             <i class="fa fa-chevron-up"></i>
           </button>
-          <button id="expand-all-btn" style="background: #28a745; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; display: none; transition: all 0.3s ease; position: relative; z-index: 1001;">
+          <button id="expand-all-btn"
+            style="background: #28a745; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; display: none; transition: all 0.3s ease; position: relative; z-index: 1001;">
             <i class="fa fa-chevron-down"></i>
           </button>
         </div>
@@ -2074,8 +2083,8 @@
                 src="skel/palette/person.png"></div>
             <div><img draggable="true" ondragstart="drag(event)" id="man" title="man" src="skel/palette/man.png">
             </div>
-            <div><img draggable="true" ondragstart="drag(event)" id="woman" title="woman"
-                src="skel/palette/woman.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="woman" title="woman" src="skel/palette/woman.png">
+            </div>
             <div><img draggable="true" ondragstart="drag(event)" id="human_face" title="human_face"
                 src="skel/palette/humanface.png"></div>
             <div><img draggable="true" ondragstart="drag(event)" id="musical_instrument" title="musical_instrument"
@@ -2092,20 +2101,20 @@
                 src="skel/palette/motorcycle.png"></div>
             <div><img draggable="true" ondragstart="drag(event)" id="car" title="car" src="skel/palette/car.png">
             </div>
-            <div><img draggable="true" ondragstart="drag(event)" id="truck" title="truck"
-                src="skel/palette/truck.png"></div>
-            <div><img draggable="true" ondragstart="drag(event)" id="boat" title="boat"
-                src="skel/palette/boat.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="truck" title="truck" src="skel/palette/truck.png">
+            </div>
+            <div><img draggable="true" ondragstart="drag(event)" id="boat" title="boat" src="skel/palette/boat.png">
+            </div>
             <div><img draggable="true" ondragstart="drag(event)" id="parachute" title="parachute"
                 src="skel/palette/parachute.png"></div>
             <div><img draggable="true" ondragstart="drag(event)" id="airplane" title="airplane"
                 src="skel/palette/aeroplane.png"></div>
-            <div><img draggable="true" ondragstart="drag(event)" id="bench" title="bench"
-                src="skel/palette/bench.png"></div>
-            <div><img draggable="true" ondragstart="drag(event)" id="chair" title="chair"
-                src="skel/palette/chair.png"></div>
-            <div><img draggable="true" ondragstart="drag(event)" id="couch" title="couch"
-                src="skel/palette/sofa.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="bench" title="bench" src="skel/palette/bench.png">
+            </div>
+            <div><img draggable="true" ondragstart="drag(event)" id="chair" title="chair" src="skel/palette/chair.png">
+            </div>
+            <div><img draggable="true" ondragstart="drag(event)" id="couch" title="couch" src="skel/palette/sofa.png">
+            </div>
             <div><img draggable="true" ondragstart="drag(event)" id="building" title="building"
                 src="skel/palette/building.png"></div>
             <div><img draggable="true" ondragstart="drag(event)" id="umbrella" title="umbrella"
@@ -2122,40 +2131,40 @@
                 src="skel/palette/television.png"></div>
             <div><img draggable="true" ondragstart="drag(event)" id="laptop_computer" title="laptop_computer"
                 src="skel/palette/laptop.png"></div>
-            <div><img draggable="true" ondragstart="drag(event)" id="book" title="book"
-                src="skel/palette/book.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="book" title="book" src="skel/palette/book.png">
+            </div>
             <div><img draggable="true" ondragstart="drag(event)" id="cat" title="cat" src="skel/palette/cat.png">
             </div>
             <div><img draggable="true" ondragstart="drag(event)" id="dog" title="dog" src="skel/palette/dog.png">
             </div>
-            <div><img draggable="true" ondragstart="drag(event)" id="horse" title="horse"
-                src="skel/palette/horse.png"></div>
-            <div><img draggable="true" ondragstart="drag(event)" id="bird" title="bird"
-                src="skel/palette/bird.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="horse" title="horse" src="skel/palette/horse.png">
+            </div>
+            <div><img draggable="true" ondragstart="drag(event)" id="bird" title="bird" src="skel/palette/bird.png">
+            </div>
             <div><img draggable="true" ondragstart="drag(event)" id="flower" title="flower"
                 src="skel/palette/flower.png"></div>
-            <div><img draggable="true" ondragstart="drag(event)" id="tree" title="tree"
-                src="skel/palette/tree.png"></div>
-            <div><img draggable="true" ondragstart="drag(event)" id="black" title="black"
-                src="skel/palette/black.png"></div>
-            <div><img draggable="true" ondragstart="drag(event)" id="blue" title="blue"
-                src="skel/palette/blue.png"></div>
-            <div><img draggable="true" ondragstart="drag(event)" id="brown" title="brown"
-                src="skel/palette/brown.png"></div>
-            <div><img draggable="true" ondragstart="drag(event)" id="green" title="green"
-                src="skel/palette/green.png"></div>
-            <div><img draggable="true" ondragstart="drag(event)" id="grey" title="grey"
-                src="skel/palette/grey.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="tree" title="tree" src="skel/palette/tree.png">
+            </div>
+            <div><img draggable="true" ondragstart="drag(event)" id="black" title="black" src="skel/palette/black.png">
+            </div>
+            <div><img draggable="true" ondragstart="drag(event)" id="blue" title="blue" src="skel/palette/blue.png">
+            </div>
+            <div><img draggable="true" ondragstart="drag(event)" id="brown" title="brown" src="skel/palette/brown.png">
+            </div>
+            <div><img draggable="true" ondragstart="drag(event)" id="green" title="green" src="skel/palette/green.png">
+            </div>
+            <div><img draggable="true" ondragstart="drag(event)" id="grey" title="grey" src="skel/palette/grey.png">
+            </div>
             <div><img draggable="true" ondragstart="drag(event)" id="orange" title="orange"
                 src="skel/palette/orange.png"></div>
-            <div><img draggable="true" ondragstart="drag(event)" id="pink" title="pink"
-                src="skel/palette/pink.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="pink" title="pink" src="skel/palette/pink.png">
+            </div>
             <div><img draggable="true" ondragstart="drag(event)" id="purple" title="purple"
                 src="skel/palette/purple.png"></div>
             <div><img draggable="true" ondragstart="drag(event)" id="red" title="red" src="skel/palette/red.png">
             </div>
-            <div><img draggable="true" ondragstart="drag(event)" id="white" title="white"
-                src="skel/palette/white.png"></div>
+            <div><img draggable="true" ondragstart="drag(event)" id="white" title="white" src="skel/palette/white.png">
+            </div>
             <div><img draggable="true" ondragstart="drag(event)" id="yellow" title="yellow"
                 src="skel/palette/yellow.png"></div>
           </div>
@@ -2201,8 +2210,8 @@
                 </div>
 
                 <div class="advanced" colspan="13" title="Max Objects Number" style="display: block;">
-                  <textarea id="textual1" class="font-normal" cols="38" rows="2" style="width:275px; border-radius: 6px;"
-                    placeholder="OCR..."></textarea>
+                  <textarea id="textual1" class="font-normal" cols="38" rows="2"
+                    style="width:275px; border-radius: 6px;" placeholder="OCR..."></textarea>
                   <div id="textual0_container" colspan="12" title="Scene Description">
                   </div>
                 </div>
@@ -2386,37 +2395,37 @@
       c.discardActiveObject();
       c.requestRenderAll();
     });
-    
+
     // Initialize advanced mode on page load
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       // Ensure advanced mode is enabled by default
       if (typeof isAdvanced !== 'undefined' && isAdvanced) {
         displayAdvanced();
         resultsVisualization();
       }
-      
+
       // Initialize temporal search functionality
       initTemporalSearch();
     });
-    
+
     // Temporal search functionality
     function initTemporalSearch() {
       const mainTextarea = document.getElementById('textual2');
       const container = document.getElementById('temporal-queries-container');
       let queryCounter = 0;
       let lastCreatedTextarea = null;
-      
+
       if (!mainTextarea || !container) return;
-      
+
       // Function to create a new textarea
       function createNewTextarea() {
         queryCounter++;
-        
+
         // Create container for textarea and delete button
         const textareaContainer = document.createElement('div');
         textareaContainer.id = `temporal-container-${queryCounter}`;
         textareaContainer.style.cssText = 'position: relative; display: flex; align-items: center; margin-bottom: 5px;';
-        
+
         // Create textarea
         const newTextarea = document.createElement('textarea');
         newTextarea.id = `temporal-query-${queryCounter}`;
@@ -2424,27 +2433,28 @@
         newTextarea.cols = 40;
         newTextarea.placeholder = 'Temporal search...';
         newTextarea.style.cssText = 'height: 40px; resize: none; overflow: hidden; margin: 4px; padding: 10px; padding-right: 55px; padding-left: 30px; width: 28vw; border-radius: 16px; border: 1px solid #ccc; box-sizing: border-box; display: block; position: relative; z-index: 1; background: white;';
-        
+
         // Create delete button
         const deleteBtn = document.createElement('button');
+        deleteBtn.tabIndex = -1;
         deleteBtn.innerHTML = '<i class="fa fa-times"></i>';
         deleteBtn.title = 'Delete this query';
         deleteBtn.style.cssText = 'position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: #ff4444; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 10px; z-index: 2; transition: background 0.3s ease;';
-        
+
         // Add hover effect for delete button
-        deleteBtn.addEventListener('mouseenter', function() {
+        deleteBtn.addEventListener('mouseenter', function () {
           this.style.background = '#cc0000';
         });
-        deleteBtn.addEventListener('mouseleave', function() {
+        deleteBtn.addEventListener('mouseleave', function () {
           this.style.background = '#ff4444';
         });
-        
+
         // Add delete functionality
-        deleteBtn.addEventListener('click', function() {
+        deleteBtn.addEventListener('click', function () {
           // Move focus to previous textarea or main textarea
           const allContainers = container.querySelectorAll('[id^="temporal-container-"]');
           const currentIndex = Array.from(allContainers).indexOf(textareaContainer);
-          
+
           if (currentIndex > 0) {
             const prevContainer = allContainers[currentIndex - 1];
             const prevTextarea = prevContainer.querySelector('textarea');
@@ -2454,7 +2464,7 @@
           } else {
             mainTextarea.focus();
           }
-          
+
           textareaContainer.remove();
           // Reset tracking if this was the last created textarea
           if (lastCreatedTextarea === newTextarea) {
@@ -2465,29 +2475,29 @@
           // Update collapse/expand buttons visibility
           updateCollapseButtons();
         });
-        
+
         // Add event listeners to textarea
         newTextarea.addEventListener('input', handleTextareaInput);
         newTextarea.addEventListener('keydown', handleTextareaKeydown);
-        
+
         // Append textarea and delete button to container
         textareaContainer.appendChild(newTextarea);
         textareaContainer.appendChild(deleteBtn);
-        
+
         // Append container to main container
         container.appendChild(textareaContainer);
-        
+
         // Update collapse/expand buttons visibility
         updateCollapseButtons();
-        
+
         return newTextarea;
       }
-      
+
       // Handle input event for all textareas
       function handleTextareaInput(event) {
         const textarea = event.target;
         const value = textarea.value;
-        
+
         // Only create a new textarea if current one has content AND there's no next textarea
         if (value.length > 0) {
           const nextTextarea = textarea.nextElementSibling;
@@ -2508,37 +2518,37 @@
           if (lastCreatedTextarea === textarea) {
             lastCreatedTextarea = null;
           }
-          
+
           // Check if this textarea should be deleted
           checkAndDeleteEmptyTextarea(textarea);
         }
       }
-      
+
       // Function to check if the last textarea is empty
       function isLastTextareaEmpty() {
         const allContainers = container.querySelectorAll('[id^="temporal-container-"]');
         if (allContainers.length === 0) return false; // No textareas exist, can create new one
-        
+
         const lastContainer = allContainers[allContainers.length - 1];
         const lastTextarea = lastContainer.querySelector('textarea');
-        
+
         if (lastTextarea) {
           return lastTextarea.value.trim() === '';
         }
-        
+
         return false;
       }
-      
+
       // Function to check and delete empty textarea
       function checkAndDeleteEmptyTextarea(textarea) {
         // Find the container of this textarea
         const textareaContainer = textarea.closest('[id^="temporal-container-"]');
         if (!textareaContainer) return;
-        
+
         // Get all textarea containers
         const allContainers = container.querySelectorAll('[id^="temporal-container-"]');
         const currentIndex = Array.from(allContainers).indexOf(textareaContainer);
-        
+
         // If this is not the last textarea and it's empty, delete it
         if (currentIndex < allContainers.length - 1 && textarea.value.trim() === '') {
           // Move focus to the previous textarea or main textarea
@@ -2551,17 +2561,17 @@
           } else {
             mainTextarea.focus();
           }
-          
+
           // Delete the empty textarea container
           textareaContainer.remove();
-          
+
           // Update collapse buttons visibility
           updateCollapseButtons();
-          
+
           console.log(`Deleted empty textarea at index ${currentIndex}`);
         }
       }
-      
+
       // Handle keydown event for all textareas
       function handleTextareaKeydown(event) {
         if (event.key === 'Enter') {
@@ -2569,17 +2579,17 @@
           collectAndLogQueries();
         }
       }
-      
+
       // Collect all queries and log them
       function collectAndLogQueries() {
         const queries = [];
-        
+
         // Get main textarea value
         const mainValue = mainTextarea.value.trim();
         if (mainValue !== '') {
           queries.push(mainValue);
         }
-        
+
         // Get all dynamic textarea values
         const dynamicTextareas = container.querySelectorAll('textarea');
         dynamicTextareas.forEach(textarea => {
@@ -2588,24 +2598,24 @@
             queries.push(value);
           }
         });
-        
+
         console.log('Temporal Queries:', queries);
         search3(queries);
         return queries;
       }
-      
+
       // Function to update query count display
       function updateQueryCount() {
         const totalQueries = container.querySelectorAll('textarea').length;
         console.log(`Total temporal queries: ${totalQueries}`);
       }
-      
+
       // Function to update collapse/expand buttons visibility
       function updateCollapseButtons() {
         const collapseBtn = document.getElementById('collapse-all-btn');
         const expandBtn = document.getElementById('expand-all-btn');
         const textareaContainers = container.querySelectorAll('[id^="temporal-container-"]');
-        
+
         if (textareaContainers.length > 0) {
           collapseBtn.style.display = 'inline-block';
           expandBtn.style.display = 'none';
@@ -2614,84 +2624,84 @@
           expandBtn.style.display = 'none';
         }
       }
-      
+
       // Function to collapse all textareas
       function collapseAllTextareas() {
         const textareaContainers = container.querySelectorAll('[id^="temporal-container-"]');
         const collapseBtn = document.getElementById('collapse-all-btn');
         const expandBtn = document.getElementById('expand-all-btn');
-        
+
         textareaContainers.forEach(container => {
           container.style.display = 'none';
         });
-        
+
         collapseBtn.style.display = 'none';
         expandBtn.style.display = 'inline-block';
       }
-      
+
       // Function to expand all textareas
       function expandAllTextareas() {
         const textareaContainers = container.querySelectorAll('[id^="temporal-container-"]');
         const collapseBtn = document.getElementById('collapse-all-btn');
         const expandBtn = document.getElementById('expand-all-btn');
-        
+
         textareaContainers.forEach(container => {
           container.style.display = 'block';
         });
-        
+
         collapseBtn.style.display = 'inline-block';
         expandBtn.style.display = 'none';
       }
-      
+
       // Add event listeners to main textarea
       mainTextarea.addEventListener('input', handleTextareaInput);
       mainTextarea.addEventListener('keydown', handleTextareaKeydown);
-      
+
       // Add event listeners to collapse/expand buttons with error handling
       setTimeout(() => {
         const collapseBtn = document.getElementById('collapse-all-btn');
         const expandBtn = document.getElementById('expand-all-btn');
-        
+
         if (collapseBtn) {
           // Add hover effects
-          collapseBtn.addEventListener('mouseenter', function() {
+          collapseBtn.addEventListener('mouseenter', function () {
             this.style.background = '#0056b3';
             this.style.transform = 'scale(1.1)';
           });
-          collapseBtn.addEventListener('mouseleave', function() {
+          collapseBtn.addEventListener('mouseleave', function () {
             this.style.background = '#007bff';
             this.style.transform = 'scale(1)';
           });
-          
-          collapseBtn.addEventListener('click', function(e) {
+
+          collapseBtn.addEventListener('click', function (e) {
             e.preventDefault();
             console.log('Collapse button clicked');
             collapseAllTextareas();
           });
         }
-        
+
         if (expandBtn) {
           // Add hover effects
-          expandBtn.addEventListener('mouseenter', function() {
+          expandBtn.addEventListener('mouseenter', function () {
             this.style.background = '#1e7e34';
             this.style.transform = 'scale(1.1)';
           });
-          expandBtn.addEventListener('mouseleave', function() {
+          expandBtn.addEventListener('mouseleave', function () {
             this.style.background = '#28a745';
             this.style.transform = 'scale(1)';
           });
-          
-          expandBtn.addEventListener('click', function(e) {
+
+          expandBtn.addEventListener('click', function (e) {
             e.preventDefault();
             console.log('Expand button clicked');
             expandAllTextareas();
           });
         }
-        
+
         // Initialize collapse buttons visibility
         updateCollapseButtons();
       }, 100);
-      
+
       // Expose function globally for external access
       window.collectTemporalQueries = collectAndLogQueries;
     }
