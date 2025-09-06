@@ -749,7 +749,7 @@ function downloadCSV() {
 	}
 
 	let csvContent = "";
-	let fileName = "";
+	let fileName = "query-p2-" + questionNumber + "-" + searchType;
 	let isTemporal = latestQuery.includes('"queries"');
 
 	// Check if the search was non-temporal (using search2)
@@ -759,7 +759,6 @@ function downloadCSV() {
 		limitedResults.forEach(item => {
 			csvContent += `${item.video.split(".")[0]},${item.frame.split(".")[0]}\n`;
 		});
-		fileName = "non_temporal_search_results.csv";
 	}
 	// Check if the search was temporal (using search3)
 	else if (isTemporal) {
@@ -798,7 +797,6 @@ function downloadCSV() {
 			csvContent += `${videoId.split(".")[0]},${frames}\n`;
 		}
 
-		fileName = "temporal_search_results.csv";
 	} else {
 		alert("Could not determine search type to format CSV.");
 		return;
@@ -1558,10 +1556,15 @@ window.debugCanvasState = function () {
 	}
 };
 
-var batchSize = 500;
 var visibleImages = 0;
 var resColIdx = 1;
 var resrowIdx = 0;
+
+// Set initial global variables
+var batchSize = 500;
+var searchType = "QA";
+var questionNumber = 1;
+
 
 function loadImages(startIndex, endIndex) {
 	let prevID = '';
@@ -2927,6 +2930,47 @@ async function init() {
 	document.onkeydown = checkKey;
 
 	document.getElementById('downloadCsvBtn').addEventListener('click', downloadCSV);
+
+
+	// Get all the input elements by their correct IDs
+	var batchSizeInput = document.getElementById('batchSizeInput');
+	var searchTypeDropdown = document.getElementById('searchTypeDropdown');
+	var questionNumberInput = document.getElementById('questionNumber');
+	// Add event listeners to update the variables
+	if (batchSizeInput) {
+		console.log('???????');
+		batchSizeInput.value = batchSize; // Set initial value in the field
+		batchSizeInput.addEventListener('change', function () {
+			var newSize = parseInt(this.value, 10);
+			if (newSize > 0) {
+				batchSize = newSize;
+				console.log("Batch size updated to: " + batchSize);
+			} else {
+				this.value = batchSize; // Revert to old value on invalid input
+			}
+		});
+	}
+
+	if (searchTypeDropdown) {
+		searchTypeDropdown.value = searchType; // Set initial value
+		searchTypeDropdown.addEventListener('change', function () {
+			searchType = this.value;
+			console.log("Search type updated to: " + searchType);
+		});
+	}
+
+	if (questionNumberInput) {
+		questionNumberInput.value = questionNumber; // Set initial value
+		questionNumberInput.addEventListener('change', function () {
+			var newNumber = parseInt(this.value, 10);
+			if (newNumber > 0) {
+				questionNumber = newNumber;
+				console.log("Question number updated to: " + questionNumber);
+			} else {
+				this.value = questionNumber;
+			}
+		});
+	}
 	$(document).on('keydown', 'input[type="text"], textarea', function (event) {
 		if (event.key === 'Enter' || event.keyCode === 13) {
 			event.preventDefault();
