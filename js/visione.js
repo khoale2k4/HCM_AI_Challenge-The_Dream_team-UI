@@ -905,7 +905,8 @@ function search3(queries) {
 				console.log("Data length:", list ? list.length : "null");
 
 				console.log("About to call setResults with list:", list);
-				setResults(list);
+				showResultsFlat(list);
+				// setResults(list);
 			},
 			error: function (xhr, status, error) {
 				console.log("Temporal search AJAX error - Status:", status);
@@ -1795,64 +1796,38 @@ function hideOverlay(img_overlay) {
 	document.getElementById(img_overlay).style.opacity = 0;
 }
 
-const imgResult = (res, borderColor, img_loading = "eager", isRow = false) => {
-	jsonString = JSON.stringify(res);
-	console.log(jsonString);
+const imgResult = (res, borderColor, img_loading = "eager", uniqueId) => {
+    jsonString = JSON.stringify(res);
+    let frameDisplayName = res.frameName || res.imgId;
+    let frameNumberDisplay = res.frame_idx !== undefined ? res.frame_idx : (res.frameNumber || res.middleFrame || '');
 
-	// Xử lý format dữ liệu mới
-	let frameDisplayName = res.frameName || res.imgId;
-	let frameNumberDisplay = res.frame_idx !== undefined ? res.frame_idx : (res.frameNumber || res.middleFrame || '');
-	let scoreDisplay = res.score || '1.0';
+    let isCustomFormat = res.customVideo && res.customFrame;
+    let customVideoUrl = isCustomFormat ? host + "/video/" + encodeURIComponent(res.customVideo) : res.videoUrl;
 
-	// Kiểm tra xem có phải format custom không
-	let isCustomFormat = res.customVideo && res.customFrame;
-	let customVideoUrl = isCustomFormat ? host + "/video/" + encodeURIComponent(res.customVideo) : res.videoUrl;
-
-	// return `
-	// 	<div class="result-border" style="border-color: ${borderColor};">
-	// 		<div class="myimg-thumbnail"  id="${res.imgId}" lang="${res.videoId}|${res.videoUrlPreview}" >
-	//             <img loading="${img_loading}" id="img${res.imgId}" class="myimg"  src="${res.thumb}" data-video="${res.customVideo || res.videoId}" data-frame="${res.customFrame || res.imgId}" onclick='avsCleanManuallySelected(); avsToggle(${jsonString}, event)' onerror="fetchFrameAsBlob(this)" />
-	// 		</div>
-	// 		<div  id="toolbar_icons_${res.imgId}">
-	// 			<a class="font-tiny" title="View annotations of ${frameDisplayName},  Score: ${scoreDisplay}" href="indexedData.html?videoId=${res.videoId}&id=${res.imgId}" target="_blank"> ${frameNumberDisplay}</a>
-	// 			<a title="Video summary" href="javascript:void(0);" onclick="openChildWindow('${res.videoId}', '${res.imgId}', '${frameDisplayName}')"><i class="fa fa-th font-normal" style="padding-left: 3px;"></i></a>
-	// 			<a href="#" title="Play Video"><i title="Play Video" class="fa fa-play font-normal" style="color:#007bff;padding-left: 3px;" onclick="playVideoWindow('${customVideoUrl}', '${res.videoId}', '${res.imgId}'); return false;"></i></a>
-	// 			<a href="#" class="isSimplified" title="image similarity"><img loading="${img_loading}" style="padding: 2px;" src="img/comboSim.svg" width=20 title="image similarity" alt="${res.imgId}" id="comboSim${res.imgId}" onclick="var queryObj=new Object(); queryObj.comboVisualSim='${res.imgId}'; searchByLink(queryObj); return false;"></a>
-	// 			<a href="#" class="isAdvanced" title="Visual similarity"><img loading="${img_loading}" style="padding: 2px;" src="img/imgSim.png" width=20 title="Visual similarity (dinov2)" alt="${res.imgId}" id="gemSim${res.imgId}" onclick="var queryObj=new Object(); queryObj.vf='${res.imgId}'; searchByLink(queryObj); return false;"></a>
-	// 			<a href="#" class="isAdvanced" title="semantic similarity""><img loading="${img_loading}" style="padding: 2px;" src="img/aladinSim.svg" width=20 title="semantic similarity" alt="${res.imgId}" id="aladinSim${res.imgId}" onclick="var queryObj=new Object(); queryObj.aladinSim='${res.imgId}'; searchByLink(queryObj); return false;"></a>
-	// 			<a href="#" class="isAdvanced" title="semantic video  similarity"><img loading="${img_loading}" style="padding: 2px;" src="img/clipSim.svg" width=20 title="semantic video  similarity" alt="${res.imgId}" id="clipSim${res.imgId}" onclick="var queryObj=new Object(); queryObj.clipSim='${res.imgId}'; searchByLink(queryObj); return false;"></a>
-
-	// 			<a href="#" title="Submit result"><span class="pull-right"><i id="submitBTN_${res.imgId}" title="Submit result" class="fa fa-arrow-alt-circle-up font-huge" style="color:#00AA00; padding-left: 0px;" onclick='submitVersion2(${jsonString});'> </i></span></a>
-	// 		<div>
-	// 	</div>
-	//  onclick='avsCleanManuallySelected(); avsToggle(${jsonString}, event)' 
-	// 	`
-	return `
-	<div class="result-border" style="border-color: ${borderColor};">
-		<div class="myimg-thumbnail" id="${res.imgId}" lang="${res.videoId}|${res.videoUrlPreview}">
-			<img loading="${img_loading}" 
-				 id="img${res.imgId}" 
-				 class="myimg"  
-				 src="${res.thumb}" 
-				 data-video="${res.customVideo || res.videoId}" 
-				 data-frame="${res.customFrame || res.imgId}" 
-				 onerror="fetchFrameAsBlob(this)" />
-		</div>
-		<div id="toolbar_icons_${res.imgId}" style="display: flex; align-items: center; gap: 6px;">
-			<a href="#" title="Play Video">
-				<i id="playBtn_${res.videoId.split('.')[0] + "_" + res.imgId.split('.')[0]}"
-				   title="Play Video" 
-				   class="fa fa-play font-normal" 
-				   style="color:#007bff;padding-left: 3px;" 
-				   onclick="playVideoWindow('${customVideoUrl}', '${res.videoId}', '${res.imgId}', '${res.frame_idx}'); return false;">
-				</i>
-			</a>
-			<span class="frame-idx" style="font-size: 13px; color: #333;">${isRow ? "" : res.videoId.split('.')[0] + ", "}${res.frame_idx || ''}</span>
-		</div>
-	</div>
-`
-
-
+    return `
+    <div class="result-border" style="border-color: ${borderColor};">
+        <div class="myimg-thumbnail" id="${uniqueId}" lang="${res.videoId}|${res.videoUrlPreview}">
+            <img loading="${img_loading}" 
+                 id="img_${uniqueId}" 
+                 class="myimg"  
+                 src="${res.thumb}" 
+                 data-video="${res.customVideo || res.videoId}" 
+                 data-frame="${res.customFrame || res.imgId}" 
+                 onerror="fetchFrameAsBlob(this)" />
+        </div>
+        <div id="toolbar_icons_${uniqueId}" style="display: flex; align-items: center; gap: 6px;">
+            <a href="#" title="Play Video">
+                <i id="playBtn_${uniqueId}"
+                   title="Play Video" 
+                   class="fa fa-play font-normal" 
+                   style="color:#007bff;padding-left: 3px;" 
+                   onclick="playVideoWindow('${customVideoUrl}', '${res.videoId}', '${res.imgId}', '${res.frame_idx}'); return false;">
+                </i>
+            </a>
+            <span class="frame-idx" style="font-size: 13px; color: #333;">${res.videoId.split('.')[0]}, ${res.frame_idx || ''}</span>
+        </div>
+    </div>
+    `
 }
 
 function openChildWindow(videoId, imgId, frameName) {
@@ -1878,19 +1853,19 @@ function openChildWindow(videoId, imgId, frameName) {
 }
 
 function setLoading(btnId) {
-    const btn = document.getElementById(btnId);
-    if (btn) {
-        btn.classList.remove("fa-play");
-        btn.classList.add("fa-spinner", "fa-spin"); // loading xoay
-    }
+	const btn = document.getElementById(btnId);
+	if (btn) {
+		btn.classList.remove("fa-play");
+		btn.classList.add("fa-spinner", "fa-spin"); // loading xoay
+	}
 }
 
 function setPlay(btnId) {
-    const btn = document.getElementById(btnId);
-    if (btn) {
-        btn.classList.remove("fa-spinner", "fa-spin");
-        btn.classList.add("fa-play"); // trở lại play
-    }
+	const btn = document.getElementById(btnId);
+	if (btn) {
+		btn.classList.remove("fa-spinner", "fa-spin");
+		btn.classList.add("fa-play"); // trở lại play
+	}
 }
 
 async function playVideoWindow(videoURL, videoId, imgId, frame_idx) {
@@ -3362,31 +3337,31 @@ function loadImagesFlat(startIndex, endIndex) {
 	for (let i = startIndex; i < Math.min(endIndex, res.length); i++) {
 		let imgGridResults = "";
 		let item = res[i];
-
 		let videoId = item.video;
 		let imgId = item.frame;
 		let frame_idx = item.frame_idx;
+		let uniqueId = videoId + '_' + imgId.split('.')[0] + '_' + i;
 
 		let keyframePath, thumbnailPath, videoUrl, videoUrlPreview;
-		// Logic tạo URL cho từng item
 		const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
 		keyframePath = transparentPixel;
 		thumbnailPath = transparentPixel;
 		videoUrl = host + "/video/" + encodeURIComponent(videoId);
 		videoUrlPreview = host + "/video/" + encodeURIComponent(videoId);
 
-		// Thêm div cho từng item
-		imgGridResults += '<div data-videoid="' + videoId + '" id="res_' + imgId + '_' + i + '" class="item column-span-1">';
+		imgGridResults += '<div data-videoid="' + videoId + '" id="res_' + uniqueId + '" class="item column-span-1">';
 		let borderColorsIdx = fromIDtoColor(videoId, borderColors.length);
 
 		resultData = getResultData(videoId, imgId, thumbnailPath, imgId, frame_idx, keyframePath, 1.0, videoUrl, videoUrlPreview, null, null, frame_idx);
-		imgGridResults += imgResult(resultData, borderColors[borderColorsIdx], img_loading);
+
+		// Truyền uniqueId vào hàm imgResult
+		imgGridResults += imgResult(resultData, borderColors[borderColorsIdx], img_loading, uniqueId);
 		imgGridResults += '</div>';
 
 		$("#imgGridResults").append(imgGridResults);
 
-		// Fetch frame và gán blob URL
-		const imgEl = document.getElementById('img' + imgId);
+		// Fetch frame bằng uniqueId
+		const imgEl = document.getElementById('img_' + uniqueId);
 		if (imgEl) {
 			fetchFrameAsBlob(imgEl);
 		}
@@ -3398,24 +3373,24 @@ function loadImagesFlat(startIndex, endIndex) {
 
 // Fetch frame bằng endpoint mới và gán blob URL cho <img>
 async function fetchFrameAsBlob(imgEl) {
-	try {
-		const videoName = imgEl.getAttribute('data-video');
-		const frameName = imgEl.getAttribute('data-frame');
-		if (!videoName || !frameName) return;
+    try {
+        const videoName = imgEl.getAttribute('data-video');
+        const frameName = imgEl.getAttribute('data-frame');
+        if (!videoName || !frameName) return;
 
-		const response = await fetch(host + '/frame', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ video: videoName, frame: frameName })
-		});
-		if (!response.ok) throw new Error('Frame fetch failed: ' + response.status);
-		const blob = await response.blob();
-		const url = URL.createObjectURL(blob);
-		imgEl.onload = () => URL.revokeObjectURL(url);
-		imgEl.src = url;
-	} catch (err) {
-		console.log('fetchFrameAsBlob error:', err);
-	}
+        const response = await fetch(host + '/frame', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ video: videoName, frame: frameName })
+        });
+        if (!response.ok) throw new Error('Frame fetch failed: ' + response.status);
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        imgEl.onload = () => URL.revokeObjectURL(url);
+        imgEl.src = url;
+    } catch (err) {
+        console.log('fetchFrameAsBlob error:', err);
+    }
 }
 
 function setPalette(palette) {
