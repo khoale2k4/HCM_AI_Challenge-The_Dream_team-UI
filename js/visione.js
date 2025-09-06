@@ -1558,7 +1558,7 @@ window.debugCanvasState = function () {
 	}
 };
 
-var batchSize = 200;
+var batchSize = 500;
 var visibleImages = 0;
 var resColIdx = 1;
 var resrowIdx = 0;
