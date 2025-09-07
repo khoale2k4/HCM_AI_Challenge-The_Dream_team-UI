@@ -96,6 +96,7 @@ var isColor = [];
 var occur = ['and'];
 var textualMode = ["all"];
 var simreorder = false;
+var imageCache = {};
 
 //var qbeUrl = ''
 var is43 = false;
@@ -1347,7 +1348,7 @@ function showResults(data) {
 						resColIdx = 1;
 						resrowIdx = 0;
 						visibleImages = 0;
-						loadImages(0, batchSize);
+						loadImages(fromIndex, fromIndex + batchSize);
 					}
 				} else {
 					console.log("Data is empty or invalid");
@@ -1561,7 +1562,8 @@ var resColIdx = 1;
 var resrowIdx = 0;
 
 // Set initial global variables
-var batchSize = 500;
+var batchSize = 50;
+var fromIndex = 1;
 var searchType = "QA";
 var questionNumber = 1;
 
@@ -1581,8 +1583,19 @@ function loadImages(startIndex, endIndex) {
 		var imgGridResults = ""
 		// Lấy dữ liệu từ mảng phẳng res
 		let item = res[i];
-		let imgId = item.imgId;
-		let videoId = item.videoId;
+		console.log(item);
+// 		{
+//     "score": 1,
+//     "videoId": "K20_V006.mp4",
+//     "imgId": "6334.jpg",
+//     "middleFrame": 1,
+//     "frame_idx": 381,
+//     "collection": "custom",
+//     "customVideo": "K20_V006.mp4",
+//     "customFrame": "6334.jpg"
+// }
+		let imgId = item.frame || item.imgId;
+		let videoId = item.video || item.videoId;
 		let score = item.score;
 
 		let path = videoId + "/" + imgId;
@@ -1641,8 +1654,8 @@ function loadImages(startIndex, endIndex) {
 		prevID = videoId;
 
 		// Tạo uniqueId và imgResult
-		let uniqueId = item.videoId + '_' + item.imgId.split('.')[0] + '_' + i;
-		resultData = getResultData(item.videoId, item.imgId, thumbnailPath, item.imgId, item.frame_idx, keyframePath, 1.0, videoUrl, videoUrlPreview, null, null, item.frame_idx);
+		let uniqueId = videoId + '_' + imgId.split('.')[0] + '_' + i;
+		resultData = getResultData(videoId, imgId, thumbnailPath, item.imgId, item.frame_idx, keyframePath, 1.0, videoUrl, videoUrlPreview, null, null, item.frame_idx);
 
 		if (resColIdx > 0 && (resColIdx + newLine) % numResultsPerVideo == 0) {
 			imgGridResults += '<div class="item column-span-1"></div>';
@@ -2923,6 +2936,28 @@ function selectPrevResult() {
 
 }
 
+function updateResultsView() {
+	// Clear existing results
+	var imgGrid = document.getElementById('imgGridResults');
+	if (imgGrid) {
+		imgGrid.innerHTML = '';
+	}
+
+	// Re-render the results with the new range
+	if (res && res.length > 0) {
+
+		let isTemporal = latestQuery.includes('"queries"');
+
+		if (latestQuery.includes('"task":"visual-kis"') || latestQuery.includes('"task":"textual-kis"')) {
+			loadImagesFlat(fromIndex, fromIndex + batchSize);
+		}
+		else if (isTemporal) {
+			loadImages(fromIndex, fromIndex + batchSize);
+		}
+	} else {
+		console.warn("No results to display.");
+	}
+}
 
 async function init() {
 	setTaskType(sessionStorage.getItem('taskType'));
@@ -2934,9 +2969,22 @@ async function init() {
 
 	// Get all the input elements by their correct IDs
 	var batchSizeInput = document.getElementById('batchSizeInput');
+	var fromInput = document.getElementById('fromInput');
 	var searchTypeDropdown = document.getElementById('searchTypeDropdown');
 	var questionNumberInput = document.getElementById('questionNumber');
 	// Add event listeners to update the variables
+	if (fromInput) {
+		fromInput.value = fromIndex; // Set initial value in the field
+		fromInput.addEventListener('change', function () {
+			var newStart = parseInt(this.value, 10);
+			if (newStart > 0) {
+				fromIndex = newStart;
+				updateResultsView();
+			} else {
+				this.value = fromIndex; // Revert to old value on invalid input
+			}
+		});
+	}
 	if (batchSizeInput) {
 		console.log('???????');
 		batchSizeInput.value = batchSize; // Set initial value in the field
@@ -2944,6 +2992,7 @@ async function init() {
 			var newSize = parseInt(this.value, 10);
 			if (newSize > 0) {
 				batchSize = newSize;
+				updateResultsView();
 				console.log("Batch size updated to: " + batchSize);
 			} else {
 				this.value = batchSize; // Revert to old value on invalid input
@@ -3434,7 +3483,7 @@ function showResultsFlat(data) {
 				} else {
 					console.log("Res length > 0, loading images flatly");
 					noResultsOutput(false);
-					loadImagesFlat(0, batchSize);
+					loadImagesFlat(fromIndex, fromIndex + batchSize);
 				}
 			} catch (e) {
 				console.log("Error processing data:", e);
@@ -3497,31 +3546,48 @@ function loadImagesFlat(startIndex, endIndex) {
 
 // Fetch frame bằng endpoint mới và gán blob URL cho <img>
 async function fetchFrameAsBlob(imgEl) {
-	try {
-		const videoName = imgEl.getAttribute('data-video');
-		const frameName = imgEl.getAttribute('data-frame');
-		if (!videoName || !frameName) {
-			console.log('fetchFrameAsBlob: Missing data attributes', { videoName, frameName });
-			return;
-		}
+    try {
+        const videoName = imgEl.getAttribute('data-video');
+        const frameName = imgEl.getAttribute('data-frame');
+        const cacheKey = `${videoName}_${frameName}`;
 
-		console.log('fetchFrameAsBlob: Fetching frame', { videoName, frameName });
-		const response = await fetch(host + '/frame', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ video: videoName, frame: frameName })
-		});
-		if (!response.ok) throw new Error('Frame fetch failed: ' + response.status);
-		const blob = await response.blob();
-		const url = URL.createObjectURL(blob);
-		imgEl.onload = () => URL.revokeObjectURL(url);
-		imgEl.src = url;
-		console.log('fetchFrameAsBlob: Successfully loaded frame for', { videoName, frameName });
-	} catch (err) {
-		console.log('fetchFrameAsBlob error:', err);
-		// Fallback to placeholder image on error
-		imgEl.src = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
-	}
+        // Bước 1: Kiểm tra bộ nhớ đệm
+        if (imageCache[cacheKey]) {
+            // Nếu hình ảnh đã có trong cache, sử dụng URL đã lưu
+            imgEl.src = imageCache[cacheKey];
+            console.log(`Using cached image for ${cacheKey}`);
+            return;
+        }
+
+        // Bước 2: Nếu không có trong cache, gửi yêu cầu fetch
+        const response = await fetch(host + '/frame', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                video: videoName,
+                frame: frameName
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+
+        // Bước 3: Lưu URL của blob vào bộ nhớ đệm
+        imageCache[cacheKey] = url;
+        console.log(`Fetched and cached image for ${cacheKey}`);
+
+        // Đặt src của thẻ <img> bằng URL blob
+        imgEl.src = url;
+
+    } catch (err) {
+        console.error('fetchFrameAsBlob error:', err);
+    }
 }
 
 function setPalette(palette) {
