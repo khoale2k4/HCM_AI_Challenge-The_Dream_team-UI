@@ -1904,7 +1904,7 @@ const imgResult = (res, borderColor, img_loading = "eager", uniqueId) => {
                    onclick="playVideoWindow('${customVideoUrl}', '${res.videoId}', '${res.imgId}', '${res.frame_idx}'); return false;">
                 </i>
             </a>
-            <span class="frame-idx" style="font-size: 13px; color: #333;">${res.videoId.split('.')[0]}, ${frameDisplayName || ''}</span>
+            <span class="frame-idx" style="font-size: 13px; color: #333;">${res.videoId.split('.')[0]}, ${res.frame_idx || ''}</span>
         </div>
     </div>
     `
