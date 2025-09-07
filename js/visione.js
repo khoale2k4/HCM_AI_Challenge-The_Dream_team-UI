@@ -757,7 +757,7 @@ function downloadCSV() {
 		// csvContent += "video,frame\n";
 		let limitedResults = res.slice(0, 100);
 		limitedResults.forEach(item => {
-			csvContent += `${item.video.split(".")[0]},${item.frame.split(".")[0]}\n`;
+			csvContent += `${item.video.split(".")[0]},${item.frame_idx}\n`;
 		});
 	}
 	// Check if the search was temporal (using search3)
@@ -785,7 +785,7 @@ function downloadCSV() {
 					temporalResults[item.videoId] = [];
 				}
 				// Push the frame number (e.g., "13830")
-				temporalResults[item.videoId].push(item.imgId.split(".")[0]);
+				temporalResults[item.videoId].push(item.frame_idx);
 			}
 		});
 
@@ -878,7 +878,7 @@ function search2(query) {
 					let normalized = data.map(item => ({
 						video: item.video,
 						frame: item.frame,
-						frame_idx: parseInt(item.frame)
+						frame_idx: item.frame_idx
 					}));
 					console.log('normalized. length', normalized.length)
 					setResults([{ video: "L22_V030.mp4", frame: '139.jpg', frame_idx: 2000 },
@@ -955,7 +955,7 @@ function search3(queries) {
 							return {
 								video: frameObj.video,
 								frame: frameObj.frame,
-								frame_idx: parseInt(frameObj.frame_idx || frameObj.frame)
+								frame_idx: frameObj.frame_idx
 							};
 						})
 					);
@@ -1878,7 +1878,7 @@ function hideOverlay(img_overlay) {
 
 const imgResult = (res, borderColor, img_loading = "eager", uniqueId) => {
 	jsonString = JSON.stringify(res);
-	let frameDisplayName = res.frameName || res.imgId;
+	let frameDisplayName = res.frame_idx || res.imgId;
 	let frameNumberDisplay = res.frame_idx !== undefined ? res.frame_idx : (res.frameNumber || res.middleFrame || '');
 
 	let isCustomFormat = res.customVideo && res.customFrame;
@@ -1904,7 +1904,7 @@ const imgResult = (res, borderColor, img_loading = "eager", uniqueId) => {
                    onclick="playVideoWindow('${customVideoUrl}', '${res.videoId}', '${res.imgId}', '${res.frame_idx}'); return false;">
                 </i>
             </a>
-            <span class="frame-idx" style="font-size: 13px; color: #333;">${res.videoId.split('.')[0]}, ${res.frame_idx || ''}</span>
+            <span class="frame-idx" style="font-size: 13px; color: #333;">${res.videoId.split('.')[0]}, ${frameDisplayName || ''}</span>
         </div>
     </div>
     `
@@ -1974,7 +1974,7 @@ async function playVideoWindow(videoURL, videoId, imgId, frame_idx) {
 			let data = await res.json();
 			// Sử dụng URL mới cho format custom
 			// http://127.0.0.1:5500/videoPlayer.html?url=http://14.225.241.236:8000/video/L22_V030.mp4&t=100
-			videoURL = "http://127.0.0.1:5500/videoPlayer.html?url=" + host + "/video/" + encodeURIComponent(resultItem.video ?? resultItem.videoId) + '&t=' + (frame_idx / data);
+			videoURL = "http://127.0.0.1:5500/videoPlayer.html?url=" + host + "/video/" + encodeURIComponent(resultItem.video ?? resultItem.videoId) + '&t=' + (parseInt(imgId) / data);
 			console.log("Using custom video URL:", videoURL);
 			// Với format mới, sử dụng frame_idx làm time nếu có, nếu không thì dùng middleFrame
 			time = resultItem.frame_idx !== undefined ? resultItem.frame_idx : (resultItem.middleFrame || 0);
