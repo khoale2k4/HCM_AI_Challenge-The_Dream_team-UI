@@ -817,7 +817,41 @@ function downloadCSV() {
 	}
 }
 
-function search2(query) {
+async function translateEng2Vie(value) {
+	if (value == null) return null;
+	const parts = value.split(/(".*?")/);
+	console.log("value", value);
+
+	const translatedParts = await Promise.all(
+		parts.map(async (part) => {
+			if (part.startsWith('"') && part.endsWith('"')) {
+				return part;
+			} else if (part.trim() === "") {
+				return part;
+			} else {
+				try {
+					console.log("translating")
+					const res = await fetch("http://14.225.241.236:8000/translate", {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify({ text: part }),
+					});
+					const data = await res.json();
+					return data || part;
+				} catch (err) {
+					console.error("Error translating:", err);
+					return part;
+				}
+			}
+		})
+	);
+
+	return translatedParts.join("");
+}
+
+async function search2(query) {
 	console.log("search2() called with query:", query);
 	console.log("urlVBSService:", urlVBSService);
 
@@ -835,8 +869,9 @@ function search2(query) {
 			console.log("Query:", query);
 			console.log("Request data:", { query: query, simreorder: simreorder, n_frames_per_row: numResultsPerVideo });
 			let obj = JSON.parse(query);
-			let textual = obj.query?.[0]?.textual || null;
+			let textual = (translate ? await translateEng2Vie(obj.query?.[0]?.textual || null) : obj.query?.[0]?.textual || null);
 			let ocr = obj.query?.[1]?.textual || null;
+			// alert("alert: " + textual + ", ocr: " + ocr);
 
 			// dev
 			// res = [
@@ -868,7 +903,7 @@ function search2(query) {
 					query: isAdvanced ? null : textual,
 					task: isAdvanced ? "visual-kis" : "textual-kis",
 					type: "non-temporal",
-					ocr: isAdvanced ? ocr : null,
+					ocr: isAdvanced ? null : ocr,
 					objects: isAdvanced ? getCanvas0Objects() : null,
 					colors: isAdvanced ? getCanvas0ColorsString() : null,
 					//{"query":[{"textual":"a"}], "parameters":[{"textualMode":"all"}]}
@@ -923,7 +958,7 @@ function search2(query) {
 	}
 }
 
-function search3(queries) {
+async function search3(queries) {
 	console.log("search3 called with queries:", queries);
 	res = null;
 	try {
@@ -933,9 +968,17 @@ function search3(queries) {
 		latestQuery = '"queries"'; // Set latestQuery for temporal search
 		console.log("Set latestQuery:", latestQuery);
 		var searchUrl = host;
+		if (translate) {
+			queries = await Promise.all(
+				queries.map(async (q) => {
+					return await translateEng2Vie(q);
+				})
+			);
+		}
 
 		console.log("Making temporal search AJAX request to:", searchUrl + '/temporal_search');
 		console.log("Request data:", JSON.stringify({ queries: queries }));
+
 		$.ajax({
 			type: "POST",
 			async: true,
@@ -1563,6 +1606,7 @@ var resrowIdx = 0;
 
 // Set initial global variables
 var batchSize = 50;
+var translate = false;
 var fromIndex = 1;
 var searchType = "QA";
 var questionNumber = 1;
@@ -1584,16 +1628,16 @@ function loadImages(startIndex, endIndex) {
 		// Lấy dữ liệu từ mảng phẳng res
 		let item = res[i];
 		console.log(item);
-// 		{
-//     "score": 1,
-//     "videoId": "K20_V006.mp4",
-//     "imgId": "6334.jpg",
-//     "middleFrame": 1,
-//     "frame_idx": 381,
-//     "collection": "custom",
-//     "customVideo": "K20_V006.mp4",
-//     "customFrame": "6334.jpg"
-// }
+		// 		{
+		//     "score": 1,
+		//     "videoId": "K20_V006.mp4",
+		//     "imgId": "6334.jpg",
+		//     "middleFrame": 1,
+		//     "frame_idx": 381,
+		//     "collection": "custom",
+		//     "customVideo": "K20_V006.mp4",
+		//     "customFrame": "6334.jpg"
+		// }
 		let imgId = item.frame || item.imgId;
 		let videoId = item.video || item.videoId;
 		let score = item.score;
@@ -1906,7 +1950,7 @@ const imgResult = (res, borderColor, img_loading = "eager", uniqueId) => {
                  src="${res.thumb}" 
              data-video="${res.customVideo || res.videoId}" 
              data-frame="${res.customFrame || res.imgId}"
-                 onerror="fetchFrameAsBlob(this)" />
+				 />
         </div>
         <div id="toolbar_icons_${uniqueId}" style="display: flex; align-items: center; gap: 6px;">
             <a href="#" title="Play Video">
@@ -2971,8 +3015,17 @@ async function init() {
 	var batchSizeInput = document.getElementById('batchSizeInput');
 	var fromInput = document.getElementById('fromInput');
 	var searchTypeDropdown = document.getElementById('searchTypeDropdown');
+	var translateCheckbox = document.getElementById(`isTranslateButton`);
 	var questionNumberInput = document.getElementById('questionNumber');
-	// Add event listeners to update the variables
+	if (translateCheckbox) {
+		translateCheckbox.addEventListener("change", (e) => {
+			if (e.target.checked) {
+				translate = true;
+			} else {
+				translate = false;
+			}
+		});
+	}
 	if (fromInput) {
 		fromInput.value = fromIndex; // Set initial value in the field
 		fromInput.addEventListener('change', function () {
@@ -3546,48 +3599,49 @@ function loadImagesFlat(startIndex, endIndex) {
 
 // Fetch frame bằng endpoint mới và gán blob URL cho <img>
 async function fetchFrameAsBlob(imgEl) {
-    try {
-        const videoName = imgEl.getAttribute('data-video');
-        const frameName = imgEl.getAttribute('data-frame');
-        const cacheKey = `${videoName}_${frameName}`;
+	try {
+		const videoName = imgEl.getAttribute('data-video');
+		const frameName = imgEl.getAttribute('data-frame');
+		const cacheKey = `${videoName}_${frameName}`;
 
-        // Bước 1: Kiểm tra bộ nhớ đệm
-        if (imageCache[cacheKey]) {
-            // Nếu hình ảnh đã có trong cache, sử dụng URL đã lưu
-            imgEl.src = imageCache[cacheKey];
-            console.log(`Using cached image for ${cacheKey}`);
-            return;
-        }
+		// Bước 1: Kiểm tra bộ nhớ đệm
+		if (imageCache[cacheKey]) {
+			// Nếu hình ảnh đã có trong cache, sử dụng URL đã lưu
+			imgEl.src = imageCache[cacheKey];
+			console.log(`Using cached image for ${cacheKey}`);
+			return;
+		}
 
-        // Bước 2: Nếu không có trong cache, gửi yêu cầu fetch
-        const response = await fetch(host + '/frame', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                video: videoName,
-                frame: frameName
-            })
-        });
+		// Bước 2: Nếu không có trong cache, gửi yêu cầu fetch
+		const response = await fetch(host + '/frame', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				video: videoName,
+				frame: frameName
+			})
+		});
 
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
+		if (!response.ok) {
+			throw new Error('Network response was not ok');
+		}
 
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
+		const blob = await response.blob();
+		const url = URL.createObjectURL(blob);
 
-        // Bước 3: Lưu URL của blob vào bộ nhớ đệm
-        imageCache[cacheKey] = url;
-        console.log(`Fetched and cached image for ${cacheKey}`);
+		// Bước 3: Lưu URL của blob vào bộ nhớ đệm
+		imageCache[cacheKey] = url;
+		console.log(`Fetched and cached image for ${cacheKey}`);
 
-        // Đặt src của thẻ <img> bằng URL blob
-        imgEl.src = url;
+		// Đặt src của thẻ <img> bằng URL blob
+		imgEl.src = url;
 
-    } catch (err) {
-        console.error('fetchFrameAsBlob error:', err);
-    }
+	} catch (err) {
+		imgEl.src = 'img/not-found.png';
+		console.error('fetchFrameAsBlob error:', err);
+	}
 }
 
 function setPalette(palette) {

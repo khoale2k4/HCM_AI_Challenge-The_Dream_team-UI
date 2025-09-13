@@ -2052,15 +2052,21 @@
         <div id="div_textual0">
           <div class="Icon-inside">
             <textarea id="textual0" type="text" class="font-normal textualquery0" cols="40"
-              placeholder="Describe the scene you are looking for..." on=""></textarea>
+              placeholder="Describe the scene you are looking for..."></textarea>
+            <i class="fa fa-search fa-lg fa-fw" style="left:10px; color:gray;"></i>
             <i id="cancelText0" class="fa fa-times fa-lg fa-fw" aria-hidden="true"
               style="right:30px; color:gray; display:none"></i>
-            <i class="fa fa-search fa-lg fa-fw" style="left:10px; color:gray;"></i>
-            <i id="cancelText0" class="fa fa-magnifying fa-2xl fa-fw" aria-hidden="true"
-              style="left:10px; color:gray;"></i>
           </div>
         </div>
-        <div class="textualOptions0" id="textualOptions0">
+
+        <div id="div_ocr" style="margin-top: 5px;">
+          <div class="Icon-inside">
+            <textarea id="textual1" class="font-normal textualquery0" cols="40" placeholder="OCR..."
+              style="height: 40px;"></textarea>
+            <i class="fa fa-search fa-lg fa-fw" style="left: 10px; color: gray;"></i>
+            <i id="cancelText1" class="fa fa-times fa-lg fa-fw" aria-hidden="true"
+              style="right:30px; color:gray; display:none"></i>
+          </div>
         </div>
       </div>
 
@@ -2076,8 +2082,16 @@
               style="left:10px; color:gray;"></i>
           </div>
         </div>
+
+        <span style="padding-right: 1em; display: inline-flex; align-items: center;" id="translateButton">
+          <input type="checkbox" name="isTranslateButton" id="isTranslateButton">
+          <label for="isTranslateButton" class="font-tiny">
+            <img width="24" src="img/translate.png">
+          </label>
+        </span>
+        
         <div id="temporal-queries-container"
-          style="margin-top: 45px; width: 28vw; position: relative; z-index: 1; clear: both;">
+          style="margin-top: 5px; width: 28vw; position: relative; z-index: 1; clear: both;">
           <!-- Dynamic textareas will be added here -->
         </div>
         <div id="temporal-controls" style="margin-top: 5px; text-align: center; position: relative; z-index: 1000;">
@@ -2098,6 +2112,7 @@
 
 
     </div>
+
     <div class="bodyGrid" style="grid-template-columns: 1fr 4.2fr 0.3fr;">
       <div class="sidebarGrid" id="searchSidebar" style="width: 310px;">
         <div class="advanced" style="display: block;">
@@ -2230,13 +2245,6 @@
                 <div colspan="13" title="Scene Description">
                   <input id="annotations0" type="text" size="0" style="display: none;" class="ui-autocomplete-input"
                     autocomplete="off">
-                </div>
-
-                <div class="advanced" colspan="13" title="Max Objects Number" style="display: block;">
-                  <textarea id="textual1" class="font-normal" cols="38" rows="2"
-                    style="width:275px; border-radius: 6px;" placeholder="OCR..."></textarea>
-                  <div id="textual0_container" colspan="12" title="Scene Description">
-                  </div>
                 </div>
 
                 <!-- <div class="advanced" style="display: block;">
