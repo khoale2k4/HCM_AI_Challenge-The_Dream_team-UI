@@ -870,7 +870,7 @@ async function search2(query) {
 			console.log("Request data:", { query: query, simreorder: simreorder, n_frames_per_row: numResultsPerVideo });
 			let obj = JSON.parse(query);
 			let textual = (translate ? await translateEng2Vie(obj.query?.[0]?.textual || null) : obj.query?.[0]?.textual || null);
-			let ocr = obj.query?.[1]?.textual || null;
+			let ocr = obj.query?.[0]?.ocr || obj.query?.[1]?.ocr || null;
 			// alert("alert: " + textual + ", ocr: " + ocr);
 
 			// dev
@@ -3087,7 +3087,7 @@ async function init() {
 
 				var queryArr = [];
 				if (text0) queryArr.push({ textual: text0 });
-				if (text1) queryArr.push({ textual: text1 });
+				if (text1) queryArr.push({ ocr: text1 });
 
 				var queryParameters = { textualMode: textualMode[0] };
 				var jsonString = JSON.stringify({
