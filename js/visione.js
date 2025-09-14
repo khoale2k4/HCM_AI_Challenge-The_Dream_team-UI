@@ -3083,7 +3083,7 @@ async function init() {
 				var text0 = $('#textual0').val().trim();
 				var text1 = $('#textual1').val().trim();
 
-				console.log("Textual0:", text0, "Textual1:", text1);
+				console.log("Textual0:", text0, "OCR:", text1);
 
 				var queryArr = [];
 				if (text0) queryArr.push({ textual: text0 });
